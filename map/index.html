@@ -717,9 +717,8 @@
 <!-- Matches filterFields and headerFixed height -->
 <div class="headerOffset2" style="height:56px">&nbsp;</div>
 
-<div id="pageLinksHolder" class="contentpadding" style="display:none; padding-top:0; padding-bottom:0">
+<div id="pageLinksHolder" class="content contentpadding" style="display:none; padding-top:0; padding-bottom:0">
   <br>
-  <div style="display:table-row;">
     
     <div style="float:right; padding: 12px 0px 10px 0" class="noprint">
       <a href="https://neighborhood.org/io/charts/">About Widgets</a>
@@ -742,7 +741,7 @@
             <br>
         </div>
 
-  </div>
+  
 </div>
 
 <!-- Settings Panel -->
@@ -1365,12 +1364,14 @@ dual_map.init(["somevalue", 1, "controlId"]); // Used by link to feedback form
 //dual_map.helloWorld();
 //dual_map.community_root();
 
-console.log("This page replaces community/impact. Call loadMap1() in map.js but we need dp. Also below.")
-loadMap1(dp);
+console.log("This page replaces community/impact. Call loadMap1() in map.js but we need dp. Also below.");
+param.show = "farmfresh"; // Used by loadFromCSV which is called by loadMap1
+var map = loadMap1(dp);
 
 // Append railroads here, somehow
 //layerControl['map1'].addOverlay(baselayers["Rail"], "Railroads"); // Appends to existing layers
 //layerControl['map2'].addOverlay(baselayers["Rail"], "Railroads"); // Appends to existing layers
+//map.addOverlay(baselayers["Rail"], "Railroads"); // Appends to existing layers
 
 window.onhashchange = function() {
   //param = loadParam(location.search,location.hash);

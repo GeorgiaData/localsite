@@ -36,12 +36,15 @@ $(document).ready(function(){
  	if (climbpath == "") {
  		climbpath += "./"; // Eliminates ? portion of URL
  	}
-
+ 	if(location.host.indexOf('localhost') < 0) {
+ 		// To do: allow "Input-Output Map" link in footer to remain relative.
+ 		climbpath = "https://model.earth/" + climbpath;
+ 	}
  	if (param.showhero != "false") {
  		if(location.host.indexOf('georgia') >= 0) { 
 	 		$("body").prepend( "<div class='headerImage'><img src='" + climbpath + "../io/img/hero/sustainable-communities.jpg' style='width:100%'></div>");
 	 	}
-	 }
+	}
  	$("body").wrapInner( "<div id='fullcolumn'></div>"); // Creates space for sidecolumn
  	if(document.getElementById("sidecolumn") == null) {
  		$("body").prepend( "<div id='sidecolumn' class='hideprint'></div>\r" );
@@ -60,13 +63,12 @@ $(document).ready(function(){
  		// LOAD HEADER.HTML
  		let headerFile = climbpath + "../localsite/header.html";
  		if (slash_count <= 4) { // Folder is the root of site
- 			headerFile = climbpath + "../header.html";
+ 			// Currently avoid since "https://model.earth/" is prepended to climbpath above.
+ 			//headerFile = climbpath + "../header.html";
  		}
  		if (param.headerFile) {
- 			//alert(param.headerFile)
  			headerFile = param.headerFile;
  		}
- 		// But what if we are at the root of a site and there is no localhost folder?
 
 		if (param.header) headerFile = param.header;
 	 	$("#header").load(headerFile, function( response, status, xhr ) {
@@ -107,13 +109,13 @@ $(document).ready(function(){
   			$('.neighborhood').css('display', 'inline');
 	 	} else if (param.startTitle == "Model Earth" || location.host.indexOf('model') >= 0) {
 	 		param.titleArray = ["model","earth"]
-  			param.headerLogo = "<img src='/community/img/logo/neighborhood-icon.png' style='width:26px;opacity:0.9;margin-right:0.8px'>"
+  			param.headerLogo = "<img src='/community/img/logo/favicon.png' style='width:26px;opacity:0.9;margin-right:0.8px'>"
   			document.title = "Model Earth - " + document.title
-  			changeFavicon(climbpath + "../localsite/img/logo/neighborhood-icon.png")
+  			changeFavicon(climbpath + "../community/img/logo/favicon.png")
   			$('.earth').css('display', 'inline'); 
 	 	} else if (!Array.isArray(param.titleArray)) {
 	 		param.titleArray = ["neighbor","hood"]
-	 		param.headerLogo = "<img src='/atlanta/img/logo/neighborhood-icon.png' style='width:40px;opacity:0.7'>"
+	 		param.headerLogo = "<img src='/localsite/img/logo/neighborhood-icon.png' style='width:40px;opacity:0.7'>"
 	 		changeFavicon("/atlanta/img/logo/neighborhood-icon.png")
 	 	}
 
