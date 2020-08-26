@@ -19,13 +19,20 @@
 <body>
 
 <div class="content contentpadding">
+	<div class="rightside fullMobile" style="border:1px solid #aaa; padding:10px">
+      <a href="https://model.earth/community/challenge/"><img src="https://model.earth/community/img/overview/banner-1.png" style="width:270px;"></a>
+    </div>
+
 	<div id="introDiv"></div>
 	<div id="readmeDiv"></div>
+	<hr><br>
+	<div id="moreDiv"></div>
 </div>
 
 <script>
 	loadMarkdown("intro.md", "introDiv", "_parent");
     loadMarkdown("README.md", "readmeDiv", "_parent");
+    loadMarkdown("more.md", "moreDiv", "_parent");
 </script>
 
 </body>
