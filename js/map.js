@@ -783,11 +783,12 @@ function loadMap1(dp) { // Also called by map-filters.js
     dp1.listLocation = false;
     dp1.addLink = "https://www.georgia.org/covid19response"; // Not yet used
   } else if (param["show"] == "suppliers") { // "http://" + param["domain"]
+
     dp1.listTitle = "Georgia COVID-19 Response";
     dp1.listTitle = "Georgia Suppliers of&nbsp;Critical Items <span style='white-space:nowrap'>to Fight COVID-19</span>"; // For iFrame site
 
-    dp1.listInfo = "Select a category to the left to filter results. View&nbsp;<a href='https://www.georgia.org/sites/default/files/2020-08/ga_suppliers_list_8-26-2020.pdf ' target='_parent'>PDF&nbsp;version</a>&nbsp;of&nbsp;the&nbsp;complete&nbsp;list.";
-    dp1.dataset = "https://mygeorgia.org/display/products/suppliers/us_ga_suppliers_ppe_2020_08_26.csv";
+    dp1.listInfo = "Select a category to the left to filter results. View&nbsp;<a href='https://www.georgia.org/sites/default/files/2020-09/ga_suppliers_list_9-9-2020.pdf' target='_parent'>PDF&nbsp;version</a>&nbsp;of&nbsp;the&nbsp;complete&nbsp;list.";
+    dp1.dataset = "https://mygeorgia.org/display/products/suppliers/us_ga_suppliers_ppe_2020_09_02.csv";
     //dp1.dataset = "/display/products/suppliers/us_ga_suppliers_ppe_2020_06_17.csv";
 
     dp1.dataTitle = "Manufacturers and Distributors";
@@ -880,7 +881,7 @@ function loadMap1(dp) { // Also called by map-filters.js
 
     dp1.addlisting = "https://www.ams.usda.gov/services/local-regional/food-directories-update";
 
-    dp1.listInfo = "Green locations offer <span style='white-space: nowrap'>prepared food<br>Please call ahead to arrange pickup or delivery.</span><br>You can help keep this data current. <a style='white-space: nowrap' href='../farmfresh'>Learn about data</a>";
+    dp1.listInfo = "Green locations offer <span style='white-space: nowrap'>prepared food<br>Please call ahead to arrange pickup or delivery.</span><br>You can help keep this data current. <a style='white-space: nowrap' href='https://model.earth/community/farmfresh/'>Learn about data</a>";
   }
 
   // Load the map using settings above

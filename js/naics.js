@@ -219,6 +219,9 @@ function ready(values) {
                     if (document.getElementById("clearButton")) {
                         document.getElementById("clearButton").addEventListener("click", function(){
                             clearHash("geo,regiontitle");
+
+                            // BUGBUG - This causes industry list removal and commodity list reduction.
+                            // Problem occurred before adding applyIO function and the newer script it contains.
                             geoChanged(dataObject)
                         }); 
                     }
@@ -519,12 +522,11 @@ function topRatesInFips(dataSet, dataNames, fips, params){
                     which_state=params.catsort+'_agg'
                     
                 }
-                
                 // NAICS FROM community/projects/biotech
                 var bio_input = "113000,321113,113310,32121,32191,562213,322121,322110,"; // Omitted 541620
                 var bio_output = "325211,325991,3256,335991,325120,326190,";
                 var green_energy = "221117,221111,221113,221114,221115,221116,221118,";
-                var fossil_energy = "221112,324110";
+                var fossil_energy = "221112,324110,325110,";
                 var parts = "336111,336330,336340,336360,336370,336390,333613,336412,336413,335910,335912,339110,333111,325211,325520,326112,326220,331221,332211";
                 var parts_carpets = "314110,313110,313210"
 
@@ -1038,8 +1040,12 @@ function topRatesInFips(dataSet, dataNames, fips, params){
                         
                         } // End naics rows
 
+                        console.log('send naics to #industry-list data-naics attribute: ' + naicshash)
+
                         // Send to USEEIO Widget
-                        $('#industry-list').attr('data-naics', naicshash);
+                        //$('#industry-list').attr('data-naics', naicshash);
+                        applyIO(naicshash);
+                        updateMosic(naicshash);
 
                         //updateHash({"naics":naicshash});
                         //params = loadParams(location.search,location.hash);
@@ -1052,7 +1058,7 @@ function topRatesInFips(dataSet, dataNames, fips, params){
                     if (params.go == "bioeconomy") {
                         $(".regiontitle").text("Bioeconomy and Fossil Fuel Industries");
                     } else if (params.go == "parts") {
-                        $(".regiontitle").text("Automotive Parts Manufacturing");
+                        $(".regiontitle").text("Parts Manufacturing");
                     } else if (params.go == "manufacturing") {
                         $(".regiontitle").text("Manufacturing");
                     }
@@ -1107,7 +1113,7 @@ function topRatesInFips(dataSet, dataNames, fips, params){
                         if (params.go == "bioeconomy") {
                             $(".regiontitle").text("Bioeconomy and Fossil Fuel Industries");
                         } else if (params.go == "parts") {
-                            $(".regiontitle").text("Automotive Parts");
+                            $(".regiontitle").text("Parts Manufacturing");
                         } else if (params.go == "manufacturing") {
                             $(".regiontitle").text("Manufacturing");
                         } else {

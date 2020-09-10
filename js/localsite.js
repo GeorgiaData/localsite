@@ -19,7 +19,7 @@ var dual_map = dual_map || (function(){
         localsite_root : function() {
             let root = location.protocol + '//' + location.host + '/localsite/';
             if (location.host.indexOf('localhost') < 0) {
-              root = "https://neighborhood.org/localsite/";
+              //root = "https://neighborhood.org/localsite/";
             }
             return (root);
         },
@@ -361,9 +361,9 @@ function formatRow(key,value,level,item) {
       //addHtml += formatRow(c,value[c],level);
       addHtml += "<div class='level" + level + "'>" + value + "&nbsp;</div>\n";
     }
-  } else if (key == "url") {
+  } else if (key == "url" || key == "hdurl") { // hdurl from NASA
       addHtml += "<a href='" + value + "'>" + value + "</a>"
-  } else if (key.indexOf("Uri")>=0) {
+  } else if (key.indexOf("Uri")>=0 && value) {
       uriLink = (value.indexOf("http")==0) ? value : "https://" + value; // Brittle
       addHtml += "<a href='" + uriLink + "'>" + value + "</a>"
   } else if (key == "logo") {

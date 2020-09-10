@@ -94,15 +94,7 @@
 
 <!-- Start HTML -->
 
-<style>
-  svg{ max-width:none; } /* Fix for embedding material icon map points in Drupal */
-</style>
-
 <!-- FILTERS -->
-<!--
-  Sample indicator:weight hash value: #census=pop>180:25;edu:50;work:50;pov>15;ypov>10;apov>8;spov>4
-  https://datascape.github.io/community/#columns=population:31;education:50
--->
 <div id="headerFixed" class="filterPanel">
   <div class="headerOffset headerOffsetOne">&nbsp;</div>
 
@@ -218,7 +210,7 @@
       <div style="float:left;">
 
 
-            <div style="overflow: visible;display:none" class="local filterField searchElements mock-up">
+            <div style="overflow:visible; display:none" class="filterField searchElements mock-up earth">
                 <div class="filterLabel">
                   <div class="filterLabelMain">
                     Where
@@ -725,7 +717,7 @@
   <br>
     
     <div style="float:right; padding: 12px 0px 10px 0" class="noprint hideMobile">
-      <a href="https://neighborhood.org/io/charts/">About Widgets</a>
+      <a href="https://model.earth/io/charts/">About Widgets</a>
     </div>
     <!--
       class="mainColumn mainColumn1" 
@@ -737,11 +729,11 @@
             <a onClick="go({'go':'','show':'farmfresh'}); return false;" href="./#show=farmfresh">Fresh Produce</a> | 
             </span>
             <a onClick="goHash({'go':'manufacturing','show':''}); return false;" href="./#go=manufacturing">Manufacturing</a> | 
-            <a onClick="goHash({'go':'parts','show':''}); return false;" href="./#go=parts">Parts Manufacturing</a> | 
-            <span class="local" style="display:none">
+            <a onClick="goHash({'go':'parts','show':''}); return false;" href="./#go=parts">Parts Manufacturing</a> 
+            <span class="local" style="display:none"> | 
             <a onClick="goHash({'go':'','show':'suppliers'}); return false;" href="./#show=suppliers">PPE Suppliers</a> | 
             </span>
-            <a onClick="goHash({'geomap':'true'}); return false;" href="./#geomap=US13">County&nbsp;Map</a>
+            <a style="display:none" onClick="goHash({'geomap':'true'}); return false;" href="./#geomap=US13">County&nbsp;Map</a>
             <br>
         </div>
 
@@ -922,10 +914,32 @@
 
 <div style="clear:both"></div>
 
+<!-- APP MENU -->
+<!-- From map-filters.js displayBigThumbnails function -->
+<!-- Currently map-filters.js limits loading to localhost -->
+<div id="honeycombPanelHolder" style="display:none; margin-top:30px; margin-bottom:25px; overflow:auto;">
+  
+  <!--div id="honeycombPanel"-->
+  <div id="honeycombPanel" style="display: block;">
+    <a name="sections"></a>
+    
+    <div class="bigThumbMenu widthColumns" style="margin:0 auto; "></div>
+
+    <div id="honeyMenuHolder" style="display:none">
+      <div id="honeycombMenu"></div>
+    </div>
+
+      <br><br>
+      
+  </div>
+</div>
+<div style="clear:both"></div>
+<!-- /APP MENU -->
+
 
 <div class="displayOnload" style="display:none;position:relative">
 <div id="map1"></div>
-<div id="legendHolder">
+<div id="legendHolder" style="">
   <div id="allLegends"></div>
 </div>
 </div>
@@ -1032,27 +1046,6 @@
 
 <div id="list_main" style="overflow:auto; background: #fff">
 
-<!-- APP MENU -->
-<!-- From map-filters.js displayBigThumbnails function -->
-<!-- Currently map-filters.js limits loading to localhost -->
-<div id="honeycombPanelHolder" style="display:none; margin-top:30px; margin-bottom:50px;">
-  
-  <!--div id="honeycombPanel"-->
-  <div id="honeycombPanel" style="display: block;">
-    <a name="sections"></a>
-    
-    <div class="bigThumbMenu widthColumns" style="margin:0 auto; "></div>
-
-    <div id="honeyMenuHolder" style="display:none">
-      <div id="honeycombMenu"></div>
-    </div>
-
-      <br><br>
-      
-  </div>
-</div>
-<div style="clear:both"></div>
-<!-- /APP MENU -->
 
 
 <section class="data-section" id="data" style="overflow:auto">
@@ -1369,7 +1362,9 @@ dual_map.init(["somevalue", 1, "controlId"]); // Used by link to feedback form
 //dual_map.community_root();
 
 console.log("This page replaces community/impact. Call loadMap1() in map.js but we need dp. Also below.");
-param.show = "farmfresh"; // Used by loadFromCSV which is called by loadMap1
+if (!param.show) {
+  param.show = "farmfresh"; // Used by loadFromCSV which is called by loadMap1
+}
 var localmap = loadMap1(dp);
 
 // Append railroads here, somehow

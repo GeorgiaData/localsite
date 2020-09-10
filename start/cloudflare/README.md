@@ -11,8 +11,7 @@ You can transfer an existing domain to Cloudflare for cheaper hosting.
 
 - Select "Full"
 - Always Use HTTPS - On
-- Auto Minify - All 3
-- Brotli compression - On
+
 
 Go to "SSL/TLS > Edge Certificates"  
 
@@ -24,10 +23,15 @@ Video 2: Under the same tab
 https://www.youtube.com/watch?time_continue=1&v=mVzdEl5G0iM
 -->
 
-Enable HSTS - Turn on all 4, set Max Age Header to 12 months. (6 months is too short for hstspreload.org)  
+Click "Enable HSTS" - Turn on all 4, set Max Age Header to 12 months. (6 months is too short for hstspreload.org)  
 
-Set to: Minimum TSL 1.2  
+Minimum TLS Version: Minimum TSL 1.2  
 Below, leave the default of "TLS 1.3" as "On"  
+
+Under "Speed > Optimization"
+
+- Auto Minify - All 3
+- Brotli compression - On (the default)
 
 Click two checkboxes here so browsers always preload as https: [hstspreload.org](https://hstspreload.org)  
 
@@ -37,11 +41,12 @@ On same tab, keep on "Automatic HTTPS Rewrites" (is now already ON by default)
 
 Optional: Test with ssllabs.com (after 24 hours)  
 
-### Add a wildcard redirect under "Page Rule"
+### You won't be able to add a true wildcard redirect under "Page Rule"
+
+Redirects only works for subdomains that are entered in the Cloudflare DNS list.  
 
 Choose "Forwarding URL"  
 
-*.yourdomain.com/*  
+\*.yourdomain.com/\*  
 https://yourdomain.com/#go=$2  
 
-Only works for subdomains that are in the DNS list.  

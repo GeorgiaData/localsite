@@ -11,20 +11,20 @@
 
 var strVar="";
 
-// STYLE OVERRIDES
-strVar += "<style>";
+// STYLE OVERRIDES FOR DRUPAL
+strVar += "<style type='text/css'>";
 strVar += "#legendHolder {min-width: 270px;}";
 strVar += ".component--custom_markup > .content {max-width:100%}"; // Drupal container
 strVar += ".component--main_content, .component--single_column_content {padding:0px}"; // Remove padding between text and map in Drupal.
 //strVar += "p {margin: 0 0 2.2rem;}"; // Overrides Drupal 3.4rem bottom
+strVar += "svg {max-width:none;}"; // Fix for embedding material icon map points in Drupal
+strVar += ".visually-hidden {display: none !important;}"; // Hide text in c19 Drupal top nav
 strVar += "<\/style>";
 
 // Omit var strVar=""; here
 strVar += "<!-- Start HTML -->";
 strVar += "";
-strVar += "<style>";
-strVar += "  svg{ max-width:none; } \/* Fix for embedding material icon map points in Drupal *\/";
-strVar += "<\/style>";
+
 strVar += "";
 strVar += "<!-- FILTERS -->";
 strVar += "<!--";
@@ -146,7 +146,7 @@ strVar += "      <!-- LOCATION SEARCH - currently inactive - copy script from si
 strVar += "      <div style=\"float:left;\">";
 strVar += "";
 strVar += "";
-strVar += "            <div style=\"overflow: visible;display:none\" class=\"local filterField searchElements mock-up\">";
+strVar += "            <div style=\"overflow: visible;display:none\" class=\"filterField searchElements mock-up earth\">";
 strVar += "                <div class=\"filterLabel\">";
 strVar += "                  <div class=\"filterLabelMain\">";
 strVar += "                    Where";
@@ -653,7 +653,7 @@ strVar += "<div id=\"pageLinksHolder\" class=\"content contentpadding\" style=\"
 strVar += "  <br>";
 strVar += "    ";
 strVar += "    <div style=\"float:right; padding: 12px 0px 10px 0\" class=\"noprint hideMobile\">";
-strVar += "      <a href=\"https:\/\/neighborhood.org\/io\/charts\/\">About Widgets<\/a>";
+strVar += "      <a href=\"https:\/\/model.earth\/io\/charts\/\">About Widgets<\/a>";
 strVar += "    <\/div>";
 strVar += "    <!--";
 strVar += "      class=\"mainColumn mainColumn1\" ";
@@ -665,11 +665,11 @@ strVar += "            <span class=\"local\" style=\"display:none\">";
 strVar += "            <a onClick=\"go({'go':'','show':'farmfresh'}); return false;\" href=\".\/#show=farmfresh\">Fresh Produce<\/a> | ";
 strVar += "            <\/span>";
 strVar += "            <a onClick=\"goHash({'go':'manufacturing','show':''}); return false;\" href=\".\/#go=manufacturing\">Manufacturing<\/a> | ";
-strVar += "            <a onClick=\"goHash({'go':'parts','show':''}); return false;\" href=\".\/#go=parts\">Parts Manufacturing<\/a> | ";
+strVar += "            <a onClick=\"goHash({'go':'parts','show':''}); return false;\" href=\".\/#go=parts\">Parts Manufacturing<\/a> ";
 strVar += "            <span class=\"local\" style=\"display:none\">";
-strVar += "            <a onClick=\"goHash({'go':'','show':'suppliers'}); return false;\" href=\".\/#show=suppliers\">PPE Suppliers<\/a> | ";
+strVar += "            | <a onClick=\"goHash({'go':'','show':'suppliers'}); return false;\" href=\".\/#show=suppliers\">PPE Suppliers<\/a> | ";
 strVar += "            <\/span>";
-strVar += "            <a onClick=\"goHash({'geomap':'true'}); return false;\" href=\".\/#geomap=US13\">County&nbsp;Map<\/a>";
+//strVar += "            <a onClick=\"goHash({'geomap':'true'}); return false;\" href=\".\/#geomap=US13\">County&nbsp;Map<\/a>";
 strVar += "            <br>";
 strVar += "        <\/div>";
 strVar += "";

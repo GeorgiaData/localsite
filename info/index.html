@@ -18,8 +18,8 @@
 <!--
 <link rel="stylesheet" type="text/css" href="../../localsite/css/bootstrap.darkly.min.css"/>
 -->
-<link rel="stylesheet" type="text/css" href="https://neighborhood.org/io/charts/useeio/widgets.css">
-<script src="https://neighborhood.org/io/charts/useeio/lib/useeio_widgets.js"></script>
+<link rel="stylesheet" type="text/css" href="../../io/build/widgets.css">
+<script src="../../io/build/lib/useeio_widgets.js"></script>
 
 <!-- LOCAL DEV -->
 <!--
@@ -402,11 +402,11 @@ function refreshWidgets() {
 <!-- to do: load top hero here when no go or geo. -->
 
 
+<!-- location filters, location map and list -->
+<!-- optional: ?show=smart -->
 
-
-<!-- map and list -->
-<script type="text/javascript" src="../js/map-embed.js?show=smart"></script>
-<!-- /map and list -->
+<script type="text/javascript" src="../js/map-embed.js"></script>
+<!-- /location filters, location map and list -->
 
 <div style="clear:both"></div>
 
@@ -522,7 +522,7 @@ To do: make the links below an optional widget
 	<hr>
 
 	<div style="float:right;margin-bottom:16px" class="noprint">
-		<a href="https://neighborhood.org/io/charts/">About Widgets</a>
+		<a href="https://model.earth/io/charts/">About Widgets</a>
 	</div>
 </div>
 
@@ -586,12 +586,11 @@ Choose commodities below to view upstream input and downstream output.<br>
 <!-- change endpoint when adding to page -->
 
 <script>
-
-    var config = useeio.urlConfig();
-    var modelID = config.get().model || 'USEEIO';
+function applyIO(naics) { // Called from naics.js
+    var modelID = 'USEEIO';
 
     var model = useeio.model({
-        endpoint: '/io/charts/useeio/api',
+        endpoint: '/io/build/api',
         model: modelID,
         asJsonFiles: true,
     });
@@ -611,13 +610,7 @@ Choose commodities below to view upstream input and downstream output.<br>
         selector: '#outputs',
     })
 
-    config.withDefaults({
-        count: 10,
-    });
-    config.join(inputs);
-    config.join(industryList);
-    config.join(outputs);
-
+    /*
     var naics = '11,45,62,211,314,331,425,452,488,521,561,721,925,1122,'
         + '1151,2213,2389,3121,3161,3251,3272,3322,3333,3346,'
         + '3366,4234,4245,4422,4482,4541,4851,4872,4922,5174,'
@@ -647,10 +640,44 @@ Choose commodities below to view upstream input and downstream output.<br>
         + '621493,622310,624210,711211,712190,713990,722330,'
         + '811121,811411,812210,812990,813920,921190,923130,'
         + '926150';
+	*/
+    //naics = '221100'; // TEMP
+    //naics = '';
 
-    document.querySelector('#industry-list')
-        .setAttribute('data-naics', naics);
+    // Add bioeconomy
+    //naics = naics + "311615,311812,321113,221112,113310,322110,311821,311612,325211,311813,311911,311919,311830,311119,322121,311824,311941,325991,311710,311930";
 
+    var naicsCodes = naics.split(',');
+    var handled = {};
+    var beaCodes = naicsCodes.map(useeio.toBEA)
+        .filter(function (code) {
+            // remove unmapped codes and duplicates
+            if (!code || handled[code])
+                return false;
+            handled[code] = true;
+            return true;
+        });
+
+    var config = {
+        count: 40,
+        naics: naicsCodes,
+        sectors: beaCodes,
+    };
+
+    inputs.update(config);
+    outputs.update(config);
+    industryList.update(config);
+    industryList.onChanged(function (change) {
+        for (var prop in change) {
+            if (change.hasOwnProperty(prop)) {
+                config[prop] = change[prop];
+            }
+        }
+        inputs.update(config);
+        outputs.update(config);
+        industryList.update(config);
+    });
+}
 </script>
 
 </div>
@@ -660,19 +687,33 @@ Choose commodities below to view upstream input and downstream output.<br>
 
 
 <!-- MOSAIC HEATMAP -->
+<style>
+::-webkit-scrollbar {
+   -webkit-appearance: none;
+   width: 7px;
+}
+::-webkit-scrollbar-thumb {
+   border-radius: 4px;
+   background-color: rgba(0,0,0,.5);
+   -webkit-box-shadow: 0 0 1px rgba(255,255,255,.5);
+}
+</style>
 <br><br>
 <div class="content contentadding">
 	<div style="float:right;margin-bottom:16px" class="noprint">
-		<a href="https://neighborhood.org/io/charts/">About Mosaic</a>
+		<a href="https://model.earth/io/charts/">About Mosaic</a>
 	</div>
 
 	<h2 style="border-bottom: 0px">Environmental Indicators</h2>
-    <div class="io">
+    <div class="io" style="overflow-x: scroll">
         <div style="margin: 0 auto;">
             <div class="matrix-title">Goods & Services</div>
             <div style="clear:both"></div>
 
-			<select id="indicators" class="filterClickX form-selectX picklist" onchange="goHash({'indicators':this.value});" style="width: 450px;margin-bottom:0px">
+            <!--
+            	location.reload() is a temporary fix since mosaic is not triggered by change to hash.
+            -->
+			<select id="indicators" class="filterClickX form-selectX picklist" onchange="goHash({'indicators':this.value});location.reload();" style="width: 450px;margin-bottom:0px">
 
 			<option value="">Industries with top impacts...</option>
 
@@ -755,28 +796,81 @@ Choose commodities below to view upstream input and downstream output.<br>
 </div>
 
 <script>
-function configMosaic() {
+function updateMosic(naics) {
     var config = useeio.urlConfig();
     var modelID = config.get().model || 'GAUSEEIO';
 
     var model = useeio.model({
-        endpoint: '/io/charts/useeio/api',
+        endpoint: '/io/build/api',
         model: modelID,
         asJsonFiles: true,
-        view: 'mosaic'
+        view: 'mosaic',
     });
+
+    //naics = "311615,311812,321113,221112,113310,322110,311821,311612,325211,311813,311911,311919,311830,311119,322121,311824,311941,325991,311710,311930";
+
+    var naicsCodes = naics.split(',');
 
     var industryListMosaic = useeio.industryList({
         model: model,
         selector: '.industry-list-mosaic',
     });
     config.withDefaults({
-    	view: ['mosaic'],
-        count: 15,
+    	view: 'mosaic',
+        count: 30,
+        naics: naicsCodes,
     });
     config.join(industryListMosaic);
 }
-configMosaic();
+function updateMosicNew(naics) {
+	// Might not use this, unless it can be revised to allow the hash to trigger when indicators dropdown changes. Remove location.reload() above.
+	var modelID = 'USEEIO';
+
+    var model = useeio.model({
+        //endpoint: 'https://useeiowidgets.imfast.io/api',
+        endpoint: '/io/build/api',
+        model: modelID,
+        asJsonFiles: true,
+        view: 'mosaic'
+    });
+
+    var industryList = useeio.industryList({
+        model: model,
+        selector: '.industry-list-mosaic',
+    });
+
+    var naicsCodes = naics.split(',');
+    var handled = {};
+    var beaCodes = naicsCodes.map(useeio.toBEA)
+        .filter(function (code) {
+            // remove unmapped codes and duplicates
+            if (!code || handled[code])
+                return false;
+            handled[code] = true;
+            return true;
+        });
+
+    var config = {
+        count: 30,
+        view: 'mosaic',
+        naics: naicsCodes,
+        sectors: beaCodes,
+    };
+
+    //inputs.update(config);
+    //outputs.update(config);
+    industryList.update(config);
+    industryList.onChanged(function (change) {
+        for (var prop in change) {
+            if (change.hasOwnProperty(prop)) {
+                config[prop] = change[prop];
+            }
+        }
+        //inputs.update(config);
+        //outputs.update(config);
+        industryList.update(config);
+    });
+}
 </script>
 <!-- /MOSAIC HEATMAP -->
 
@@ -827,13 +921,13 @@ https://www.epa.gov/enviroatlas
 <!-- Warning: adding content class causes popups to disappear because the absoulte top is using the top of page. -->
 <div class="contentX contentpadding" style="margin-left:30px">
 
-	<link rel="stylesheet" type="text/css" href="../../input-output/bubbles/css/bubble.css"/>
+	<link rel="stylesheet" type="text/css" href="../../io/charts/bubble/css/bubble.css"/>
 
 
 	<div class="bubble-graph">
 
 		<div style="float:right;margin-bottom:16px" class="noprint">
-			<a href="https://neighborhood.org/io/charts/">About Bubble Chart</a>
+			<a href="https://model.earth/io/charts/">About Bubble Chart</a>
 		</div>
 
         <h2 style="border-bottom: 0px">Impact Bubble Chart</h2>
@@ -899,7 +993,7 @@ https://www.epa.gov/enviroatlas
 	<div style="clear:both"></div>
 
 
-	<script type="text/javascript" src="../../input-output/bubbles/js/bubble.js"></script>
+	<script type="text/javascript" src="../../io/charts/bubble/js/bubble.js"></script>
 
 
 	<div class="io" style=" max-width: 850px; margin: auto;">
@@ -920,7 +1014,7 @@ https://www.epa.gov/enviroatlas
     var config = useeio.urlConfig();
     var modelID = config.get().model || 'GAUSEEIO';
     var model = useeio.model({
-      endpoint: '/io/charts/useeio/api',
+      endpoint: '/io/build/api',
       model: modelID,
       asJsonFiles: true,
     });
@@ -959,7 +1053,7 @@ https://www.epa.gov/enviroatlas
           var config = useeio.urlConfig();
           var modelID = config.get().model || selected_model;
           var model = useeio.model({
-            endpoint: '/io/charts/useeio/api',
+            endpoint: '/io/build/api',
             model: modelID,
             asJsonFiles: true,
           });
@@ -1048,14 +1142,14 @@ function loadScriptXXXXXX(url, callback)
 function updateText(go) {
 	$("#aboutToolsDiv").text("");
 	if (go == "bioeconomy") {
-		loadMarkdown("https://neighborhood.org/io/tools/bioeconomy-planner/about.md", "aboutToolsDiv", "_parent");
-		//loadMarkdown("https://neighborhood.org/io/tools/bioeconomy-planner/bioenergy/README.md", "bioenergySummaryDiv", "_parent");
+		loadMarkdown("https://model.earth/io/tools/bioeconomy-planner/about.md", "aboutToolsDiv", "_parent");
+		//loadMarkdown("https://model.earth/io/tools/bioeconomy-planner/bioenergy/README.md", "bioenergySummaryDiv", "_parent");
 	} else if (go == "dataprep") {
 		loadMarkdown("../../localsite/info/data/README.md", "aboutToolsDiv", "_parent");
 	} else if (go == "parts") {
-		loadMarkdown("https://neighborhood.org/io/tools/localized-economy/about.md", "aboutToolsDiv", "_parent");
+		//loadMarkdown("https://model.earth/io/tools/localized-economy/about.md", "aboutToolsDiv", "_parent");
 	} else {
-		loadMarkdown("https://neighborhood.org/io/tools/industry-impact/about.md", "aboutToolsDiv", "_parent");
+		loadMarkdown("https://model.earth/io/tools/industry-impact/about.md", "aboutToolsDiv", "_parent");
 	}
 
 }
@@ -1528,7 +1622,7 @@ function loadIOWidgets(param) {
     const modelID = config.get().model || 'GAUSEEIO';
 
     const model = useeio.model({
-        endpoint: '/io/charts/useeio/api',
+        endpoint: '/io/build/api',
         //endpoint: 'https://useeiowidgets.imfast.io/api',
         model: modelID,
         asJsonFiles: true,
