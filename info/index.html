@@ -6,11 +6,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="icon" type="image/x-icon" href="../img/logo/neighborhood-icon.png" />
 
-<script type="text/javascript" src="../js/jquery/jquery-1.12.4.min.js" id="http://localhost:8887/localsite/js/jquery/jquery-1.12.4.min.js"></script>
+<script type="text/javascript" src="../js/jquery.min.js" id="http://localhost:8887/localsite/js/jquery.min.js"></script>
 <script type="text/javascript" src="../js/localsite.js" id="http://localhost:8887/localsite/js/localsite.js"></script>
 <script type="text/javascript" src="../js/navigation.js"></script>
 <script type="text/javascript" src="../js/showdown.min.js"></script>
 <script type="text/javascript" src="../js/d3.v5.min.js" id="http://localhost:8887/localsite/js/d3.v5.min.js"></script>
+
+<!-- Resides in info/index.html and map/index.html -->
 <script src="https://unpkg.com/topojson-client@3"></script>
 
 <!-- PRODUCTION -->
@@ -31,7 +33,9 @@
 <link type="text/css" href="../css/naics.css" rel="stylesheet" />
 
 <!-- Has to be included for county map recall withou error, since loading from dual map widget does not work. -->
+<!--
 <script type="text/javascript" src="/localsite/js/leaflet.js" id="/localsite/js/leaflet.js"></script>
+-->
 
 <!-- After USEEIO to alter css -->
 <!--
@@ -41,6 +45,11 @@
 
 <script>
 	$(document).ready(function () {
+		$("#showApps").removeClass("local");
+  		$("#showApps").show();
+  		//$("#appSelectHolder").removeClass("local");
+  		//$("#appSelectHolder").show();
+
 		let startsWith13 = true; // To do - change to check array
 		if (!param.geo || startsWith13) {
 			//param.titleArray = ["Georgia"]
@@ -51,9 +60,9 @@
 </script>
 
 <style>
-#logoholderX { margin-top: -8px; }
-#pageLinksHolder { display:block !important; margin-top: 55px;}
-
+/*
+#pageLinksHolder { display:block !important; }
+*/
 .fade-in {
   animation: fadeIn ease 4s;
 }
@@ -66,13 +75,6 @@
   }
 }
 
-.headerOffset2 {
-	display: none !important;
-}
-/* Temp overrides */
-.mock-up {
-	displayX: inline-block !important;
-}
 .top-content-columns-wide {
 	width:100% !important;
 	max-width: 3000px !important;
@@ -81,9 +83,7 @@
 .indicator-row {
     height: auto;
 }
-#list_mainX {
-	display:none;
-}
+
 .data-section { /* shown when show=suppliers */
 	display:none;
 }
@@ -95,6 +95,7 @@
 }
 #map1 {
 	height:350px;
+	display: none; /* since not used by PPE */
 }
 #data {
 	displayX: none !important;
@@ -214,21 +215,41 @@ code {
 	margin-bottom: 8px;
 	display: none;
 }
-.leaflet-top > .info {
-	background-color: rgba(33, 33, 33, 0.5);
-	color: #fff;
-	padding: 10px;
-	text-align: center;
-	min-width: 130px;
+
+#hublist, #tableSide {
+	max-height: 750px;
+	overflow-y: scroll;
 }
 </style>
   
 
 <script>
-document.addEventListener('hashChangeEvent', function (elem) {
-	console.log("info/index.html detects hashChangeEvent");
- 	refreshWidgets();
-}, false);
+'use strict'; // Optional, make sure we are declaring variables.
+
+// COMMON - also resides in embed-map.js
+function loadScript(url, callback)
+{
+  if (!document.getElementById(url)) { // Prevents multiple loads.
+    var script = document.createElement('script');
+    script.type = 'text/javascript';
+    script.src = url;
+    script.id = url; // Prevents multiple loads.
+    // Bind the event to the callback function. Two events for cross browser compatibility.
+    script.onreadystatechange = callback;
+    script.onload = callback;
+    //$(document).ready(function () { // Only needed if appending to body
+    var head = document.getElementsByTagName('head')[0];
+    head.appendChild(script);
+    //});
+    console.log("loadScript loaded: " + url);
+  } else {
+    console.log("loadScript script already available: " + url);
+    callback();
+  }
+  // Nested calls are described here: https://books.google.com/books?id=ZOtVCgAAQBAJ&pg=PA6&lpg=PA6
+}
+// END COMMON
+
 
 function reloadMapTiles(whichmap,attempt) {
 	if ($('#geomap').html().length > 0) {
@@ -248,10 +269,21 @@ function reloadMapTiles(whichmap,attempt) {
 		}
 	}
 }
+
 // INIT
-//var hash = getHash(); // Include all existing
 var priorHash = {};
-function refreshWidgets() {
+//priorHash = getHash();
+
+loadScript('/localsite/js/map-filters.js', function(results) {
+
+	/* Allows map to remove selected shapes when backing up. */
+	document.addEventListener('hashChangeEvent', function (elem) {
+		console.log("info/index.html detects hashChangeEvent");
+	 	refreshWidgets();
+	}, false);
+
+  function refreshWidgets() {
+  	
 	let reloadedMap = false;
 	param = loadParams(location.search,location.hash); // param is declared in localsite.js
 	let hash = getHash();
@@ -269,7 +301,7 @@ function refreshWidgets() {
         $(".mainColumn1").show();
 	}
 	if (hash.geomap != priorHash.geomap) {
-		if (hash.geomap) {
+		//if (hash.geomap) {
 			$("#aboutToolsDiv").hide();
 			$("#infoColumn").show();
 			$("#geomap").show();
@@ -277,21 +309,7 @@ function refreshWidgets() {
 			// DOES NOT WORK - document.querySelector(whichmap)._leaflet_map not found
 			//reloadMapTiles('#geomap',1);
 			
-			// Reload map instead
-			if (reloadedMap == false) {
-				loadScript('/localsite/js/leaflet.js', function(results) {
-					let whichmap = "geomap";
-						let map = document.querySelector('#' + whichmap)._leaflet_map; 
-						if (map) {
-							if (geojsonLayer) {
-								// removes the whole layer until 
-								map.removeLayer(geojsonLayer); // Remove the prior topo layer
-							}
-						}
-					renderMapShapes(whichmap, hash); // Temp here
-					reloadedMap = true;
-				});
-			}
+			
 			/*
 			alert("show map")
 			if (document.querySelector('#geomap')._leaflet_map) {
@@ -300,10 +318,10 @@ function refreshWidgets() {
 			}
 			*/
 			
-		} else {
-			$("#geomap").hide();
-			$("#aboutToolsDiv").show();
-		}
+		//} else {
+		//	$("#geomap").hide();
+		//	$("#aboutToolsDiv").show();
+		//}
 	}
 	if (hash.show != priorHash.show) {
 		if (hash.show == "farmfresh") {
@@ -338,7 +356,7 @@ function refreshWidgets() {
 	    }
 
 	    //if (hash.geomap == "true") { // Since otherwise called above
-	    	if (reloadedMap == false) {
+	    	//if (reloadedMap == false) {
 		    	loadScript('/localsite/js/leaflet.js', function(results) {
 
 			    		// ._leaflet_map Only works if alert occurs here
@@ -349,18 +367,18 @@ function refreshWidgets() {
 
 						// Clear here so clicking a new region redraws map.
 						// This can be avoided once we figure out how to update an individal shape using renderMapShapesSimple.
-						let whichmap = "geomap";
-						let map = document.querySelector('#' + whichmap)._leaflet_map; 
-						if (geojsonLayer) {
-							// removes the whole layer until 
-							map.removeLayer(geojsonLayer); // Remove the prior topo layer
+						//let whichmap = "geomap";
+						//let geomap = document.querySelector('#' + whichmap)._leaflet_map; 
+						//if (geojsonLayer) {
+						//	geomap.removeLayer(geojsonLayer); // Remove the prior topo layer
+						//}
+						if ($("#geomap").is(":visible")) { // Avoid loading if map is not visible since tiles wont' cover div.
+							//alert("render on click")
+							renderMapShapes("geomap", hash);
 						}
-						//alert("render")
-						renderMapShapes(whichmap, hash); // Temp here
-
 				});
-				reloadedMap = true;
-			}
+				//reloadedMap = true;
+			//}
 		//}
 	}
 	//alert(hash.regiontitle)
@@ -375,9 +393,31 @@ function refreshWidgets() {
 	if (hash.geo != priorHash.geo) {
 		//$(".regiontitle").text(""); //Clear
 		//$(".location_titles").text(""); //Clear
-		//updateLoc(hash.geo); // Check counties. (map-filters.js)
+		//updateGeoFilter(hash.geo); // Check counties. (map-filters.js)
 	}
 	
+	if (hash.mapframe != priorHash.mapframe) {
+		var mapframe;
+		if (hash.mapframe) {
+	    	if (hash.mapframe == "ej") {
+	    		mapframe = "https://ejscreen.epa.gov/mapper/";
+	    	}
+	    	if (mapframe) {
+	    		$("#mapframe").prop("src", mapframe);
+				$("#mapframe").show();
+			}
+		}
+	}
+	if (hash.lat != priorHash.lat || hash.lon != priorHash.lon) {
+	    $("#lat").val(hash.lat);
+	    $("#lon").val(hash.lon);
+	    let pagemap_center = [hash.lat,hash.lon];
+	    let pagemap = document.querySelector('#map1')._leaflet_map; // Recall existing map
+	    let pagemap_container = L.DomUtil.get(pagemap);
+	    if (pagemap_container != null) { 
+	      pagemap.flyTo(pagemap_center, 18);
+	    }
+	  }
 
     if (param.catsort) {
 		$("#catsort").val(param.catsort);
@@ -392,7 +432,13 @@ function refreshWidgets() {
 		$("#indicators").val(param.indicators);
 	}
 	priorHash = getHash();
-}
+
+  }
+  // INIT
+  $(document).ready(function () {
+	refreshWidgets();
+  });
+});
 </script>
 
 </head>
@@ -420,27 +466,26 @@ To do: make the links below an optional widget
 
 	<div style="padding-top:0px; padding-bottom:0px">
 
-	<div id="topMessage"></div>
+	<h1>Industry Comparison Tools</h1>
+
+	<!--
+	"Life Cycle Assessment (also known as life cycle analysis, or cradle-to-grave analysis) is a method of assessing environmental impacts associated with all stages of a product's life. For example, it measures impact from raw material extraction to materials processing, manufacturing, distribution, use, repair and maintenance, and disposal or recycling. The goal of LCA is to compare the full range of environmental effects assignable to products and services by quantifying all inputs and outputs of material flows, and then assessing how these material flows impact the environment. This information is used to improve processes, support policy, and provide a sound basis for informed decisions." - 
+	<a href="https://data.nal.usda.gov/life-cycle-assessment" target="USDA">USDA</a><br><br>
+	-->
+
+	
 
 	<!-- two columns -->
 	<div class="pageColumns">
 		<div style="display:table-row">
+
+			<!--
 			<div id="infoColumn" class="mainColumn mainColumn1" style="font-size: 15px; position: relative">
-
-				<!--
-				<div style="max-width:400px; margin-bottom:10px">
-				Adjust your local industry mix to maximize job quality, 
-				value added revenue and positive environmental&nbsp;impacts.
-				</div>
-				-->
-
-				<!-- Must be displayed initiallly so tiles are visible -->
-				<div id="geomap" style="height:550px; border:1px solid blue; position: relative"></div>
-
 				
 				<div id="aboutToolsDiv" style="position: relative;"></div>
 				
 			</div>
+			-->
 
 			<div class="mainColumn mainColumn2 input-output">
 			
@@ -448,6 +493,8 @@ To do: make the links below an optional widget
 					<h2 class="regiontitle" style="margin-top:0px;padding-top:0px;">Loading Industries...</h2>
 					<h4 class="location_titles" style="font-size:16px;color:#555;display:none"></h4>
 				</div>
+
+				<div id="topMessage"></div>
 
 				<!--
 				<div style="max-width:700px">
@@ -514,6 +561,22 @@ To do: make the links below an optional widget
 </div>
 </div>
 
+
+
+
+<!--
+https://www.epa.gov/enviroatlas
+
+<div class="contentpadding">
+<h1>Sample of embedding <a href="https://www.epa.gov/enviroatlas/enviroatlas-interactive-map">Enviro Atlas</a></h1>
+</div>
+https://epa.maps.arcgis.com/apps/MapJournal/index.html?appid=0659c53852f4425fb3460e78de67a3ef
+-->
+
+<iframe id="mapframe" style="display:none; width:93%;height:800px; margin:0 0px 40px 40px"></iframe>
+
+
+
 <!-- INPUT OUTPUT -->
 <div class="content contentpadding litePanel" style="width:95% !important; max-width:95%; margin-top:20px; border:1px solid #aaa">
 
@@ -540,6 +603,39 @@ To do: make the links below an optional widget
 
 
 Choose commodities below to view upstream input and downstream output.<br>
+Currently utilizes national USEEIO input-output data generated from the production API.<br>
+A Georgia input-output dataset is being developed by the EPA.<br><br>
+
+
+
+<!-- IO Widget -->
+<!--
+   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap" />
+
+    <div style="max-width: 90%; margin: auto;">
+        <div id="iogrid"></div>
+    </div>
+
+    <script src="https://useeiowidgets.imfast.io/lib/useeio_widgets.js"></script>
+    <script>
+        var config = useeio.urlConfig();
+        var modelID = config.get().model || 'USEEIOv1.2';
+
+        var model = useeio.model({
+            endpoint: './api',
+            model: modelID,
+            asJsonFiles: true,
+        });
+        var ioGrid = useeio.ioGrid({
+            model: model,
+            selector: '#iogrid',
+        });
+        config.join(ioGrid);
+
+    </script>
+-->
+<!-- IO Widget -->
+
 
 <div class="pageColumns">
 
@@ -600,7 +696,7 @@ function applyIO(naics) { // Called from naics.js
         selector: '#inputs',
     });
 
-    var industryList = useeio.industryList({
+    var sectorList = useeio.sectorList({
         model: model,
         selector: '#industry-list',
     });
@@ -666,8 +762,8 @@ function applyIO(naics) { // Called from naics.js
 
     inputs.update(config);
     outputs.update(config);
-    industryList.update(config);
-    industryList.onChanged(function (change) {
+    sectorList.update(config);
+    sectorList.onChanged(function (change) {
         for (var prop in change) {
             if (change.hasOwnProperty(prop)) {
                 config[prop] = change[prop];
@@ -675,7 +771,7 @@ function applyIO(naics) { // Called from naics.js
         }
         inputs.update(config);
         outputs.update(config);
-        industryList.update(config);
+        sectorList.update(config);
     });
 }
 </script>
@@ -699,7 +795,7 @@ function applyIO(naics) { // Called from naics.js
 }
 </style>
 <br><br>
-<div class="content contentadding">
+<div class="content contentpadding" style="max-width:1300px">
 	<div style="float:right;margin-bottom:16px" class="noprint">
 		<a href="https://model.earth/io/charts/">About Mosaic</a>
 	</div>
@@ -713,7 +809,7 @@ function applyIO(naics) { // Called from naics.js
             <!--
             	location.reload() is a temporary fix since mosaic is not triggered by change to hash.
             -->
-			<select id="indicators" class="filterClickX form-selectX picklist" onchange="goHash({'indicators':this.value});location.reload();" style="width: 450px;margin-bottom:0px">
+			<select id="indicators" class="filterClickX form-selectX picklist" onchange="goHash({'indicators':this.value});location.reload();" style="width: 300px;margin-bottom:0px">
 
 			<option value="">Industries with top impacts...</option>
 
@@ -811,7 +907,7 @@ function updateMosic(naics) {
 
     var naicsCodes = naics.split(',');
 
-    var industryListMosaic = useeio.industryList({
+    var sectorListMosaic = useeio.sectorList({
         model: model,
         selector: '.industry-list-mosaic',
     });
@@ -820,7 +916,7 @@ function updateMosic(naics) {
         count: 30,
         naics: naicsCodes,
     });
-    config.join(industryListMosaic);
+    config.join(sectorListMosaic);
 }
 function updateMosicNew(naics) {
 	// Might not use this, unless it can be revised to allow the hash to trigger when indicators dropdown changes. Remove location.reload() above.
@@ -834,7 +930,7 @@ function updateMosicNew(naics) {
         view: 'mosaic'
     });
 
-    var industryList = useeio.industryList({
+    var sectorList = useeio.sectorList({
         model: model,
         selector: '.industry-list-mosaic',
     });
@@ -859,8 +955,8 @@ function updateMosicNew(naics) {
 
     //inputs.update(config);
     //outputs.update(config);
-    industryList.update(config);
-    industryList.onChanged(function (change) {
+    sectorList.update(config);
+    sectorList.onChanged(function (change) {
         for (var prop in change) {
             if (change.hasOwnProperty(prop)) {
                 config[prop] = change[prop];
@@ -868,7 +964,7 @@ function updateMosicNew(naics) {
         }
         //inputs.update(config);
         //outputs.update(config);
-        industryList.update(config);
+        sectorList.update(config);
     });
 }
 </script>
@@ -880,16 +976,9 @@ config.withDefaults({
   view: ['mosaic'],
   count: 20,
 });
-config.join(industryList);
-
-
-https://www.epa.gov/enviroatlas
-
-<div class="contentpadding">
-<h1>Sample of embedding <a href="https://www.epa.gov/enviroatlas/enviroatlas-interactive-map">Enviro Atlas</a></h1>
-</div>
-<iframe src="https://epa.maps.arcgis.com/apps/MapJournal/index.html?appid=0659c53852f4425fb3460e78de67a3ef" style="width:100%;height:800px; margin-bottom:40px"></iframe>
+config.join(sectorList);
 -->
+
 
 
 <div style="margin:0 30px 0 30px; max-width: 2000px;">
@@ -1111,45 +1200,18 @@ https://www.epa.gov/enviroatlas
 
 
 <script type="text/javascript">
-'use strict'; // Optional, make sure we are declaring variables.
-
-/*
-// COMMON - also resides in embed-map.js
-function loadScriptXXXXXX(url, callback)
-{
-  if (!document.getElementById(url)) { // Prevents multiple loads.
-    var script = document.createElement('script');
-    script.type = 'text/javascript';
-    script.src = url;
-    script.id = url; // Prevents multiple loads.
-    // Bind the event to the callback function. Two events for cross browser compatibility.
-    script.onreadystatechange = callback;
-    script.onload = callback;
-    //$(document).ready(function () { // Only needed if appending to body
-    var head = document.getElementsByTagName('head')[0];
-    head.appendChild(script);
-    //});
-    console.log("loadScript loaded: " + url);
-  } else {
-    console.log("loadScript script already available: " + url);
-    callback();
-  }
-  // Nested calls are described here: https://books.google.com/books?id=ZOtVCgAAQBAJ&pg=PA6&lpg=PA6
-}
-// END COMMON
-*/
 
 function updateText(go) {
 	$("#aboutToolsDiv").text("");
 	if (go == "bioeconomy") {
-		loadMarkdown("https://model.earth/io/tools/bioeconomy-planner/about.md", "aboutToolsDiv", "_parent");
+		loadMarkdown("https://model.earth/io/tools/bioeconomy-planner/hook.md", "aboutToolsDiv", "_parent");
 		//loadMarkdown("https://model.earth/io/tools/bioeconomy-planner/bioenergy/README.md", "bioenergySummaryDiv", "_parent");
 	} else if (go == "dataprep") {
 		loadMarkdown("../../localsite/info/data/README.md", "aboutToolsDiv", "_parent");
 	} else if (go == "parts") {
 		//loadMarkdown("https://model.earth/io/tools/localized-economy/about.md", "aboutToolsDiv", "_parent");
 	} else {
-		loadMarkdown("https://model.earth/io/tools/industry-impact/about.md", "aboutToolsDiv", "_parent");
+		loadMarkdown("https://model.earth/io/tools/industry-impact/hook.md", "aboutToolsDiv", "_parent");
 	}
 
 }
@@ -1186,429 +1248,7 @@ document.getElementById('showValues').onclick = function() {
 };
 */
 
-// These is missing var promises = [] and ready.
-// Let's look at Industry Mix first: http://localhost:8887/community/zip/leaflet/#columns=JobsAgriculture:50;JobsManufacturing:50
-var geojsonLayer;
-function renderMapShapesSimple(whichmap, hash) {
-	console.log("renderMapShapesSimple " + whichmap);
-	let map = document.querySelector('#' + whichmap)._leaflet_map; 
-	//alert("renderMapShapesSimple " + whichmap);
-	if (geojsonLayer) {
-		//alert("found geojsonLayer")
-	  	// Problem, this removes the whole layer, shapes and all.
-		//map.removeLayer(geojsonLayer); // Remove the prior topo layer
 
-
-	}
-
-}
-function renderMapShapes(whichmap, hash) { // whichGeoRegion is not yet applied.
-	console.log("renderMapShapes " + whichmap);
-	var req = new XMLHttpRequest();
-	const whichGeoRegion = hash.geomap;
-    // Topo data source
-    //https://github.com/deldersveld/topojson/tree/master/countries/us-states
-
-    // TOPO Files: https://github.com/modelearth/topojson
-    var url = dual_map.custom_data_root() + '/counties/GA-13-georgia-counties.json';
-    //if(location.host.indexOf('localhost') >= 0) {
-    if (param.geo == "US01") { // Bug, change to get state from string, also below.
-    	// https://github.com/modelearth/topojson/blob/master/countries/us-states/AL-01-alabama-counties.json
-    	url = dual_map.modelearth_data_root() + "/topojson/countries/us-states/AL-01-alabama-counties.json";
-    	//url = dual_map.modelearth_data_root() + "/opojson/countries/us-states/GA-13-georgia-counties.json";
-
-    	// IMPORTANT: ALSO change localhost setting that uses cb_2015_alabama_county_20m below
-	}
-    //var layerControl_CountyMap = {}; // Object containing one control for each map on page.
-
-    req.open('GET', url, true);
-    req.onreadystatechange = handler;
-    req.send();
-
-    var topoob = {};
-    var topodata = {};
-    var neighbors = {};
-    function handler(){
-
-    if(req.readyState === XMLHttpRequest.DONE) {
-//alert("render")
-//map.invalidateSize();
-      //map.addLayer(OpenStreetMap_BlackAndWhite)
-
-      // try and catch json parsing of the responseText
-      //try {
-            topoob = JSON.parse(req.responseText)
-
-            // Originated in community/map/leaflet/zips-sm.html
-            // zips_us_topo.json
-            // {"type":"Topology","objects":{"data":{"type":"GeometryCollection","geometries":[{"type":"Polygon
-
-            // {"type":"Topology","transform":{"scale":[0.00176728378633945,0.0012459509163533049],"translate":
-
-            //"arcs":[[38,39,40,41,42]],"type":"Polygon","properties":{"STATEFP":"13","COUNTYFP":"003","COUNTYNS":"00345784","AFFGEOID":"0500000US13003","GEOID":"13003","NAME":"Atkinson","LSAD":"06","ALAND":879043416,"AWATER":13294218}}
-
-            // Was used by applyStyle
-            ////neighbors = topojson.neighbors(topoob.objects.data.geometries);
-            neighbors = topojson.neighbors(topoob.arcs); // .properties
-
-            // ADD geometries  see https://observablehq.com/@d3/choropleth
-            //topodata = topojson.feature(topoob, topoob.objects.data)
-
-            //topodata = topojson.feature(topoob, topoob.transform)
-
-            // 
-            
-            //if(location.host.indexOf('localhost') >= 0) {
-            if (param.geo == "US01") {
-            	topodata = topojson.feature(topoob, topoob.objects.cb_2015_alabama_county_20m)
-        	} else {
-        		topodata = topojson.feature(topoob, topoob.objects.cb_2015_georgia_county_20m)
-        	}
-
-            // ADD 
-            // For region colors
-            //mergeInDetailData(topodata, dp.data); // See start/maps/counties/counties.html
-
-
-
-            // IS THIS BEING USED?
-            //topodata.features = topodata.features.map(function(fm,i){
-            /*
-            topodata.features = topodata.features.map(function(fm,i){
-                var ret = fm;
-                //console.log("fm: " + fm.COUNTYFP);
-                console.log("fm: " + fm.properties.countyfp);
-                ret.indie = i;
-                return ret
-              });
-            */
-
-            //dp.data.forEach(function(datarow) { // For each county row from the region lookup table
-              
-              // All these work:
-              //console.log("name:: " + datarow.name);
-              //console.log("county_num:: " + datarow.county_num);
-              //console.log("economic_region:: " + datarow.economic_region);
-
-            //})
-
-            //console.log('topodata: ', topodata)
-
-            //geojsonLayer.clearLayers(); // Clear prior
-            //        layerControl_CountyMap.clearLayers();
-
-            
-
-            //console.log('neigh', neighbors)
-         //}
-        //catch(e){
-        //  geojson = {};
-        //   console.log(e)
-        //}
-
-
-        //console.log(topodata)
-
-
-
-
-      //// USA
-      //var lat = 38.3;
-      //var lon = -96.5;
-      //var zoom = 5;
-
-      // Georgia 32.1656° N, 82.9001° W
-      var latX = 32.16;
-      var lat = 32.69;
-      var lon = -83.2;
-      var lonX = -81.8;
-      var zoom = 7;
-
-      //var layer = "terrain";
-      if (param.geo == "US01") { // Temp
-      	lon = -86.7;
-      }
-      var mbAttr = 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, ' +
-          '<a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, ' +
-          'Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
-          mbUrl = 'https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoiZWUyZGV2IiwiYSI6ImNqaWdsMXJvdTE4azIzcXFscTB1Nmcwcm4ifQ.hECfwyQtM7RtkBtydKpc5g';
-
-      var grayscale = L.tileLayer(mbUrl, {id: 'mapbox.light', attribution: mbAttr}),
-          satellite = L.tileLayer(mbUrl, {id: 'mapbox.satellite',   attribution: mbAttr}),
-          streets = L.tileLayer(mbUrl, {id: 'mapbox.streets',   attribution: mbAttr});
-
-      var OpenStreetMap_BlackAndWhite = L.tileLayer('//{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', {
-          maxZoom: 18,
-          attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-      });
-
-      let dataParameters = {}; // Temp
-
-      let map = document.querySelector('#' + whichmap)._leaflet_map; // Recall existing map
-
-      var container = L.DomUtil.get(map);
-      //if (container == null || map == undefined || map == null) { // Does not work
-  	  if ($('#' + whichmap).html().length == 0) { // Note: Avoid putting loading icon within map div.
-
-	      map = L.map(whichmap, {
-		      center: new L.LatLng(lat,lon),
-		      scrollWheelZoom: false,
-		      zoom: zoom,
-		      dragging: !L.Browser.mobile, 
-		      tap: !L.Browser.mobile
-		    });
-
-	  }
-
-	  if (map) {
-		  if (geojsonLayer) {
-		  	//alert("Remove the prior topo layer")
-		  	// To do: 
-		  	map.removeLayer(geojsonLayer); // Remove the prior topo layer
-		  }
-
-		  geojsonLayer = L.geoJson(topodata, {style:styleShape, onEachFeature: onEachFeature}).addTo(map); // Called within addTo(map)
-	  } else {
-	  	console.log("WARNING - map not available from _leaflet_map")
-	  }
-
-      var baseLayers = {
-        "Open Street Map": OpenStreetMap_BlackAndWhite,
-        "Grayscale Mapbox": grayscale,
-        "Streets Mapbox": streets,
-        "Satellite Mapbox": satellite
-      };
-      var overlays = {
-        "Counties": geojsonLayer
-      };
-
-
-      var basemaps1 = {
-	    'Grayscale' : L.tileLayer(mbUrl, {id: 'mapbox.light', attribution: mbAttr}),
-	    'Satellite' : L.tileLayer(mbUrl, {maxZoom: 25, id: 'mapbox.satellite', attribution: mbAttr}),
-	    'Streets' : L.tileLayer(mbUrl, {id: 'mapbox.streets',   attribution: mbAttr}),
-	    'OpenStreetMap' : L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-	        maxZoom: 19, attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>',
-	    }),
-	  }
-
-      //dataParameters.forEach(function(ele) {
-        //overlays[ele.name] = ele.group; // Allows for use of dp.name with removeLayer and addLayer
-        //console.log("Layer added: " + ele.name);
-      //})
-
-      //if(layerControl_CountyMap === false) { // First time, add new layer
-        // Add the layers control to the map
-      //  layerControl_CountyMap = L.control.layers(baseLayers, overlays).addTo(map);
-      //}
-
-      if (typeof layerControl != "undefined") {
-      	//alert("OKAY: layerControl is available to CountyMap.")
-
-      	// layerControl is declaired in map.js
-      	if (layerControl[whichmap] != undefined) {
-      		if (overlays["Counties"]) {
-	      		// Reached on county click, but shapes are not removed.
-	      		console.log("overlays: ");
-	      		console.log(overlays);
-	      		
-	      		//resetHighlight(layerControl[whichmap].);
-	      		// No effect
-	        	//layerControl[whichmap].removeLayer(overlays["Counties"]);
-
-	        	//geojsonLayer.remove();
-
-	        	// Might work a little
-
-	        	//alert("Remove the prior topo layer")
-	        	//map.removeLayer(geojsonLayer); // Remove the prior topo layer
-	       	}
-	    }
-      	// layerControl wasn't yet available in loading sequence.
-      	// Could require localsite/js/map.js load first, but top maps might not always be loaded.
-      	// Or only declare layerControl object if not yet declared.
-
-      	if (layerControl[whichmap] == undefined) {
-	    	layerControl[whichmap] = L.control.layers(basemaps1, overlays).addTo(map); // Push multple layers
-	    	//basemaps1["Satellite"].addTo(map);
-	    	basemaps1["Streets"].addTo(map);
-	    } else {
-	    	// Error: Cannot read property 'on' of undefined
-	    	//layerControl[whichmap].addOverlay(dp.group, dp.dataTitle); // Appends to existing layers
-	    }
-
-
-      	if(layerControl === false) {
-      		
-      		//layerControl = L.control.layers(baseLayers, overlays).addTo(map);
-      	}
-      }
-
-      // Remove - clear the markers from the map for the layer
-       //if (map.hasLayer(overlays1[dp.dataTitle])){
-       //   overlays1[dp.dataTitle].remove();
-       //}
-       //if (map.hasLayer(overlays["Counties"])){
-       //	  alert("found layer")
-       		//no effect
-          	//overlays["Counties"].remove();
-       //}
-
-      // Make a layer active. 
-      // Seems to prevent error
-      //geojsonLayer.addTo(map);
-      
-      
-
-      // To add additional layers:
-      //layerControl.addOverlay(dp.group, dp.name); // Appends to existing layers
-
-
-        /* Rollover effect */
-        function highlightFeature(e){
-          var layer = e.target;
-          layer.setStyle({
-            weight: 3,
-            color: '#665',
-            dashArray: '',
-            fillOpacity: .7})
-            if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
-              layer.bringToFront();
-            }
-          // Send text to side box
-          info.update(layer.feature.properties);
-        }
-   
-        function resetHighlight(e){
-          geojsonLayer.resetStyle(e.target);
-          info.update();
-        }
-
-        function mapFeatureClick(e) {
-        	param = loadParams(location.search,location.hash); // param is declared in localsite.js
-            var layer = e.target;
-            //map.fitBounds(e.target.getBounds()); // Zoom to boundary area clicked
-            var fips = "US" + layer.feature.properties.STATEFP + layer.feature.properties.COUNTYFP;
-            //var fipsString = fips;
-            if (param.geo && param.geo.split(",").includes(fips)) {
-        		// Remove clicked fips from array, then convert back to string
-        		param.geo = jQuery.grep(param.geo.split(","), function(value) {return value != fips;}).toString();
-        		//fipsString = param.geo;
-        	} else if (param.geo && param.geo.split(",").length > 0) {
-        		param.geo = param.geo + "," + fips;
-        	} else {
-        		param.geo = fips;
-        	}
-            goHash({'geo':param.geo,'regiontitle':''});
-        }
-
-        function onEachFeature(feature, layer){
-          layer.on({
-                mouseover: highlightFeature,
-                mouseout: resetHighlight, 
-                click: mapFeatureClick
-          })
-        }
-
-
-        var info = L.control();
-
-        // TEMP - reactivate
-        info.onAdd = function(map) {
-        	//alert("attempt")
-        	if ($(".info.leaflet-control").length) {
-        		$(".info.leaflet-control").remove(); // Prevent adding multiple times
-        	}
-        	//if (!$(".info.leaflet-control").length) { // Prevent adding multiple times
-        	//	alert("does not exist")
-        		this._div = L.DomUtil.create('div', 'info');
-        	//} else {
-        		//$(".info.leaflet-control").text("bug");
-
-        		//this._div = $(".info.leaflet-control"); // Does not work
-        	//}
-        	this.update();
-            return this._div;
-        }
-
-        info.update = function(props){
-            if (props) {
-              $(".info.leaflet-control").show();
-            } else {
-              $(".info.leaflet-control").hide();
-            }
-            // National
-            //this._div.innerHTML = "<h4>Zip code</h4>" + (props ? props.zip + '</br>' + props.name + ' ' + props.state + '</br>' : "Hover over map")
-            
-            this._div.innerHTML = "" 
-            + (props ? "<b>" + props.NAME + " County</b><br>" : "Hover over map") 
-            + (props ? "FIPS 13" + props.COUNTYFP : "")
-            
-
-            // To fix if using state - id is not defined
-            // Also, other state files may need to have primary node renamed to "data"
-            //this._div.innerHTML = "<h4>Zip code</h4>" + (1==1 ? id + '</br>' : "Hover over map")
-        }
-        if (map) {
-        	info.addTo(map);
-    	}
-     }
-  }
-}
-
-// This could be reactivated to merge another dataset to map popups
-function mergeInDetailData(topodata,detail_data) {
-  var data_by_id = d3.nest() // where id is a zipcode or countyID
-    .key(function(d){return d.zcta;})
-    .entries(detail_data);
-
-  topodata.features.forEach(function(d) {
-        // d.properties.zip becomes d.properties.COUNTYFP
-        var topoID = data_by_id.find(x=>x.key === d.properties.COUNTYFP.replace(/^0+/, ''));
-        if(topoID) {
-            columns.forEach(function(c){
-                d[c] = parseFloat(topoID.values[0][c]);
-            });
-            cluster_data.push(d); // Topo shape data now has census attributes added, including zcta
-        }
-  });
-  return cluster_data;
-}
-
-function styleShape(feature) {
-
-	let hash = getHash(); // To do: pass in as parameter
-
-	//console.log("feature ", feature)
-
-    // Called for each topojson row
-    // console.log("feature.properties.COUNTYFP: " + feature.properties.COUNTYFP);
-    var fillColor = 'rgb(51, 136, 255)'; // 
-    // For hover '#665';
-    
-    // REGION COLORS: See community/start/map/counties.html for colored region sample.
-    /*
-    dp.data.forEach(function(datarow) { // For each county row from the region lookup table
-      if (datarow.county_num == feature.properties.COUNTYFP) {
-        fillColor = color(datarow.io_region);
-      }
-    })
-	*/
-	let fillOpacity = .15;
-	if (hash.geo && hash.geo.includes("US" + feature.properties.STATEFP + feature.properties.COUNTYFP)) {
-    	fillColor = 'purple';
-    	fillOpacity = .4;
-	}
-    return {
-        weight: 3,
-        opacity: .7,
-        color: fillColor, // '#ccc', // 'white'
-        //dashArray: '3',
-        fillOpacity: fillOpacity,
-        fillColor: fillColor
-    };
-    
-}
 </script>
 
 
@@ -1633,7 +1273,7 @@ function loadIOWidgets(param) {
     // LEFT - INPUT
  	//if (param["view"] == "io") {
 
-	    const heatmap_input = useeio.industryList({
+	    const heatmap_input = useeio.sectorList({
 	        model: model,
 	        selector: '#impact-heatmap-input',
 	        scope: 'input'
@@ -1650,7 +1290,7 @@ function loadIOWidgets(param) {
 	//}
 
 	// CENTER - MAIN SECTORS
-    const heatmap = useeio.industryList({
+    const heatmap = useeio.sectorList({
         model: model,
         selector: '#impact-heatmap-main',
         scope: 'main'
@@ -1666,7 +1306,7 @@ function loadIOWidgets(param) {
    
     // RIGHT - OUTPUT
     //if (param["view"] == "io") {
-	 	const heatmap_output = useeio.industryList({
+	 	const heatmap_output = useeio.sectorList({
 	        model: model,
 	        selector: '#impact-heatmap-output',
 	        scope: 'output'
@@ -1711,10 +1351,9 @@ function loadIOWidgets(param) {
 
 }
 
-// INIT
-refreshWidgets();
+
 if (!param.geo) { // Others gets called by refreshWidgets on init.
-	renderMapShapes("geomap", param);
+	//renderMapShapes("geomap", param);
 }
 
 </script>

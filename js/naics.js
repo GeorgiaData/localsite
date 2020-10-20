@@ -1014,21 +1014,17 @@ function topRatesInFips(dataSet, dataNames, fips, params){
                             rightCol += "<div class='cell mock-up' style='display:none'><img src='http://localhost:8887/localsite/info/img/plus-minus.gif' class='plus-minus'></div>";
                             //text += top_data_list[i]['NAICScode'] + ": <b>" +top_data_list[i]['data_id']+"</b>, "+String(whichVal.node().options[whichVal.node().selectedIndex].text).slice(3, )+": "+Math.round(top_data_list[i][whichVal.node().value])+"<br>";
                             
-                            if(Array.isArray(fips)){
-                                text += "<div class='row'><div class='cell'>" + icon + top_data_list[i]['NAICScode'] + "</div><div class='cell'>" + top_data_list[i]['data_id'] +"</div>" + midCol + rightCol + "</div>";
-                            }else{
-                                text += "<div class='row'><div class='cell'>" + icon + top_data_list[i]['NAICScode'] + "</div><div class='cell'>" + top_data_list[i]['data_id'] + "</div>" + rightCol + "</div>";
+                            // 
+                            text += "<div class='row'><div class='cell'><a href='#naics=' onClick='goHash({\"naics\":" + top_data_list[i]['NAICScode'] + "}); return false;' style='color:#aaa;white-space:nowrap'>" + icon + top_data_list[i]['NAICScode'] + "</a></div><div class='cell'>" + top_data_list[i]['data_id'] +"</div>"
+                            if(Array.isArray(fips)) {
+                                text +=  midCol;
                             }
+                            text += rightCol + "</div>";
                             
                             // use GoHash()
                             let topMessage = "<p class='mapinfo'><b>Work in Progress</b> - The industry list below does not yet include estimates for industries without state-level payroll data. <a href='/localsite/info/data/'>Learn&nbsp;more&nbsp;and&nbsp;get&nbsp;involved</a></p>";
                             $("#topMessage").html(topMessage);
 
-                            let lowerMessage = "";
-                            // If none estimated
-                                lowerMessage = "<p class='mapinfo'>Purple text indicates approximated values.</p>";
-                            
-                            $("#econ_list").html("<div id='sector_list'>" + text + "</div><br>" + lowerMessage);
                             if(i<=20){
                                 if(i==0){
                                     naicshash=naicshash+top_data_list[i]['NAICScode']
@@ -1039,6 +1035,16 @@ function topRatesInFips(dataSet, dataNames, fips, params){
                             }
                         
                         } // End naics rows
+
+                        let lowerMessage = "";
+                        // If none estimated
+                        if (!param.naics) {
+                            lowerMessage += "Click NAICS number above to view industry's supply chain. ";
+                        }
+                        lowerMessage += "Purple&nbsp;text&nbsp;indicates approximated values.";
+
+                        $("#econ_list").html("<div id='sector_list'>" + text + "</div><br><p class='mapinfo'>" + lowerMessage + "</p>");
+                        
 
                         console.log('send naics to #industry-list data-naics attribute: ' + naicshash)
 
@@ -1056,7 +1062,7 @@ function topRatesInFips(dataSet, dataNames, fips, params){
                     //document.getElementById("industryheader").text = ""; // Clear initial.
                     $(".location_titles").text(""); //Clear
                     if (params.go == "bioeconomy") {
-                        $(".regiontitle").text("Bioeconomy and Fossil Fuel Industries");
+                        $(".regiontitle").text("Bioeconomy and Petroleum Industries");
                     } else if (params.go == "parts") {
                         $(".regiontitle").text("Parts Manufacturing");
                     } else if (params.go == "manufacturing") {
@@ -1074,6 +1080,7 @@ function topRatesInFips(dataSet, dataNames, fips, params){
                             } else {
                                 $(".regiontitle").text("Industries within "+ fips.length + " counties");
                             }
+                            $(".filterSelected").text(fips.length + " counties");
                             //}
                         } else if (params.regiontitle) {
                             if (params.go) {
@@ -1081,6 +1088,7 @@ function topRatesInFips(dataSet, dataNames, fips, params){
                             } else {
                                 $(".regiontitle").text(params.regiontitle.replace(/\+/g," "));
                             }
+                            $(".filterSelected").text(params.regiontitle.replace(/\+/g," "));
                         }
                         for(var i=0; i < fips.length; i++){
                             var filteredData = consdata.filter(function(d) {
@@ -1111,7 +1119,7 @@ function topRatesInFips(dataSet, dataNames, fips, params){
 
                     }else if(fips==dataObject.stateshown){
                         if (params.go == "bioeconomy") {
-                            $(".regiontitle").text("Bioeconomy and Fossil Fuel Industries");
+                            $(".regiontitle").text("Bioeconomy and Petroleum Industries");
                         } else if (params.go == "parts") {
                             $(".regiontitle").text("Parts Manufacturing");
                         } else if (params.go == "manufacturing") {

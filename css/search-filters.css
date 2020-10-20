@@ -1,3 +1,6 @@
+.search-filters-css {
+  display: block !important;
+}
 #filterEmbedHolder {
     display: block !important;
 }
@@ -13,6 +16,15 @@
 }
 .select-menu-arrow-holder {
     position:absolute; right:5px; top:5px; pointer-events:none;bottom:2px;background:#fff;
+}
+#showApps > .material-icons {
+  color: #ccc;
+  font-size:36px;
+  padding:6px 6px 4px 0px;
+  cursor:pointer;
+}
+#showApps.active > .material-icons {
+  color: #eee;
 }
 .fieldSelector {
 	display: none;
@@ -31,7 +43,6 @@
     cursor: pointer;
     border-radius: 6px;
     border: 1px solid #d9d9de;
-    line-heightX: 22px;
     padding: 0px 9px 0px 10px;
     min-height: 34px !important;
     vertical-align: baseline;
@@ -52,12 +63,11 @@
     line-height: 16px;
 
     cursor: pointer;
-    border: 1px solid #999;
     border-radius: 4px;
     padding: 9px 10px 0px 10px;
     
     color: #555;
-    background-color: #fff;
+    background-color: #f3f3f3;
     float: left;
     box-sizing: border-box;
     margin-right: 6px;
@@ -104,6 +114,17 @@
     background: #fff;
     padding: 15px;
     vertical-align: baseline;
+    pointer-events: auto; /* catch click through to keep open location filter */
+}
+#locationFilterHolder .input-output b {
+  color:#777;
+  font-weight: 200;
+  margin-bottom:4px;
+}
+@media (max-width: 800px) {
+    #locationFilterHolder {
+        margin:40px 0 0 40px;
+    }
 }
 .si-wrapper div {
     position: absolute;
@@ -122,12 +143,27 @@
     background-color: #fff;
 }
 .close-X {
-  color:#333;
-  font-size:16px;
   cursor:pointer;
+  padding:15px 20px 15px 15px;
+  font-size:19px;
+  color:#bbb;
 }
 
-
+#honeycombPanel {
+    text-align: center;
+    margin:0 auto;
+    background-color: #fcfcfc;
+    border-bottom: 1px solid #ccc;
+}
+.bigThumbWidth { /* allows margin to reside within percent */
+    floatX:left;
+    position: relative;
+}
+.bigThumbWidthXXXX:after {
+  content: "";
+  display: block;
+  padding-bottomX: 100%;
+}
 .bigThumbUl {
     margin: 0px;
     list-style-type: none;
@@ -136,35 +172,28 @@
     border:1px solid #fff;
     */
 }
-.widthPercent { /* allows margin to reside within percent */
-    float:left;
-    position: relative;
-    /* padding-right:30px; */
-}
-.widthPercent:after {
-  content: "";
-  display: block;
-  padding-bottom: 100%;
-}
 .bigThumbHolder {
     width: 100%;
-    height: 100%;
+    height: 180px;
     position: absolute;
     float: left;
-
-    overflowX: hidden;
-    border:1px solid #fff;
-    marginX: 0 0px 30px 0;
-    /* padding-right: 30px; */
+    text-align: center;
 }
 .bigThumb {
     background-color: #fff;
     background-size: cover;
     opacity: 0.7;
     cursor: pointer;
-    height: 100%;
+    width: 110px;
+    height: 110px;
+    border-radius: 50%;
+    margin: 40px;
+    margin: 0 auto;
 }
-.widthPercent {
+.bigThumbMenuContent {
+  display:inline-block;
+}
+.bigThumbWidth {
     padding:0 20px 0 20px;
     padding:0px !important;
     margin:0px !important;
@@ -174,7 +203,7 @@
     filter: alpha(opacity=100);
 }
 .bigThumb a {
-    position: absolute;
+    position: absolute; /* allows href to cover space */
     top: 0;
     right: 0;
     left: 0;
@@ -183,96 +212,76 @@
     cursor: pointer;
 }
 .bigThumbText {
-    /*
-    top:30%;
-    margin:25px;
-    text-align: center;
-    */
     overflow: visible;
     position: absolute;
     left:0px;
     right:0px;
-    bottom:0px;
-    color:#fff;
-    font-size:20px;
-    background-color: rgba(33, 33, 33, 0.5);
-    min-height: 36px;
-    padding: 8px 8px 5px 14px;
-    font-size: 22px;
-    color: #5fab1b;
-    color: #fff;
+    bottom:26px;
+    color:#333;
+    font-size: 16px;
     font-family: 'Roboto Condensed', sans-serif;
-    font-weight: bold;
-    text-transform: uppercase;
-    font-size: 18px;
 }
 .bigThumb:hover .bigThumbText{
-    background-color: rgba(33, 33, 33, 0.95);
+    font-weight: 400;
 }
 .bigThumbSecondary {
     color: #fff;
-    font-size: 14px;
-    /* font-style: italic; */
+    font-size: 15px;
     font-weight: 400;
 }
 .bigThumbMenu {
-    clear:both; /* clear close X */
-    display: block;
+    clear: both; /* clear close X */
+    display: flex;
+    justify-content: center;
+
+}
+.bigThumbMenuInner {
+  margin-top: 30px;
+  borderX:1px solid green;
+  display: grid;
 }
 
-@media (min-width: 300px) {
-    .primaryTitle {
-        font-size: 40px;
-    }
+@media (min-width: 500px) {
+  .bigThumbMenuInner{
+    grid-template-columns: 1fr 1fr
+  }
 }
-
-@media (max-width: 500px) {
-    .widthPercent {
-        width:50%;
-    }
-    .bigThumbHolder {
-        max-heightX: 300px;
-        float:left;
-        min-height: 50px;
-        margin-bottom: 10px;
-    }
-    .moduleBackground {
-        background-color:#000;
-    }
-    .bigThumbText {
-        font-sizeX: 24px;
-        text-transformX:none;
-    }
-}
-@media (min-width: 501px) {
-    .primaryTitle {
-        font-size: 50px;
-    }
-    .widthPercent {
-        width:33.33%;
-    }
+@media (min-width: 600px) {
+  .bigThumbMenuInner{
+    grid-template-columns: 1fr 1fr 1fr
+  }
 }
 @media (min-width: 800px) {
-    .primaryTitle {
-        font-size: 50px;
-    }
-    .widthPercent {
-        width:25%;
-    }
+  .bigThumbMenuInner{
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+  }
 }
+@media (min-width: 1000px) {
+  .bigThumbMenuInner {
+    grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
+  }
+}
+@media (min-width: 1200px) {
+  .bigThumbMenuInner {
+    grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr;
+    grid-template-columns: 1fr 1fr 1fr 1fr 1fr; /* temp */
+  }
+}
+
+.bigThumbWidth {
+    width: 180px;
+    height: 170px;
+}
+
 /* Full Screen */
 @media (min-width: 1000px) {
     .primaryTitle {
         font-size: 58px;
     }
-    .widthPercent {
-        width: 16.66%;
-    }
-    .widthColumns{
-        max-width:1200px;
+    .bigThumbWidth {
+      widthX: 16.66%;
     }
 }
-
 
 .output_table {
     border-collapse: collapse;
@@ -298,8 +307,8 @@
     display: flex;
     flex-flow: column;
     height: 100%;
-    height:400px;
-    border:10px solid blue;
+    height: 510px;
+    border: 10px solid blue;
 }
 
 /* For embedded location filters */
@@ -352,7 +361,7 @@
 
 .pagebutton {
   margin-left: 8px;
-  border-radius: 7px;
+  border-radius: 4px;
   border: 1px solid #dfdfdf;
   padding: 0px 4px 0 6px;
   min-height: 34px;
