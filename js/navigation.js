@@ -184,10 +184,14 @@ $(document).ready(function(){
 		 		
 		 		titleValue += "<span style='color: #777;'>" + param.titleArray[0] + "</span>";
 		 		for (var i = 1; i < param.titleArray.length; i++) {
-		 			titleValue += "<span style='color:#bbb;margin-left:1px'>" + param.titleArray[i] + "</span>";
+		 			titleValue += "<span id='titleTwo' style='color:#bbb;margin-left:1px'>" + param.titleArray[i] + "</span>";
 		 		}
 		 		titleValue += "</a></span>";
 		 		$('#headerSiteTitle').html(titleValue);
+		 		let theState = $("#state_select").find(":selected").text();
+		 		if (theState) {
+		 			$(".filterSelected").text(theState);
+		 		}
 		 	}
 	 	}
 	 	
@@ -208,6 +212,7 @@ $(document).ready(function(){
 		 	*/
 		 	if (param.headerLogo) {
 		 		$('#headerLogo').html("<a href='" + climbpath + "' style='text-decoration:none'>" + param.headerLogo + "</a>");
+		 		$('#logoholderbar').html("<a href='" + climbpath + "' style='text-decoration:none'>" + param.headerLogo + "</a>");
 		 	} else {
 			 	$('#headerLogo').css('background-image', 'url(' + imageUrl + ')');
 				$('#headerLogo').css('background-repeat', 'no-repeat');
@@ -302,7 +307,9 @@ $(document).ready(function(){
 
 	});
 
-
+	$(document).ready(function () {
+		
+	});
  	// SIDE NAV WITH HIGHLIGHT ON SCROLL
 	if (param["sidecolumn"]) {
 		$("#sidecolumn").load( modelpath + "../community/nav.html", function( response, status, xhr ) {
@@ -318,8 +325,7 @@ $(document).ready(function(){
 		    })
 			
 			// Clone after path change
-			$("#headerLogo").clone().appendTo("#logoholderside");
-	 		
+	 		$("#headerLogo").clone().appendTo("#logoholderside");
 
 	 		// ALL SIDE COLUMN ITEMS
 	 		var topMenu = $("#sidecolumnContent");
