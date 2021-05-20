@@ -25,22 +25,31 @@
 	// Used by script that follow, including naics.js
 	let hash = getHash();
 	if (!hash.state && !hash.geo) {
-		hiddenhash.state = "GA"; // Temp until triggered by domains and map prompt.
+		//hiddenhash.state = "GA"; // Temp until triggered by domains and map prompt.
 	}
 	if (!hiddenhash.show) {
-		hiddenhash.show = "industries";
+		//hiddenhash.show = "industries";
 	}
 	if (!hiddenhash.indicators) {
-		hiddenhash.indicators = "GHG";
+		hiddenhash.indicators = "GHG,ENRG,WATR,SMOG";
 	}
 	//hiddenhash.debug = true;
 </script>
 
 <script type="text/javascript" src="/localsite/js/map-filters.js" id="/localsite/js/map-filters.js"></script>
 
+<!-- Resides before naics.js -->
+<script src="../../io/build/lib/useeio_widgets.js"></script>
+
 <!-- Resides before useeio_widgets.js, resides after map-filters.js so hiddenhash.naics is avalable -->
 <script type="text/javascript" src="../js/naics.js"></script>
 <link type="text/css" href="../css/naics.css" rel="stylesheet" />
+
+<script>
+	if(!hash.state) {
+		applyIO("");
+	}
+</script>
 
 <!-- PRODUCTION -->
 <!-- resides before base.css -->
@@ -49,7 +58,7 @@
 -->
 <link rel="stylesheet" type="text/css" href="../../io/build/widgets.css">
 <link rel="stylesheet" type="text/css" href="../../io/build/slider.css">
-<script src="../../io/build/lib/useeio_widgets.js"></script>
+
 
 <!-- After USEEIO to alter css -->
 <!--
@@ -76,6 +85,7 @@ $(document).ready(function () {
 </script>
 
 <style>
+
 /*
 #pageLinksHolder { display:block !important; }
 */
@@ -316,144 +326,6 @@ function reloadMapTiles(whichmap,attempt) {
 <!-- location filters, location map and list -->
 <!-- optional: ?show=smart -->
 
-<style>
-	#selected_states {
-		background-colorX: #333;
-		colorX: #fff;
-		border-right: 1px solid #ccc;
-		position:fixed;
-		min-width: 150px;
-		display: none;
-		margin-left: 20px;
-	}
-	#selected_states input {
-		displayX:none;
-		float:left;
-	}
-	#selected_states label {
-		display: block;
-		padding: 6px 10px 4px 10px;
-	}
-	#selected_states label:hover {
-		background-color: #ccc;
-		color: #333;
-	}
-</style>
-<div id="selected_states" class="localX">
-<input type="checkbox" class="selected_state" name="local-states" id="AL" stateid="01" lat="32.7396" lon="-86.8435" km="131174">
-<label for="" class="">Alabama</label>
-<input type="checkbox" class="selected_state" name="local-states" id="AK" stateid="02" lat="63.3474" lon="-152.8397" km="1478927">
-<label for="" class="">Alaska</label>
-<input type="checkbox" class="selected_state" name="local-states" id="AS" stateid="60" lat="-14.2672" lon="-170.6683" km="198" style="display:none">
-<label for="" class="" style="display:none">American Samoa</label>
-<input type="checkbox" class="selected_state" name="local-states" id="AZ" stateid="04" lat="34.2039" lon="-111.6064" km="294360">
-<label for="" class="">Arizona</label>
-<input type="checkbox" class="selected_state" name="local-states" id="AR" stateid="05" lat="34.8955" lon="-92.4446" km="134777">
-<label for="" class="">Arkansas</label>
-<input type="checkbox" class="selected_state" name="local-states" id="CA" stateid="06" lat="37.1552" lon="-119.5434" km="403660">
-<label for="" class="">California</label>
-<input type="checkbox" class="selected_state" name="local-states" id="CO" stateid="08" lat="38.9938" lon="-105.5083" km="268420">
-<label for="" class="">Colorado</label>
-<input type="checkbox" class="selected_state" name="local-states" id="MP" stateid="69" lat="14.9368" lon="145.601" km="472" style="display:none">
-<label for="" class="" style="display:none">Commonwealth of the Northern Mariana Islands</label>
-<input type="checkbox" class="selected_state" name="local-states" id="CT" stateid="09" lat="41.5799" lon="-72.7467" km="12542">
-<label for="" class="">Connecticut</label>
-<input type="checkbox" class="selected_state" name="local-states" id="DE" stateid="10" lat="38.9986" lon="-75.4416" km="5047">
-<label for="" class="">Delaware</label>
-<input type="checkbox" class="selected_state" name="local-states" id="DC" stateid="11" lat="38.9042" lon="-77.0165" km="158" style="display:none">
-<label for="" class="" style="display:none">District of Columbia</label>
-<input type="checkbox" class="selected_state" name="local-states" id="FL" stateid="12" lat="28.4574" lon="-82.4091" km="138947">
-<label for="" class="">Florida</label>
-<input type="checkbox" class="selected_state" name="local-states" id="GA" stateid="13" lat="32.6296" lon="-83.4235" km="149485">
-<label for="" class="">Georgia</label>
-<input type="checkbox" class="selected_state" name="local-states" id="GU" stateid="66" lat="13.4417" lon="144.7719" km="544" style="display:none">
-<label for="" class="" style="display:none">Guam</label>
-<input type="checkbox" class="selected_state" name="local-states" id="HI" stateid="15" lat="19.5978" lon="-155.5024" km="16634">
-<label for="" class="">Hawaii</label>
-<input type="checkbox" class="selected_state" name="local-states" id="ID" stateid="16" lat="44.3484" lon="-114.5589" km="214050">
-<label for="" class="">Idaho</label>
-<input type="checkbox" class="selected_state" name="local-states" id="IL" stateid="17" lat="40.1029" lon="-89.1526" km="143780">
-<label for="" class="">Illinois</label>
-<input type="checkbox" class="selected_state" name="local-states" id="IN" stateid="18" lat="39.9013" lon="-86.2919" km="92790">
-<label for="" class="">Indiana</label>
-<input type="checkbox" class="selected_state" name="local-states" id="IA" stateid="19" lat="42.07" lon="-93.4933" km="144660">
-<label for="" class="">Iowa</label>
-<input type="checkbox" class="selected_state" name="local-states" id="KS" stateid="20" lat="38.4985" lon="-98.3834" km="211753">
-<label for="" class="">Kansas</label>
-<input type="checkbox" class="selected_state" name="local-states" id="KY" stateid="21" lat="37.5337" lon="-85.293" km="102282">
-<label for="" class="">Kentucky</label>
-<input type="checkbox" class="selected_state" name="local-states" id="LA" stateid="22" lat="30.8634" lon="-91.7987" km="111899">
-<label for="" class="">Louisiana</label>
-<input type="checkbox" class="selected_state" name="local-states" id="ME" stateid="23" lat="45.4093" lon="-68.6666" km="79888">
-<label for="" class="">Maine</label>
-<input type="checkbox" class="selected_state" name="local-states" id="MD" stateid="24" lat="38.9467" lon="-76.6745" km="25152">
-<label for="" class="">Maryland</label>
-<input type="checkbox" class="selected_state" name="local-states" id="MA" stateid="25" lat="42.1565" lon="-71.4896" km="20204">
-<label for="" class="">Massachusetts</label>
-<input type="checkbox" class="selected_state" name="local-states" id="MI" stateid="26" lat="44.8442" lon="-85.6605" km="146609">
-<label for="" class="">Michigan</label>
-<input type="checkbox" class="selected_state" name="local-states" id="MN" stateid="27" lat="46.316" lon="-94.1996" km="206230">
-<label for="" class="">Minnesota</label>
-<input type="checkbox" class="selected_state" name="local-states" id="MS" stateid="28" lat="32.6865" lon="-89.6561" km="121537">
-<label for="" class="">Mississippi</label>
-<input type="checkbox" class="selected_state" name="local-states" id="MO" stateid="29" lat="38.3507" lon="-92.4568" km="178050">
-<label for="" class="">Missouri</label>
-<input type="checkbox" class="selected_state" name="local-states" id="MT" stateid="30" lat="47.0512" lon="-109.6348" km="376967">
-<label for="" class="">Montana</label>
-<input type="checkbox" class="selected_state" name="local-states" id="NE" stateid="31" lat="41.5433" lon="-99.8119" km="198954">
-<label for="" class="">Nebraska</label>
-<input type="checkbox" class="selected_state" name="local-states" id="NV" stateid="32" lat="39.3311" lon="-116.6151" km="284537">
-<label for="" class="">Nevada</label>
-<input type="checkbox" class="selected_state" name="local-states" id="NH" stateid="33" lat="43.6727" lon="-71.5843" km="23189">
-<label for="" class="">New Hampshire</label>
-<input type="checkbox" class="selected_state" name="local-states" id="NJ" stateid="34" lat="40.1073" lon="-74.6652" km="19049">
-<label for="" class="">New Jersey</label>
-<input type="checkbox" class="selected_state" name="local-states" id="NM" stateid="35" lat="34.4347" lon="-106.1316" km="314197">
-<label for="" class="">New Mexico</label>
-<input type="checkbox" class="selected_state" name="local-states" id="NY" stateid="36" lat="42.9134" lon="-75.5963" km="122050">
-<label for="" class="">New York</label>
-<input type="checkbox" class="selected_state" name="local-states" id="NC" stateid="37" lat="35.5397" lon="-79.1309" km="125926">
-<label for="" class="">North Carolina</label>
-<input type="checkbox" class="selected_state" name="local-states" id="ND" stateid="38" lat="47.4422" lon="-100.4608" km="178696">
-<label for="" class="">North Dakota</label>
-<input type="checkbox" class="selected_state" name="local-states" id="OH" stateid="39" lat="40.4149" lon="-82.712" km="105824">
-<label for="" class="">Ohio</label>
-<input type="checkbox" class="selected_state" name="local-states" id="OK" stateid="40" lat="35.5901" lon="-97.4868" km="177663">
-<label for="" class="">Oklahoma</label>
-<input type="checkbox" class="selected_state" name="local-states" id="OR" stateid="41" lat="43.9717" lon="-120.623" km="248608">
-<label for="" class="">Oregon</label>
-<input type="checkbox" class="selected_state" name="local-states" id="PA" stateid="42" lat="40.9046" lon="-77.8275" km="115880">
-<label for="" class="">Pennsylvania</label>
-<input type="checkbox" class="selected_state" name="local-states" id="PR" stateid="72" lat="18.2176" lon="-66.4108" km="8869" style="display:none">
-<label for="" class="" style="display:none">Puerto Rico</label>
-<input type="checkbox" class="selected_state" name="local-states" id="RI" stateid="44" lat="41.5974" lon="-71.5273" km="2678">
-<label for="" class="">Rhode Island</label>
-<input type="checkbox" class="selected_state" name="local-states" id="SC" stateid="45" lat="33.8742" lon="-80.8543" km="77865">
-<label for="" class="">South Carolina</label>
-<input type="checkbox" class="selected_state" name="local-states" id="SD" stateid="46" lat="44.4468" lon="-100.2382" km="196346">
-<label for="" class="">South Dakota</label>
-<input type="checkbox" class="selected_state" name="local-states" id="TN" stateid="47" lat="35.8608" lon="-86.35" km="106806">
-<label for="" class="">Tennessee</label>
-<input type="checkbox" class="selected_state" name="local-states" id="TX" stateid="48" lat="31.4347" lon="-99.2818" km="676668">
-<label for="" class="">Texas</label>
-<input type="checkbox" class="selected_state" name="local-states" id="VI" stateid="78" lat="18.3267" lon="-64.9713" km="348" style="display:none">
-<label for="" class="" style="display:none">United States Virgin Islands</label>
-<input type="checkbox" class="selected_state" name="local-states" id="UT" stateid="49" lat="39.335" lon="-111.6563" km="213355">
-<label for="" class="">Utah</label>
-<input type="checkbox" class="selected_state" name="local-states" id="VT" stateid="50" lat="44.0686" lon="-72.6692" km="23874">
-<label for="" class="">Vermont</label>
-<input type="checkbox" class="selected_state" name="local-states" id="VA" stateid="51" lat="37.5223" lon="-78.6682" km="102258">
-<label for="" class="">Virginia</label>
-<input type="checkbox" class="selected_state" name="local-states" id="WA" stateid="53" lat="47.4073" lon="-120.5758" km="172118">
-<label for="" class="">Washington</label>
-<input type="checkbox" class="selected_state" name="local-states" id="WV" stateid="54" lat="38.6473" lon="-80.6183" km="62266">
-<label for="" class="">West Virginia</label>
-<input type="checkbox" class="selected_state" name="local-states" id="WI" stateid="55" lat="44.6309" lon="-89.7094" km="140293">
-<label for="" class="">Wisconsin</label>
-<input type="checkbox" class="selected_state" name="local-states" id="WY" stateid="56" lat="42.9897" lon="-107.5444" km="251459">
-<label for="" class="">Wyoming</label>
-</div>
-
 
 <script type="text/javascript" src="../js/map-embed.js"></script>
 <!-- /location filters, location map and list -->
@@ -466,7 +338,7 @@ To do: make the links below an optional widget
 <div id="pageLinks"></div>
 -->
 
-<div style="border-bottom:1px solid #ccc; padding-top:0px; padding-bottom:0px">
+<div id="industryListHolder" style="display:none; border-bottom:1px solid #ccc; padding-top:0px; padding-bottom:0px">
 
 <div id="top-content-columns" class="content contentpadding noprint" style="margin-top:20px; padding-top:0px; padding-bottom:0px">
 
@@ -480,7 +352,7 @@ To do: make the links below an optional widget
 
 		<div style="display:table-row">
 
-			<div id="infoColumn" class="mainColumn mainColumn1" style="display:none; font-size: 15px; position: relative">
+			<div id="infoColumn" class="mainColumnX mainColumn1X" style="display:none; font-size: 15px; position: relative">
 				
 				<div id="aboutToolsDiv" style="position: relative;"></div>
 				
@@ -525,7 +397,7 @@ To do: make the links below an optional widget
 			          <!--option value="2">Subsectors - 3 digits</option-->
 			          <option value="4">Industry Group - 4 digits</option>
 			          <!--option value="4">NAICS Industry - 5 digits</option-->
-			          <option value="6" selected>National Code - 6 digits</option>
+			          <option value="6" selected>NAICS Codes - 6 digits</option>
 			        </select>
 			        <div style="clear:both;margin-bottom:2px"></div>
 
@@ -778,18 +650,21 @@ Georgia-specific input-output dataset is being developed by the EPA.<br><br>
 			<option value="VADD">&nbsp; &nbsp;Value Added (VADD)</option>
 
 
-			<option value="ENRG,LAND,WATR">Resource Use</option>
+			<option value="ENRG,LAND,MNRL,WATR">Resource Use</option>
 
 			<option value="ENRG" title="Energy Use (ENRG): 
 			Energy Use is an indicator of the life cycle total amount of primary energy used as defined by heat value in a combusted resource or the available energy in a renewable resource to a converting device such as a wind turbine or water turbine. This indicator is a combination of the NNRG and RNRG indicators. This indicator is expressed in megajoules (MJ).">&nbsp; &nbsp;Energy Use (ENRG)</option>
 
-			<option value="WATR" title="Water Use (WATR): 
-			Water Use is an indicator of the life cycle total amount (m3) of freshwater withdrawn from surface and groundwater sources in order to provide a given good or service to society.">&nbsp; &nbsp;Water Use (WATR)</option>
-
 			<option value="LAND" title="Land Use (LAND): 
 			Nearly every process requires some amount of land for factories, offices, or roads. This land is often converted from existing natural habitats for wildlife. Habitat loss is the leading cause of wildlife extinctions worldwide and additional habitat conversion could lead to further loss of species. This indicator tracks the total area of usable land occupied to allow for the process. This indicator is expressed in square meters for a year (m2*yr).">&nbsp; &nbsp;Land Use (LAND)</option>
 
-			<option value="">Adverse Impacts</option>
+			<option value="MNRL">&nbsp; &nbsp;Minerals and Metals Use (MNRL)</option>
+
+			<option value="WATR" title="Water Use (WATR): 
+			Water Use is an indicator of the life cycle total amount (m3) of freshwater withdrawn from surface and groundwater sources in order to provide a given good or service to society.">&nbsp; &nbsp;Water Use (WATR)</option>
+
+
+			<option value="ACID,ETOX,EUTR,GHG,HRSP,HTOX,OZON,SMOG">Adverse Impacts</option>
 
 			<option value="ACID" title="Acid Rain (ACID): 
 			Acid rain occurs when acid-precursors are absorbed from the atmosphere by clouds and dissolved in falling rain. Acid rain, while not directly dangerous to people, causes millions of dollars in damage to infrastructure by very slowly dissolving the exposed surfaces of roads, buildings, drains, and even statues. Acid rain is also detrimental to natural life: acidic soils make it difficult or impossible for plants to survive and grow and acidic runoff can disrupt the delicate chemical balance in natural bodies of water. In this indicator, emissions are expressed in sulfur dioxide (SO2) equivalents. The source of the factors for this indicator is TRACI 2.1 (Bare 2012).">&nbsp; &nbsp;Acid Rain (ACID)</option>
@@ -806,12 +681,11 @@ Georgia-specific input-output dataset is being developed by the EPA.<br><br>
 			Hazardous wastes are wastes with properties that make them dangerous or capable of having a harmful effect on human health or the environment. Hazardous waste is generated from many sources, ranging from industrial manufacturing process wastes to batteries and may come in many forms, including liquids, solids, gases and sludges. EPA identifies hazardous waste and collects information on quantities generated through its Biennial Hazardous Waste Report. Individual states can identify hazardous waste beyond what EPA identifies. Unless otherwise specified, quantities reflected in this indicator come from EPA's Biennial Report. This indicator is expressed in kilograms (kg).">&nbsp; &nbsp;Commercial RCRA Hazardous Waste (CRHW)</option>
 			-->
 
+			<option value="ETOX" title="Freshwater Aquatic Ecotoxicity (ETOX): 
+			Like humans, wildlife can be harmed by exposure to toxic chemicals and substances. An ever-expanding list of common chemicals have been assessed for their tendency to cause ecological damage when released in to the air, water, or soil. In this indicator, emissions are expressed in terms of their contribution to ecological damage in the water column of freshwater bodies. A standardized Comparative Toxicity Unit is used. The source of the factors for this indicator is TRACI 2.1 (Bare 2012) which uses USETox 1.0 (Rosenbaum et al. 2008).">&nbsp; &nbsp;Freshwater Aquatic Ecotoxicity (ETOX)</option>
 
 			<option value="EUTR" title="Eutrophication (EUTR): 
 			Aquatic life is frequently limited by access to mineral nutrients, but the most common limiting nutrients are in both agricultural fertilizers and sewage. When these nutrients are carried in to natural water bodies, usually by rain or pipe, they can cause massive blooms of algae. These algae can choke out other life in the water by rapidly taking up oxygen, blocking sunlight, or even releasing toxic chemicals. After the bloom, the algae die and leave behind a devastated ecosystem. In this indicator, emissions are expressed as their equivalent in kilograms of bioavailable nitrogen, based on the emission in question's potential to reach a body of water and its resultant impacts on algal growth. The source of the factors for this indicator is TRACI 2.1 (Bare 2012).">&nbsp; &nbsp;Eutrophication (EUTR)</option>
-
-			<option value="ETOX" title="Freshwater Aquatic Ecotoxicity (ETOX): 
-			Like humans, wildlife can be harmed by exposure to toxic chemicals and substances. An ever-expanding list of common chemicals have been assessed for their tendency to cause ecological damage when released in to the air, water, or soil. In this indicator, emissions are expressed in terms of their contribution to ecological damage in the water column of freshwater bodies. A standardized Comparative Toxicity Unit is used. The source of the factors for this indicator is TRACI 2.1 (Bare 2012) which uses USETox 1.0 (Rosenbaum et al. 2008).">&nbsp; &nbsp;Freshwater Aquatic Ecotoxicity (ETOX)</option>
 
 			<!-- hiddenhash.indicators = "GHG" is also set above on page init. -->
 			<option value="GHG" selectedX title="Greenhouse Gases (GHG): 
@@ -823,9 +697,10 @@ Georgia-specific input-output dataset is being developed by the EPA.<br><br>
 			<option value="HTOX" title="Human Health Toxicity (HTOX): 
 			Millions of tons of chemicals are used in commerce that a human can be exposed to with potential detrimental effect. Exposure to certain chemicals can increase the likelihood of cancer or other illness in humans. In this indicator, emissions are expressed in terms of their contribution to the incidence of cancer and illness in humans. A standardized Comparative Toxicity Unit (CTU) is used. This indicator is a combination of the HCAN and HNCN indicators. The source of the factors for this indicator is TRACI 2.1 (Bare 2012) which uses USETox 1.0 (Rosenbaum et al. 2008).">&nbsp; &nbsp;Human Health Toxicity (HTOX)</option>
 
-			
+			<!--
 			<option value="MINE" title="Minerals and Metals Use (MINE): 
 			Minerals and Metals Use is an indicator of the life cycle total mass of nonmetallic and metallic minerals extracted for use measured in kilograms (kg).">&nbsp; &nbsp;Minerals and Metals Use (MINE)</option>
+			-->
 
 			<option value="OZON" title="Ozone Depletion (OZON): 
 			The earth is surrounded by a protective layer of atmospheric ozone that filters out harmful radiation from the sun. Certain chemicals, when released in to the air, have the ability to react with and destroy large quantities of the ozone layer, allowing more harmful radiation to reach us. Some chemicals are more long lasting or more likely to interact with ozone than others, so they have different destructive potentials. In this indicator, emissions are expressed as their equivalent in kilograms of CFC-11, an extremely harmful gas formerly used as a common refrigerant capable of destroying thousands of times its mass in ozone. The source of the factors for this indicator is TRACI 2.1 (Bare 2012).">&nbsp; &nbsp;Ozone Depletion (OZON)</option>
@@ -833,8 +708,11 @@ Georgia-specific input-output dataset is being developed by the EPA.<br><br>
 			<option value="SMOG" title="Smog Formation (SMOG): 
 			Smog formation is a complex process by which a group of inorganic gases, typically released by the burning of fossil fuels, react with another group of organic substances, typically released by plant-life, to create ozone at the ground-level. Ozone created at the ground level can cause respiratory disease in humans and stresses plant life, making them more susceptible to disease. Ground-level ozone is also generally broken down and destroyed before it can rise up to join the protective atmospheric ozone layer. In this indicator, emissions are expressed in terms of how much they will contribute to the creation of ground-level ozone (O3), units are kg O3 -equivalents. The source of the factors for this indicator is TRACI 2.1 (Bare 2012).">&nbsp; &nbsp;Smog Formation (SMOG)</option>
 
-			<option value="METL,PEST">Chemical Releases</option>
+			<option value="METL,HAPS,PEST">Chemical Releases</option>
+			<!--
 			<option value="METL">&nbsp; &nbsp;Metal (METL)</option>
+			-->
+			<option value="HAPS">&nbsp; &nbsp;Hazardous Air Pollutants (HAPS)</option>
 			<option value="PEST">&nbsp; &nbsp;Pesticides (PEST)</option>
 
 			</select>
@@ -845,9 +723,9 @@ Georgia-specific input-output dataset is being developed by the EPA.<br><br>
     </div>
 
 	<span style="font-size:14px">
-	Select an impact area above and move sliders below to view impacts of different production levels and green tech.<br>
+	Select an impact area above and move sliders below to emulate the effects of changes to levels and technologies.<br>
 	Use the commodities sort menu to choose multiple impact areas. (Center column below, upper right)<br>
-	<span style='color:red'>Values are currently national rather than state-specific.</span><br><br>
+	<span style="color:red; display:none" class="showforstates">Values are currently national rather than state-specific.</span><br><br>
 	</span>
 	<div id="iogrid"></div>
 
@@ -865,6 +743,10 @@ Georgia-specific input-output dataset is being developed by the EPA.<br><br>
 		<h1 style="margin-bottom: 0px">Impact Levels</h1>
 		<span>National impact of <span class="regiontitle"></span></span><br>
 		<div class="sector-list"></div>
+		<!--
+		JOBS and VADD are excluded from the default sort
+		https://github.com/USEPA/useeio-widgets/issues/35
+		-->
 	</div>
 </div>
 
@@ -1061,7 +943,7 @@ config.join(sectorList);
           <input id="mySelect" type="checkbox" checked>
           <span class="slider round"></span>
         </label>
-        <div class="switch-text">Highlight top industries from the counties and/or topic selected above.</div>
+        <div class="switch-text">Highlight top industries from the counties and topic selected above.</div>
 
       </div>
 
@@ -1071,7 +953,11 @@ config.join(sectorList);
 
   	<br><br>
   	NOTE: Indicators like Greenhouse Gases are not currently working in the bubble chart above since we 
-	need to regenerate the <a href="https://github.com/modelearth/community-data/tree/master/us/indicators">indicators-sectors</a> file for USEEEIOv2.0.<br><br>
+	need to <a href="https://github.com/modelearth/io/blob/master/charts/bubble/data/USEEIO_indicators.ipynb">regenerate</a> the <a href="https://github.com/modelearth/community-data/tree/master/us/indicators">indicators-sectors</a> file for USEEEIOv2.0.
+	<!--
+	#5: https://model.earth/localsite/info/data/flowsa/
+	-->
+	<br><br>
 
   	<!-- Reactivate following improvements to industry spotlight below
   	<button onclick="clearBubbleSelection()">Clear Selection</button>
@@ -1095,7 +981,8 @@ config.join(sectorList);
 	<script type="text/javascript" src="../../io/charts/bubble/js/bubble.js"></script>
 	<script>
 	  $(document).ready(function () {
-	    // HACK - call a second time so rollovers work.
+	    // HACK - call twice so rollovers work.
+	    displayImpactBubbles();
 	    displayImpactBubbles();
 	  });
 	</script>
@@ -1336,6 +1223,13 @@ if (!param.geo) { // Others gets called by hashChanged on init.
 
 </script>
 
-
+<style>
+/* override widget scroll bars which apopear 100% */
+::-webkit-scrollbar-thumb {
+    border-radius: 4px;
+    background-color: rgba(255,255,255,.5); 
+    -webkit-box-shadow: 0 0 1px rgb(255 255 255 / 50%);
+}
+</style>
 </body>
 </html>

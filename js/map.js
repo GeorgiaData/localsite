@@ -1,12 +1,18 @@
 // INIT
+//alert("load map.js")
 var dataParameters = [];
 var dp = {};
 var layerControl = {}; // Object containing one control for each map on page.
+if(typeof hash === 'undefined') {
+  // Need to figure out where already declared.
+  // Avoid putting var in front, else "Identifier 'hash' has already been declared" error occurs here: http://localhost:8887/localsite/map/
+  hash = {};
+}
 if(typeof dataObject == 'undefined') {
-    var dataObject = {};
+  var dataObject = {};
 }
 if(typeof priorHash == 'undefined') {
-    var priorHash = {};
+  var priorHash = {};
 }
 
 /* Allows map to remove selected shapes when backing up. */
@@ -61,10 +67,37 @@ var localsite_map = localsite_map || (function(){
 }());
 */
 
+/* Allows map to remove selected shapes when backing up. */
+document.addEventListener('hashChangeEvent', function (elem) {
+  console.log("map.js detects URL hashChangeEvent");
+  hashChangedMap();
+}, false);
+document.addEventListener('hiddenhashChangeEvent', function (elem) {
+  console.log("map.js detects hiddenhashChangeEvent");
+  hashChangedMap();
+}, false);
+
+var priorHashMap = {};
+function hashChangedMap() {
+  let hash = getHash();
+  if (hash.show != priorHashMap.show) {
+    //applyIO(hiddenhash.naics);
+    loadMap1("hashChanged() in map-filters.js", hash.show);
+  } else if (hash.state && hash.state != priorHashMap.state) {
+    // Why are new map points not appearing
+    loadMap1("hashChanged() in map-filters.js new state " + hash.state, hash.show);
+  }
+  priorHashMap = getHash();
+}
+$(document).ready(function () {
+  hashChangedMap();
+});
+
 function loadFromSheet(whichmap,whichmap2,dp,basemaps1,basemaps2,attempts,callback) {
   // To Do: Map background could be loaded while waiting for D3 file. 
   // Move "d3.csv(dp.dataset).then" further down into a new function that starts with the following line.
 
+  console.log('loadFromSheet ' + whichmap);
   // Even without dataset, set titles since NAICS industries are still loaded.
   let defaults = {};
   defaults.zoom = 7;
@@ -78,6 +111,8 @@ function loadFromSheet(whichmap,whichmap2,dp,basemaps1,basemaps2,attempts,callba
   defaults.dataTitle = "Data Projects"; // Must match "map.addLayer(overlays" below.
   if (dp.latitude && dp.longitude) {
       mapCenter = [dp.latitude,dp.longitude];
+  } else {
+    mapCenter = [33.74,-84.38]; // Some center is always needed, else error will occur when first using flyTo.
   }
 
   // Make all keys lowercase - add more here, good to loop through array of possible keeys
@@ -173,7 +208,7 @@ function loadFromSheet(whichmap,whichmap2,dp,basemaps1,basemaps2,attempts,callba
     // We are currently loading dp.dataset from a CSV file.
     // Later we will check if the filename ends with .csv
 
-    if (dp.dataset && dp.dataset.toLowerCase().includes(".json")) { // To Do: only check that it ends with .json
+    if (dp.dataset && (dp.dataset.toLowerCase().includes(".json") || dp.datatype == "json")) { // To Do: only check that it ends with .json
       $.getJSON(dp.dataset, function (data) {
         dp.data = readJsonData(data, dp.numColumns, dp.valueColumn);
         processOutput(dp,map,map2,whichmap,whichmap2,basemaps1,basemaps2,function(results){
@@ -685,7 +720,7 @@ function addIcons(dp,map,map2) {
     if (element.property_link) {
       output += "<a href='" + element.property_link + "'>Property Details</a><br>";
     } else if (element["name"]) {
-      output += "<a href='#show=" + param["show"] + "&name=" + element["name"].replace(/\ /g,"_") + "''>View Details</a><br>";
+      output += "<a href='#show=" + hash.show + "&name=" + element["name"].replace(/\ /g,"_") + "''>View Details</a><br>";
     }
     // ADD POPUP BUBBLES TO MAP POINTS
     if (circle) {
@@ -882,17 +917,19 @@ var tabletop; // Allows us to wait for tabletop to load.
 
 function loadMap1(calledBy, show, dp) { // Called by index.html, map-embed.js and map-filters.js
 
-  //alert('loadMap1 calledBy ' + calledBy);
+  console.log('loadMap1 calledBy ' + calledBy + ' show: ' + show);
   if (!show) {
     show = param["show"];
   }
-  if (!show && param["go"]) {
-    show = param["go"].toLowerCase();
-  }
+
+  let hash = getHash();
+  //if (!show && param["go"]) {
+  //  show = param["go"].toLowerCase();
+  //}
   if (show != showprevious) {
     changeCat(""); // Clear side
   }
-  $("#list_main").hide(); // Hide list and map2 until displayed by state-specific data
+  //$("#list_main").hide(); // Hide list and map2 until displayed by state-specific data
 
   // To do: limit to when layer changes
   //$(".layerclass").hide(); // Hides suppliers, and other layer-specific css
@@ -964,7 +1001,7 @@ function loadMap1(calledBy, show, dp) { // Called by index.html, map-embed.js an
   let community_root = dual_map.community_data_root();
   //let state_root = "/georgia-data/";
   //let state_root = dual_map.custom_data_root();
-  let state_abbreviation = param.state || "GA";
+  let state_abbreviation = hash.state || "GA";
 
   let dp1 = {}
   // Might use when height is 280px
@@ -977,11 +1014,11 @@ function loadMap1(calledBy, show, dp) { // Called by index.html, map-embed.js an
   dp1.zoom = 7;
 
   let theState = $("#state_select").find(":selected").val();
-  if (!theState) {
-    theState = param["state"];
+  if (!theState && param["state"]) {
+    theState = param["state"].toUpperCase();
   }
   if (!theState) {
-    theState = "GA";
+    //theState = "GA";
   }
   if (theState != "") {
     let kilometers_wide = $("#state_select").find(":selected").attr("km");
@@ -1008,7 +1045,7 @@ function loadMap1(calledBy, show, dp) { // Called by index.html, map-embed.js an
   //if (dp && dp[0]) { // Parameters set in page or layer json
   if (dp && dp.dataset) { // Parameters set in page or layer json
     dp1 = dp;
-  } else if (show == "farmfresh") {
+  } else if (show == "farmfresh" && state_abbreviation) {
     dp1.listTitle = "USDA Farm Produce";
     //if (location.host.indexOf('localhost') >= 0) {
       dp1.valueColumn = "type";
@@ -1042,9 +1079,28 @@ function loadMap1(calledBy, show, dp) { // Called by index.html, map-embed.js an
   } else if (show == "brigades") {
     dp1.listTitle = "Coding Brigades";
     dp1.dataset = "https://neighborhood.org/brigade-information/organizations.json";
+    dp1.datatype = "json";
+    dp1.listInfo = "<a href='https://neighborhood.org/brigade-information/'>Source</a> and upcoming: <a href='https://neighborhood.org/brigade-project-index/get-indexed/'>Brigade Project Index</a>"
 
     // , "In Address": "address", "In County Name": "county", "In Website URL": "website"
     dp1.search = {"In Location Name": "name"};
+
+  } else if (show == "buses") {
+    dp1.listTitle = "Bus Locations";
+    dp1.dataset = "https://api.marta.io/buses";
+    dp1.datatype = "json";
+    dp1.nameColumn = "route";
+    dp1.itemsColumn = "DIRECTION";
+    dp1.valueColumn = "DIRECTION";
+    dp1.valueColumnLabel = "Direction";
+    dp1.latitude = 33.74;
+    dp1.longitude = -84.38;
+    dp1.zoom = 12;
+    dp1.refreshminutes = "1";
+    dp1.listInfo = "Enhancements to the MARTA API<br>by Code for Atlanta member jakswa. <a href='https://github.com/jakswa/marta_ui'>GitHub</a>"
+
+    // , "In Address": "address", "In County Name": "county", "In Website URL": "website"
+    dp1.search = {"In Route Number": "ROUTE", "In Vehicle Number": "VEHICLE"}; // Or lowercase?
 
   } else if (show == "trees" && theState == "CA") {
     dp1.listTitle = "Trees";
@@ -1291,7 +1347,7 @@ function loadMap1(calledBy, show, dp) { // Called by index.html, map-embed.js an
         dp1.listLocation = true;
 
       } else {
-        console.log("no show text match for listing map");
+        console.log("no show text match for listing map: " + show);
       }
 
   } // end state GA
@@ -1299,7 +1355,7 @@ function loadMap1(calledBy, show, dp) { // Called by index.html, map-embed.js an
   // Load the map using settings above
 
   // INIT - geo fetches the county for filtering. This will be limited to datasets that contain County columns
-  let hash = getHash();
+  hash = getHash();
   if (hash.geo) {
     loadGeos(hash.geo,0,function(results) {
       loadFromSheet('map1','map2', dp1, basemaps1, basemaps2, 0, function(results) {
@@ -1308,12 +1364,14 @@ function loadMap1(calledBy, show, dp) { // Called by index.html, map-embed.js an
     });
   } else {
     // Set to Georiga - later we'll show globe
-    if (!hash.state) {hash.state = "GA"};
-    $("#state_select").val(hash.state);
-    $(".locationTabText").text($("#state_select").find(":selected").text());
-    $(".locationTabText").attr("title",$("#state_select").find(":selected").text());
-    //$(".locationTabText").text("Georgia");
-    //$(".locationTabText").attr("title","Georgia");
+    if (!hash.state) {
+      //hash.state = "GA"
+      $(".locationTabText").text("States and counties...")
+    } else {
+      $("#state_select").val(hash.state);
+      $(".locationTabText").text($("#state_select").find(":selected").text());
+      $(".locationTabText").attr("title",$("#state_select").find(":selected").text());
+    }
 
     loadFromSheet('map1','map2', dp1, basemaps1, basemaps2, 0, function(results) {
       initialHighlight(hash);  
@@ -1353,9 +1411,17 @@ function initialHighlight(hash) {
   }
 }
 
-jQuery.fn.scrollTo = function(elem) { 
-    $(this).scrollTop($(this).scrollTop() - $(this).offset().top + $(elem).offset().top); 
-    return this; 
+jQuery.fn.scrollTo = function(elem) {
+
+    // BUG Reactivate test with http://localhost:8887/localsite/info/#show=ppe&name=Code_the_South
+    /*
+    if (typeof $(elem) !== "undefined" && typeof $(this) !== "undefined") { // Exists
+      $(this).scrollTop($(this).scrollTop() - $(this).offset().top + $(elem).offset().top);
+      return this;
+    } else {
+      // element does not exist
+    }
+    */
 };
 
 function onTabletopLoad(dp1) {
@@ -1387,7 +1453,8 @@ function loadGeos(geo, attempts, callback) {
 
     let hash = getHash();
     let stateID = {AL:1,AK:2,AZ:4,AR:5,CA:6,CO:8,CT:9,DE:10,FL:12,GA:13,HI:15,ID:16,IL:17,IN:18,IA:19,KS:20,KY:21,LA:22,ME:23,MD:24,MA:25,MI:26,MN:27,MS:28,MO:29,MT:30,NE:31,NV:32,NH:33,NJ:34,NM:35,NY:36,NC:37,ND:38,OH:39,OK:40,OR:41,PA:42,RI:44,SC:45,SD:46,TN:47,TX:48,UT:49,VT:50,VA:51,WA:53,WV:54,WI:55,WY:56,AS:60,GU:66,MP:69,PR:72,VI:78,}
-    let theState = "GA"; // TEMP - TODO: loop trough states from start of geo
+    //let theState = "GA"; // TEMP - TODO: loop trough states from start of geo
+    let theState = hash.state;
 
     var geos=geo.split(",");
     fips=[]
@@ -1411,51 +1478,53 @@ function loadGeos(geo, attempts, callback) {
     }
 
     //Load in contents of CSV file
-    d3.csv(dual_map.community_data_root() + "us/state/" + theState + "/" + theState + "counties.csv").then(function(myData,error) {
-      if (error) {
-        //alert("error")
-        console.log("Error loading file. " + error);
-      }
-      let geoArray = [];
-
-      myData.forEach(function(d, i) {
-
-        let geoParams = {};
-        d.difference =  d.US_2007_Demand_$;
-
-        // OBJECTID,STATEFP10,COUNTYFP10,GEOID10,NAME10,NAMELSAD10,totalpop18,Reg_Comm,Acres,sq_miles,Label,lat,lon
-        //d.name = ;
-        //d.idname = "US" + d.GEOID + "-" + d.NAME + " County";
-
-        //d.perMile = Math.round(d.totalpop18 / d.sq_miles).toLocaleString(); // Breaks sort
-        d.perMile = Math.round(d.totalpop18 / d.sq_miles);
-
-        d.sq_miles = Number(Math.round(d.sq_miles).toLocaleString());
-        var activeGeo = false;
-        var theGeo = "US" + d.GEOID;
-        //alert(geo + " " + theGeo)
-        let geos=geo.split(",");
-        //fips=[]
-        for (var i = 0; i<geos.length; i++){
-            if (geos[i] == theGeo) {
-              activeGeo = true;
-            }
+    if (theState) {
+      d3.csv(dual_map.community_data_root() + "us/state/" + theState + "/" + theState + "counties.csv").then(function(myData,error) {
+        if (error) {
+          //alert("error")
+          console.log("Error loading file. " + error);
         }
+        let geoArray = [];
+
+        myData.forEach(function(d, i) {
+
+          let geoParams = {};
+          d.difference =  d.US_2007_Demand_$;
+
+          // OBJECTID,STATEFP10,COUNTYFP10,GEOID10,NAME10,NAMELSAD10,totalpop18,Reg_Comm,Acres,sq_miles,Label,lat,lon
+          //d.name = ;
+          //d.idname = "US" + d.GEOID + "-" + d.NAME + " County";
+
+          //d.perMile = Math.round(d.totalpop18 / d.sq_miles).toLocaleString(); // Breaks sort
+          d.perMile = Math.round(d.totalpop18 / d.sq_miles);
+
+          d.sq_miles = Number(Math.round(d.sq_miles).toLocaleString());
+          var activeGeo = false;
+          var theGeo = "US" + d.GEOID;
+          //alert(geo + " " + theGeo)
+          let geos=geo.split(",");
+          //fips=[]
+          for (var i = 0; i<geos.length; i++){
+              if (geos[i] == theGeo) {
+                activeGeo = true;
+              }
+          }
 
 
-        geoParams.name = d.NAME;
-        geoParams.pop = d.totalpop18;
-        geoParams.permile = d.perMile;
-        geoParams.active = activeGeo;
+          geoParams.name = d.NAME;
+          geoParams.pop = d.totalpop18;
+          geoParams.permile = d.perMile;
+          geoParams.active = activeGeo;
 
-        geoArray.push([theGeo, geoParams]); // Append an array with an object as the value
+          geoArray.push([theGeo, geoParams]); // Append an array with an object as the value
+        });
+
+        console.log("geoArray")
+        console.log(geoArray)
+        dataObject.geos = geoArray;
+        callback();
       });
-
-      console.log("geoArray")
-      console.log(geoArray)
-      dataObject.geos = geoArray;
-      callback();
-    });
+    }
   } else {
     attempts = attempts + 1;
         if (attempts < 2000) {
@@ -1599,7 +1668,7 @@ function showList(dp,map) {
     dp.data = data_sorted;
   }
 
-  //console.log(dp.data); //TEMP
+  //alert(dp.data); //TEMP
   let hash = getHash(); 
 
   dp.data.forEach(function(elementRaw) {
@@ -2036,8 +2105,6 @@ function showList(dp,map) {
         $("#detaillist").append(output);
       }
     }
-    
-
   });
   console.log("Total " + dp.dataTitle + " " + count);
 
