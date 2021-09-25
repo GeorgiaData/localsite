@@ -3,37 +3,44 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<link rel="icon" type="image/x-icon" href="../img/logo/partners/neighborhood-icon.png" />
+<link rel="shortcut icon" href="data:image/x-icon;," type="image/x-icon">
 
 <!--
-  To create a widget from this page, see steps in map-embed.js.
+  localsite.js pulls in the #insertedText div within this page as template for map portion of layout.
 -->
 
 <title>Community Map</title>
 
 <!-- For Goole Sheets, since CORS blocks CSV loading on some sheets. -->
-<script type="text/javascript" src="/localsite/map/neighborhood/js/tabletop.js" id="/localsite/map/neighborhood/js/tabletop.js"></script>
+<script type="text/javascript" src="../map/neighborhood/js/tabletop.js" id="/localsite/map/neighborhood/js/tabletop.js"></script>
 
-<script type="text/javascript" src="../js/showdown.min.js"></script>
-<script type="text/javascript" src="../js/jquery.min.js"></script>
+<script type="text/javascript" src="../js/showdown.min.js" id="/localsite/js/showdown.min.js"></script>
+<script type="text/javascript" src="../js/jquery.min.js" id="/localsite/js/jquery.min.js"></script>
 <script type="text/javascript" src="../js/localsite.js"></script>
 
 <script>
   let hash = getHash();
   if (!hash.show) {
-    hiddenhash.show = "brigades"; // Used by loadFromSheet which is called by loadMap1
+    hiddenhash.layers = "brigades"; // Used by loadFromSheet which is called by loadMap1
   }
+  if (!hash.state) {
+    if (hash.show == "recycling" || hash.show == "ppe" || hash.show == "suppliers" || hash.show == "360" || hash.show == "opendata") {
+      hiddenhash.state = "GA";
+    }
+  }
+  // To implement
+  // param.zoom = 8
 </script>
 
-<link type="text/css" rel="stylesheet" href="../css/base.css" />
-<link rel="stylesheet" href="../css/search-filters.css" />
-<link rel="stylesheet" href="../css/map-display.css" />
+<link type="text/css" rel="stylesheet" href="../css/base.css" id="/localsite/css/base.css" />
+<link rel="stylesheet" href="../css/search-filters.css" id="/localsite/css/search-filters.css" />
+<link rel="stylesheet" href="../css/map-display.css" id="/localsite/css/map-display.css" />
 <!--
 <link rel="stylesheet" href="../css/hexagons.css">
 -->
 
 
-<!-- Header Navigation -->
+<!-- Local Header Navigation -->
 <script>
     if(typeof param == 'undefined') {
       var param = {};
@@ -45,11 +52,11 @@
 </script>
 
 <!-- Activate to include site navigation-->
-<script type="text/javascript" src="../js/navigation.js"></script>
-<link rel="stylesheet" href="../css/leaflet.css" />
+<script type="text/javascript" src="../js/navigation.js" id="/localsite/js/navigation.js" ></script>
+<link rel="stylesheet" href="../css/leaflet.css" id="/localsite/css/leaflet.css" />
  <!-- Resides AFTER Leaflet's CSS -->
 <script src="../js/leaflet.js" id="/localsite/js/leaflet.js"></script>
-<script src="../js/d3.v5.min.js"></script>
+<script src="../js/d3.v5.min.js" id="/localsite/js/d3.v5.min.js"></script>
 
 <!-- Resides in info/index.html and map/index.html -->
 <!--
@@ -97,6 +104,7 @@
 
 <body>
 
+
 <!-- INTRO -->
 
 <div id="introDiv" style="display:none" class="content contentpadding"></div>
@@ -127,13 +135,35 @@
 </script>
 <!-- /INTRO -->
 
+<div id="insertedText">
 
 <!-- Start HTML -->
+
+<style type="text/css">
+  .show-on-load {display: none;}
+  /* STYLE OVERRIDES FOR DRUPAL */
+  #legendHolder {min-width: 270px;}
+  .component--custom_markup > .content {max-width:100%}
+  .component--main_content, .component--single_column_content {padding:0px}
+  svg {max-width:none;}
+  .visually-hidden {display: none !important;}
+</style>
+
+<div id="log_display" style="display:none" class="localonlyX"><span style='float:left; font-size:10px'>LOG</span><br><textarea id="logText">MyTest</textarea></div>
+
+<!-- Also update headerbar and headerOffset 
+class="headerbarheight"
+-->
+
+<!--
+<div class="filterbarOffset" style="height:56px; pointer-events:none"></div>
+-->
 
 <!-- FILTERS -->
 <div class="search-filters-css" style="display:none">
 <div id="headerFixed" class="filterPanel">
-  <div class="headerOffset headerOffsetOne" style="display: none">&nbsp;</div>
+
+  <div class="headerOffset headerOffsetOne">&nbsp;</div>
 
   <div class="filterPanel_background">
   </div>
@@ -143,10 +173,7 @@
   
   <div class="hideWhenPop">
 
-  <!-- Matches filterFields and headerFixed height -->
-  <div class="headerOffset2" style="height:56px;"></div>
-
-  <div id="filterFieldsHolder" class="contentfull noprint" style="margin:0 auto; padding-top:0px; float:left; width:100%">
+  <div id="filterFieldsHolder" class="contentfull noprint" style="margin:0 auto; padding-top:0px; padding-left:40px; float:left; width:100%">
 
     <!-- Displayed on scroll up -->
     <div class="showMenuSmNav" style="float:right; display:none">
@@ -165,69 +192,92 @@
       <div id="logoholderbar" style="display:none;float:left;">
       </div>
 
-      <div class="hideMobile" style="float:right;">
+
+      <div style="float:right;">
         <div class="filterLabel">
             <div class="filterLabelMain">
             </div>
         </div>
-        <div class="showApps local" style="display:none; padding:0; border:0px solid #ccc; margin-right:4px">
-          <i class="material-icons georgiaorg-hide" style="font-size:34px">&#xE5C3;</i>
+        <div class="showApps" style="border:0px solid #ccc;">
+          <i class="material-icons show-on-load georgiaorg-hide" style="font-size:34px;">&#xE5C3;</i>
         </div>
       </div>
 
-      <div style="overflow:visible" class="filterField locationTab">
-        <div class="filterLabel">
-          <div class="filterLabelMain">
-            Where
+      <div class="hideMobile localX" style="float:right;display:none;">
+        <ul class="filterUL" style="margin:18px 12px 0 10px;clear:both;min-width:120px;">
+
+            <li data-id="all"><a href="#">Earth</a></li>
+            <li data-id="country" geo="US"><a href="#">USA</a></li>
+            <!--
+            <li data-id="state" class="selected" style="white-space:nowrap"><a href="#">Entire State</a></li>
+            
+            <li data-id="state" geo="US13" class="selected" style="white-space:nowrap"><a href="#">Georgia</a></li>
+            -->
+            
+            <li data-id="city" class="local" style="display:none"><a href="#">Cities</a></li>
+            <li data-id="counties"><a href="#">Counties</a></li>
+            <li data-id="zip" class="local" style="display:none,white-space:nowrap"><a href="#">Zip Code</a></li>
+            
+            <li data-id="latlon" class="hideFilter"><a href="#">Lat/Lon</a></li>
+            <li data-id="nearby" class="hideFilter"><a href="#">Nearby</a></li>
+            
+        </ul>
+      </div>
+
+
+      <div style="float:left">
+        <div style="overflow:visible" class="filterField locationTab">
+          <div class="filterLabel">
+            <div class="filterLabelMain">
+              Where
+              </div>
+          </div>
+
+          <!--
+            https://www.maxon.net/en/buy
+
+            overflow:auto; causes vertical scroll to appear here:
+          -->
+          <div style="position:relative;">
+            <div class="filterClick" id="filterClickLocation" style="display:none">
+
+              <div class="select-menu-arrow-holder">
+                <!-- We could place over all select menus
+                  https://fabriceleven.com/design/clever-way-to-change-the-drop-down-selector-arrow-icon/ -->
+                <i id="showLocations" class="material-icons" style="font-size:24px;display:none">&#xE313;</i>
+                <i id="hideLocations"  class="material-icons show-on-load" style="font-size:24px;cursor:pointer;">&#xE409;</i>
+              </div>
+              <div class="filterClickText locationTabText">Locations</div><!-- Entire State -->
             </div>
-        </div>
-
-        <!--
-          https://www.maxon.net/en/buy
-
-          overflow:auto; causes vertical scroll to appear here:
-        -->
-        <div style="position:relative;">
-          <div class="filterClick" id="filterClickLocation">
-
-            <div class="select-menu-arrow-holder">
-              <!-- We could place over all select menus
-                https://fabriceleven.com/design/clever-way-to-change-the-drop-down-selector-arrow-icon/ -->
-              <i id="showLocations" class="material-icons" style="font-size:24px;display:none">&#xE313;</i>
-              <i id="hideLocations"  class="material-icons" style="font-size:24px;cursor:pointer;">&#xE409;</i>
-            </div>
-            <div class="filterClickText locationTabText">State...</div><!-- Entire State -->
           </div>
         </div>
 
-      </div>
 
+        <div id="appSelectHolder" class="filterField layerclass">
+          <div id="catSearchHolder">
 
-      <div id="appSelectHolder" class="filterField layerclass">
-        <div id="catSearchHolder">
-
-            <div class="filterLabel">
-              <div class="filterLabelMain">
-              Show
+              <div class="filterLabel">
+                <div class="filterLabelMain">
+                Show
+                </div>
               </div>
-            </div>
 
-            <div class="filterClick showApps" style="position:relative; overflow:auto;">
+              <div class="filterClick showApps" style="position:relative; overflow:auto;">
 
-              <div class="select-menu-arrow-holder">
-                  <i class="material-icons" style="font-size:24px;cursor:pointer;">&#xE409;</i>
-                  <i class="material-icons" style="font-size:24px;cursor:pointer;display:none;">&#xE313;</i>
+                <div class="select-menu-arrow-holder">
+                    <i class="material-icons show-on-load" style="font-size:24px;cursor:pointer;">&#xE409;</i>
+                    <i class="material-icons" style="font-size:24px;cursor:pointer;display:none;">&#xE313;</i>
+                </div>
+                <div style="width:100%">
+                  <div class="filterClickText" id="showAppsText" title="Goods & Services">Goods & Services</div>
+                </div>
               </div>
-              <div style="width:100%">
-                <div class="filterClickText" id="showAppsText" title="Display...">Display...</div>
-              </div>
-            </div>
 
+          </div>
         </div>
       </div>
 
-
-      <div style="display:none;" class="filterField layerclass mock-up suppliers exporter">
+      <div style="display:none;" class="filterField layerclass mock-up suppliers exporter products">
         <div id="catSearchHolder">
           <div class="filterLabel">
             <div class="filterLabelMain">
@@ -240,7 +290,7 @@
 
                 <div class="select-menu-arrow-holder">
                   <i class="material-icons" style="font-size:24px;cursor:pointer;display:none;">&#xE409;</i>
-                  <i class="material-icons" style="font-size:24px;cursor:pointer;">&#xE313;</i>
+                  <i class="material-icons show-on-load" style="font-size:24px;cursor:pointer;">&#xE313;</i>
                 </div>
                 <!--
                 <select id="selectProduct" class="selectMenu" style="float:left">
@@ -272,7 +322,7 @@
           </div>
           <!--
           <div style="position:absolute; right:8px; top:10px; z-index:1">
-            <i id="showAdvancedXXX" class="material-icons" style="font-size:24px;cursor:pointer">&#xE409;</i>
+            <i id="showAdvancedXXX" class="material-icons show-on-load" style="font-size:24px;cursor:pointer">&#xE409;</i>
             
           </div>
           -->
@@ -280,9 +330,9 @@
           <!-- speech input -->
             <!-- was a button -->
           
-          <div class="si-wrapperX" style="position:relative; float:left">
+          <div class="si-wrapper" style="position:relative; float:left">
             
-              <div style="display:none" class="si-btn mock-up">
+              <div style="display:none; float:right; padding-left:7px" class="si-btn mock-up">
                   <span class="si-holder" style="font-size: 20px">&#127897;</span>
               </div>
           
@@ -330,7 +380,10 @@
                     <div class="filterBubble">
 
                       <div id="findWhat" style="min-width: 176px">
+
+                        <!--
                         <div class="hideAdvanced" style="float:right;cursor:pointer">&#10005;</div>
+                        -->
 
                         <div style="display:none;float:left;margin-right:20px">
                           <input type="checkbox" name="findLocation" id="findLocation" value="findLocation" checked><label for="findLocation" class="filterCheckboxTitle">Search Listings</label><br>
@@ -351,28 +404,28 @@
       <!-- END KEYWORD SEARCH -->
 
       <!-- Down arrow -->
-        <div class="local catchClick hideEmbed" style="position:relative;float:right;overflow:visible;">
+        <div class="localX catchClick hideEmbed" style="position:relative;float:right;overflow:visible;display:none">
 
           <div class="filterLabel">
             <div class="filterLabelMain">
             </div>
           </div>
 
-          <div class="toggleListOptions pagebutton" style="margin-right:15px"><i class="material-icons dots-vertical" style="font-weight:900; font-size: 32px; padding:0px; margin:0px">&#xE5C5;</i>
+          <div class="toggleListOptions pagebutton" style="margin-right:15px"><i class="material-icons show-on-load dots-vertical" style="font-weight:900; font-size: 32px; padding:0px; margin:0px">&#xE5C5;</i>
           </div>
 
           <div class="listOptions filterBubble">
 
             <div class="hideEmbed" style="display:none">
 
-              <div class="reduceHeader menuItem" style="display:none"><i class="material-icons" style="margin-top:-5px;">&#xE3C4;</i>Narrow Header</div>
+              <div class="reduceHeader menuItem" style="display:none"><i class="material-icons show-on-load" style="margin-top:-5px;">&#xE3C4;</i>Narrow Header</div>
 
               <!-- Google Icons - search for "crop" -->
               <div class="revealImage menuItem" style="display:none"><i class="material-icons" style="margin-top:-5px;">&#xE3C4;</i>Full Header Image</div>
 
-              <div class="hideInfo hideInfoLink menuItem"><i class="material-icons" style="margin-top:-5px">&#xE88E;</i>Hide Bar</div>
+              <div class="hideInfo hideInfoLink menuItem"><i class="material-icons show-on-load" style="margin-top:-5px">&#xE88E;</i>Hide Bar</div>
 
-              <div class="showInfo showInfoLink menuItem" style="display:none"><i class="material-icons" style="margin-top:-10px">&#xE88E;</i>Show Info</div>
+              <div class="showInfo showInfoLink menuItem" style="display:none"><i class="material-icons show-on-load" style="margin-top:-10px">&#xE88E;</i>Show Info</div>
 
             </div>
 
@@ -386,6 +439,7 @@
               <div class="local menuItem hashTest" style="display:none; cursor: pointer">
                 <i class="material-icons" style="font-weight:900; margin-top:-5px">&#xE5D5;</i> Hidden Hash
               </div>
+
             </div>
 
             <!--
@@ -703,7 +757,10 @@
 <!-- Currently map-filters.js limits loading to localhost -->
 <div class="search-filters-css" style="display:none">
 <div id="bigThumbPanelHolder" style="display:none;position: relative;">
+
+  <!--
   <div class="hideApps close-X" style="position:absolute;right:0;top:0;z-index:1">✕</div>
+  -->
 
   <div style="overflow:auto;position:relative">
   <a name="sections"></a>
@@ -715,7 +772,7 @@
       </div>
     -->
 
-      <div class="bigThumbMenu" style="margin:0 auto; "></div>
+      <div class="bigThumbMenu" style="margin:0 auto;"></div>
 
       <div id="honeyMenuHolder" style="display:none">
         <div id="honeycombMenu"></div>
@@ -728,7 +785,7 @@
 <div style="clear:both"></div>
 <!-- /APP MENU -->
 
-            
+
 <!-- LOCATION SEARCH -->
 <!-- For inactive portions - copy scripts from explore/js/embed.js -->
 <div id="filterLocations" class="fieldSelector filterBubbleHolder">
@@ -755,47 +812,27 @@
       </div>
       -->
     
-    
-      <div class="hideMobile" style="display:none; float:left; clear:both">
-        <ul class="filterUL" style="margin:18px 12px 0 30px;clear:both;min-width:120px;float:left">
-
-            <li data-id="all" style="display:none"><a href="#">All</a></li>
-            <li data-id="country" geo="US"><a href="#">USA</a></li>
-            <!--
-            <li data-id="state" class="selected" style="white-space:nowrap"><a href="#">Entire State</a></li>
-            
-            <li data-id="state" geo="US13" class="selected" style="white-space:nowrap"><a href="#">Georgia</a></li>
-            -->
-            
-            <li data-id="city" class="local" style="display:none"><a href="#">Cities</a></li>
-            <li data-id="counties"><a href="#">Counties</a></li>
-            <li data-id="zip" class="local" style="display:none,white-space:nowrap"><a href="#">Zip Code</a></li>
-            
-            <li data-id="latlon" class="hideFilter"><a href="#">Lat/Lon</a></li>
-            <li data-id="nearby" class="hideFilter"><a href="#">Nearby</a></li>
-            
-        </ul>
-
-
-      </div>
       <div id="locationFilterHolder" style="overflow:auto; padding:20px 0 20px 40px;">
 
+            
             <div class="hideAdvanced close-X" style="float:right; margin-top:-20px">&#10005;
             </div>
 
             <div class="stateFilters input-output" style="float:left; display:none" class="mock-up earth">
-              <b>State</b><br>
+              <b><!--States--></b><br>
+              <div id="state_select_holder">
                 <select id="state_select" name="state">
-                 <option></option>
-<option value="AL" stateid="01" lat="32.7396" lon="-86.8435" km="131174">Alabama</option>
-<option value="AK" stateid="02" lat="63.3474" lon="-152.8397" km="1478927">Alaska</option>
+                 <option value="">Choose a location...</option>
+<!-- Removed 0 from 01 to 09, not sure why stateID skips 3 and 7 -->
+<option value="AL" stateid="1" lat="32.7396" lon="-86.8435" km="131174">Alabama</option>
+<option value="AK" stateid="2" lat="63.3474" lon="-152.8397" km="1478927">Alaska</option>
 <option value="AS" stateid="60" lat="-14.2672" lon="-170.6683" km="198"  style="display:none">American Samoa</option>
-<option value="AZ" stateid="04" lat="34.2039" lon="-111.6064" km="294360">Arizona</option>
-<option value="AR" stateid="05" lat="34.8955" lon="-92.4446" km="134777">Arkansas</option>
-<option value="CA" stateid="06" lat="37.1552" lon="-119.5434" km="403660">California</option>
-<option value="CO" stateid="08" lat="38.9938" lon="-105.5083" km="268420">Colorado</option>
+<option value="AZ" stateid="4" lat="34.2039" lon="-111.6064" km="294360">Arizona</option>
+<option value="AR" stateid="5" lat="34.8955" lon="-92.4446" km="134777">Arkansas</option>
+<option value="CA" stateid="6" lat="37.1552" lon="-119.5434" km="403660">California</option>
+<option value="CO" stateid="8" lat="38.9938" lon="-105.5083" km="268420">Colorado</option>
 <option value="MP" stateid="69" lat="14.9368" lon="145.601" km="472" style="display:none">Commonwealth of the Northern Mariana Islands</option>
-<option value="CT" stateid="09" lat="41.5799" lon="-72.7467" km="12542">Connecticut</option>
+<option value="CT" stateid="9" lat="41.5799" lon="-72.7467" km="12542">Connecticut</option>
 <option value="DE" stateid="10" lat="38.9986" lon="-75.4416" km="5047">Delaware</option>
 <option value="DC" stateid="11" lat="38.9042" lon="-77.0165" km="158" style="display:none">District of Columbia</option>
 <option value="FL" stateid="12" lat="28.4574" lon="-82.4091" km="138947">Florida</option>
@@ -845,6 +882,8 @@
 <option value="WY" stateid="56" lat="42.9897" lon="-107.5444" km="251459">Wyoming</option>
 
                </select>
+               </div>
+               
                <br><br>
             </div>
 
@@ -866,21 +905,24 @@
             </div>
 
         <!-- GOOGLE ADDRESS AUTOCOMPLETE -->
+        <!-- USES "Google Autocomplete" javascript in map-filters.js 
+        Currently flacky.  Works after returning to page, sometimes.          
+        -->
         <style>
 
         </style>
         <div id="app">
 
-          <div class="local" style="display:none">
+          <div id="local_auto_complete" class="localX" style="display:none">
             <div class="place_details input-output" style="float:left;margin-bottom:15px">
-            
-              <b style="margin-top:0px">Address Lookup</b> <a href="auto">project</a><br>
+              <a style="float:right" href="/localsite/map/auto">?</a>
+              <b style="margin-top:0px">Address</b> <br>
             
               <input 
                 class="filterClick"
                 id="searchloc"
-                style="max-width:400px; float:left; display: block; width: 60vw; font-size: 1rem; font-weight: 400; line-height: 2rem;"
-                placeholder="Enter an address, city, state, county or zip"
+                style="max-width:300px; float:left; display: block; width: 60vw; font-size: 1rem; font-weight: 400; line-height: 2rem;"
+                placeholder="Address, city, state, county or zip"
                 onfocus="value = ''" 
                 type="text" />
               <br><br>
@@ -894,7 +936,7 @@
               <h3>Website: &nbsp; {{ website }}</h3>
               </div>
 
-              <div id="readmeDiv"></div>
+              
             </div>
 
             <!--
@@ -1013,7 +1055,7 @@
         <div id="geoPicker" style="display:none">
           <div style="float:left">
             <!-- Must be displayed initiallly so tiles are visible -->
-              <div id="geomap" style="width:440px; height:530px; margin:0 30px 30px 0; border:1px solid blue; position: relative">
+              <div id="geomap" style="width:702px; height:530px; margin:0 30px 30px 0; border:1px solid blue; position: relative">
               </div>
           </div>
 
@@ -1025,12 +1067,13 @@
 
               <div style="position:absolute; bottom:0; left:0px; right:36px; padding:2px 2px 2px 16px; background-color:#ddd; z-index:2">
 
+                  <div style="float:right; padding:0px 12px 0px 12px; margin-top:5px; margin-bottom:5px;">
+                    <div class="detailbutton hideAdvanced greenbutton" style="padding:10px 18px 10px 18px;">DONE</div>
+                  </div>
+
                   <div style="displayX:table; width:100%">
                     <div style="float:left; min-height:30px; padding:10px; displayX: table-cell; vertical-align: middle">
-                      Choose counties above or click on map.
-                    </div>
-                    <div style="displayX: table-cell; padding:3px 7px 7px 7px;">
-                      <div class="detailbutton hideAdvanced greenbutton" style="float:left">Done</div>
+                      Check one or more counties above or click the map.
                     </div>
                   </div>
 
@@ -1043,6 +1086,35 @@
                 </div>
                 -->
                 
+                <style>
+                  #show_county_colors {
+                    position: absolute;
+                    right:50px;
+                    bottom:50px;
+                    background-color: #fff;
+                    border-radius: 18px;
+                    font-size: 14px;
+                    padding: 10px 20px;
+                    cursor: pointer;
+                    z-index:2000;
+                  }
+                  #show_county_colors:hover {
+                    background-color: #999;
+                    color:#fff;
+                  }
+                </style>
+
+                <div class="local" style="display:none">
+                  <div id="show_county_colors">Show Densities</div>
+                </div>
+
+                <!-- Tabular: Latest version -->
+                
+                <div id="tabulator-geotable"></div>
+                <div style="margin-top:8px; font-size: 12px">
+                  Dataset displayed by <a href="../../../localsite/info/data/" target="_blank">Tabulator</a><br><br>
+                </div>
+
                 <div style="width:100%" class="output_table rotateHeader">
                 </div>
               </div>
@@ -1069,7 +1141,7 @@ Displayed by hashChanged() in map-filters.js
   <br>
     
     <div style="float:right; padding: 12px 0px 10px 0" class="noprint hideMobile">
-      <a href="https://model.earth/io/charts/">About Widgets</a>
+      <a href="https://model.earth/io/charts/">About&nbsp;Widgets</a>
     </div>
      <div id="pageLinksInsert" style="displayX:none; float:left; font-size: 15px; padding: 12px 30px 10px 0">
           <a onClick="go({}); return false;"  href="./">Overview</a> | 
@@ -1090,7 +1162,7 @@ Displayed by hashChanged() in map-filters.js
 <div style="clear:both"></div>
 
 <div class="displayOnload" style="display:none;position:relative">
-  <div id="map1"></div>
+  <div id="map1" style="display:none"></div>
   <div class="localonly" id="legendHolder" style="display:none">
     <div id="allLegends"></div>
   </div>
@@ -1098,11 +1170,16 @@ Displayed by hashChanged() in map-filters.js
 
 <div style="clear:both"></div>
 
-<div style="margin:0px 40px 0 40px"><iframe id="mapframe" style="display:none; margin-top:40px; width:100%;height:800px;"></iframe></div>
+<div id="showIframeCover" onclick="this.style.display='none';$('#iframeCover').show();" style="display:none;position:fixed; z-index:10; color:#fff; cursor: pointer; padding:10px">Reactivate Scrolling</div>
+<!-- ../img/hero/hexagon-pattern.png  -->
+<div id="iframeCover" onclick="this.style.display='none';$('#showIframeCover').show();" style="display:none; background-image: url('https://www.georgia.org/themes/custom/mmg8_cog/dist/images/honeycomb.png'); position: absolute; z-index: 10; width:100%; height:800px"></div>
+<div style="margin:0px">
+  <iframe id="mapframe" style="display:none; width:100%;height:800px;"></iframe>
+</div>
 
 <div id="tableSide" class="hideMobile">
 
-  <div id='sidecolumn' class='hideprint, local, earth' style="display: none">
+  <div id='sidecolumnX' class='hideprint, local, earth' style="displayX: none">
 
 
 
@@ -1127,24 +1204,27 @@ Displayed by hashChanged() in map-filters.js
   }
 </style>
 <div style="display:none" class="local">
+<!-- 
+Checkbox list.  The select list above is used by naics.js
+Removed 0 from 01 to 09, not sure why stateID skips 3 and 7 -->
 <div id="selected_states">
-<input type="checkbox" class="selected_state" name="local-states" id="AL" stateid="01" lat="32.7396" lon="-86.8435" km="131174">
+<input type="checkbox" class="selected_state" name="local-states" id="AL" stateid="1" lat="32.7396" lon="-86.8435" km="131174">
 <label for="AL" class="">Alabama</label>
-<input type="checkbox" class="selected_state" name="local-states" id="AK" stateid="02" lat="63.3474" lon="-152.8397" km="1478927">
+<input type="checkbox" class="selected_state" name="local-states" id="AK" stateid="2" lat="63.3474" lon="-152.8397" km="1478927">
 <label for="AK" class="">Alaska</label>
 <input type="checkbox" class="selected_state" name="local-states" id="AS" stateid="60" lat="-14.2672" lon="-170.6683" km="198" style="display:none">
 <label for="AS" class="" style="display:none">American Samoa</label>
-<input type="checkbox" class="selected_state" name="local-states" id="AZ" stateid="04" lat="34.2039" lon="-111.6064" km="294360">
+<input type="checkbox" class="selected_state" name="local-states" id="AZ" stateid="4" lat="34.2039" lon="-111.6064" km="294360">
 <label for="AZ" class="">Arizona</label>
-<input type="checkbox" class="selected_state" name="local-states" id="AR" stateid="05" lat="34.8955" lon="-92.4446" km="134777">
+<input type="checkbox" class="selected_state" name="local-states" id="AR" stateid="5" lat="34.8955" lon="-92.4446" km="134777">
 <label for="AR" class="">Arkansas</label>
-<input type="checkbox" class="selected_state" name="local-states" id="CA" stateid="06" lat="37.1552" lon="-119.5434" km="403660">
+<input type="checkbox" class="selected_state" name="local-states" id="CA" stateid="6" lat="37.1552" lon="-119.5434" km="403660">
 <label for="CA" class="">California</label>
-<input type="checkbox" class="selected_state" name="local-states" id="CO" stateid="08" lat="38.9938" lon="-105.5083" km="268420">
+<input type="checkbox" class="selected_state" name="local-states" id="CO" stateid="8" lat="38.9938" lon="-105.5083" km="268420">
 <label for="CO" class="">Colorado</label>
 <input type="checkbox" class="selected_state" name="local-states" id="MP" stateid="69" lat="14.9368" lon="145.601" km="472" style="display:none">
 <label for="MP" class="" style="display:none">Commonwealth of the Northern Mariana Islands</label>
-<input type="checkbox" class="selected_state" name="local-states" id="CT" stateid="09" lat="41.5799" lon="-72.7467" km="12542">
+<input type="checkbox" class="selected_state" name="local-states" id="CT" stateid="9" lat="41.5799" lon="-72.7467" km="12542">
 <label for="CT" class="">Connecticut</label>
 <input type="checkbox" class="selected_state" name="local-states" id="DE" stateid="10" lat="38.9986" lon="-75.4416" km="5047">
 <label for="DE" class="">Delaware</label>
@@ -1243,7 +1323,7 @@ Displayed by hashChanged() in map-filters.js
 </div>
 </div>
 
-  </div>
+  </div><!-- /sidecolumn -->
 
   <!-- INDUSTRIES -->
   <div class="mock-up" style="display:none; padding-top:20px; padding-bottom:80px">
@@ -1392,7 +1472,7 @@ Displayed by hashChanged() in map-filters.js
     <div id="hublist" style="margin-top:20px">
       <div id="hublist-padding">
         
-        <h1 class="listTitle" style="display:none;margin-bottom:12px"></h1>
+        <h1 class="listTitle" style="margin-bottom:12px">Loading...</h1>
         <h2 class="listSubtitle" style="display:none"></h2>
 
         <div style="display:none" class="layerclass farmfresh">
@@ -1491,7 +1571,7 @@ Displayed by hashChanged() in map-filters.js
           <div id="detaillist"></div>
           <div id="narrowlist" style="display:none"></div>
 
-          <div id="dataListTop" class='exporter' style="display:none;overflow:auto;margin-bottom:8px">
+          <div id="dataListTop" class='exporter products' style="display:none;overflow:auto;margin-bottom:8px">
 
             <div style='float:left'>
               Select up to 10 companies when requesting contact info.
@@ -1536,96 +1616,7 @@ Displayed by hashChanged() in map-filters.js
           <b>Disclaimer:</b>  The Georgia Department of Economic Development (GDEcD) is collecting information from Georgia companies that indicate they are producing essential medical supplies in response to the COVID-19 pandemic. GDEcD is sharing these companies’ information with Georgia’s units of local government and other potential in-state buyers of these essential medical supplies merely as a courtesy. The following product information and addresses were submitted by private companies to GDEcD, and this list does not constitute an endorsement of any particular company or product by the State or by GDEcD.  GDEcD does not make any representations or warranties as to the accuracy of this information, or as to the quality or quantity of the products offered by these companies. Buyers use this information at their own risk.  Buyers are encouraged to contact the companies directly, for product specifications, delivery options, and other information required for executing a purchase.  Buyers are cautioned to make their own determinations regarding supplier responsibility, including but not limited to assessing whether the supplier has appropriate financial, organization and operational capacity, appropriate legal authority to do business in Georgia, a satisfactory record of integrity, and an acceptable performance record on past contracts.
         </div>
 
-        <!-- INDUSTRIES -->
-        <div class="mock-up" style="display:none; padding-bottom:80px">
-
-          <!-- TOP WIDGETS -->
-          <div>
-
-            <div style="margin-bottom:14px">
-              <b style="font-size:16px">About</b><br>
-              <a href="https://model.earth/io/charts">Embeddable  charts</a> - 
-              <a href="./?show=pickup&design=1">Design Ideas</a> - 
-              <a href="./?show=suppliers">C19 Logistics</a>
-            </div>
-
-            <div style="display:none; float:left; margin-right:30px">
-              Changing filters will update the URL hash value, which will trigger updates to independent widgets.
-
-              <b>Location & Weight:</b> Country, State, County, Zip<br>
-              <b>BEA Sector & Intensity:</b> Industry ID : Percent<br>
-              <b>Census & Level:</b> Population, Education, etc.<br>
-              <b>Product HS Codes</b>
-            </div>
-            
-            <div style="clear:both"></div>
-
-
-            
-            <div style="overflow: auto;" class="leftWidget eWidget">
-             
-                <!-- POSITIVE OUTCOMES -->
-                <div class="widgetbar">
-                  <div style="float:left">OUTCOME</div>
-                  <div style="float:right; padding-right:10px"><span style='color:#555'>YOUR SCORE:</span> 500</div>
-                </div>
-                <div class="topboxes outcomesbox" style="min-height: 120px">
-
-                  <!-- was width:230px; -->
-                  <div style="float:left;width:250px; margin-right:30px">
-                    <div>1. Value-Added <span><img src="/localsite/info/img/greenbar.gif" style="width:80px;height:14px;margin-right:8px">50</span></div>
-                    <div>2. Quality Jobs <span><img src="/localsite/info/img/greenbar.gif" style="width:80px;height:14px;margin-right:8px">50</span></div>
-                    <div>3. Clean Air <span><img src="/localsite/info/img/greenbar.gif" style="width:80px;height:14px;margin-right:8px">50</span></div>
-                    <div>4. Clean Water <span><img src="/localsite/info/img/greenbar.gif" style="width:80px;height:14px;margin-right:8px">50</span></div>
-                    <div>5. Clean Energy <span><img src="/localsite/info/img/greenbar.gif" style="width:80px;height:14px;margin-right:8px">50</span></div>
-                    
-                  </div>
-                  <div style="float:left;width:250px">
-                    <div>6. Local Suppliers <span><img src="/localsite/info/img/greenbar.gif" style="width:80px;height:14px;margin-right:8px">50</span></div>
-                    <div>7. Green Materials <span><img src="/localsite/info/img/greenbar.gif" style="width:80px;height:14px;margin-right:8px">50</span></div>
-                    <div>8. Inclusive Design <span><img src="/localsite/info/img/greenbar.gif" style="width:80px;height:14px;margin-right:8px">50</span></div>
-                    <div>9. Improves Health <span><img src="/localsite/info/img/greenbar.gif" style="width:80px;height:14px;margin-right:8px">50</span></div>
-                    <div>10. Creates Beauty <span><img src="/localsite/info/img/greenbar.gif" style="width:80px;height:14px;margin-right:8px">50</span></div>
-                  </div>
-                </div>
-              
-            </div>
-            <div style="clear:both"></div>
-
-
-            <div style="overflow: auto;" class="leftWidget eWidget">
-                <div class="widgetbar">
-                  ADVERSE IMPACTS
-                  <div style="float:right; font-weight:400; padding-right:10px">
-                  Supply Chain - Full System - Production
-                  </div>
-                </div>
-                <div style="clear:both">
-                </div>
-                <div class="topboxes">
-                  <div style="display:none; border-bottom: 1px solid #eee; padding-bottom:8px; margin-bottom:8px">
-                    <b>Perspective:</b> Supply Chain, Point of Consumption<br>
-                    <b>System:</b> Full System, Food System<br>
-                    <b>Type:</b> Consumption, Production<br>
-                    <b>Indicator & Weight:</b> Impact, Resources, Waste, Chem, Econ<br>
-                  </div>
-
-                  <div class="column50" style="float:left"><img src="/localsite/info/img/impacts1.gif" style="width:100%; padding-right:40px" />
-                  </div>
-                  <div class="column50mid" style="float:left">&nbsp;
-                  </div>
-                  <div class="column50" style="float:left"><img src="/localsite/info/img/impacts2.gif" style="width:100%; padding-right:40px" />
-                  </div>
-              </div>
-
-            </div>
-
-          </div>
-          <!-- END TOP WIDGETS -->
-          &nbsp;
-          <br><br>
-        </div>
-        <!-- /INDUSTRIES -->
+        
 
       </div>
 
@@ -1655,6 +1646,7 @@ Displayed by hashChanged() in map-filters.js
 
 <!-- End HTML -->
 
+</div><!-- End insertedText -->
 
 
 <!--
@@ -1701,26 +1693,18 @@ function loadScript(url, callback)
 // INIT
 hash = getHash(); // Allows hiddenhash set above to be included.
 
-dual_map.init(["somevalue", 1, "controlId"]); // Used by link to feedback form
-//dual_map.helloWorld();
-//dual_map.community_root();
+local_app.init(["somevalue", 1, "controlId"]); // Used by link to feedback form
+//local_app.helloWorld();
+//local_app.community_root();
 
-//var localmap = 
-//loadMap1("map/index.html 2", hash.show, dp); // Now in map-filters.js
-if (param["show"] != "suppliers") {
-  // Additional layer
-  //loadMap1("suppliers", dp);
-}
+
 document.addEventListener('hashChangeEvent', function (elem) {
   //param = loadParam(location.search,location.hash);
   console.log("index.html detects hashChangeEvent");
-  hash = getHash();
-  //if 
-  //loadMap1("map/index.html");
-  
+  hash = getHash();  
 }, false);
 
-// Append railroads here, somehow
+// Try appending railroads here, somehow
 //layerControl['map1'].addOverlay(baselayers["Rail"], "Railroads"); // Appends to existing layers
 //layerControl['map2'].addOverlay(baselayers["Rail"], "Railroads"); // Appends to existing layers
 //localmap.addOverlay(baselayers["Rail"], "Railroads"); // Appends to existing layers
