@@ -669,9 +669,13 @@ function filterClickLocation(loadGeoTable) {
 		$("#filterClickLocation").addClass("filterClickActive");
 		
 		//renderMapShapes("geomap", hash, 1);// Called once map div is visible for tiles.
-        $('html,body').animate({
-            scrollTop: $("#filterLocations").offset().top - $("#headerbar").height() - $("#filterFieldsHolder").height()
-        });
+        if ($("#filterLocations").length) {
+            $('html,body').animate({
+                scrollTop: $("#filterLocations").offset().top - $("#headerbar").height() - $("#filterFieldsHolder").height()
+            });
+        } else {
+            console.log("ALERT #filterLocations not available yet.")
+        }
         if (location.host == 'georgia.org' || location.host == 'www.georgia.org') { 
             $("#header.nav-up").show();
         }
@@ -838,7 +842,7 @@ function showCounties(attempts) { // To avoid broken tiles, this won't be execut
 		let hash = getHash();
 		let theState = $("#state_select").find(":selected").val();
 		if (hash.state) {
-			theState = hash.state.toUpperCase();
+			theState = hash.state.split(",")[0].toUpperCase();
 		}
 		if (theState.length > 2) {
 			theState = theState.substring(0,2);
@@ -969,7 +973,7 @@ function showTabulatorList(attempts) {
 		// More filter samples
 		// https://stackoverflow.com/questions/2722159/how-to-filter-object-array-based-on-attributes
 		geotable = new Tabulator("#tabulator-geotable", {
-		    data:localObject.geo.filter(function(el){return el.state == hash.state.split(",")[0];}),     //load row data from array of objects
+		    data:localObject.geo.filter(function(el){return el.state == hash.state.split(",")[0].toUpperCase();}),     //load row data from array of objects
 		    layout:"fitColumns",      //fit columns to width of table
 		    responsiveLayout:"hide",  //hide columns that dont fit on the table
 		    tooltips:true,            //show tool tips on cells
@@ -1582,7 +1586,7 @@ function displayHexagonMenu(layerName,siteObject) {
     $("#honeyMenuHolder").show();
 }
 function thumbClick(show,path) {
-	let hash = getHashOnly(); // Not hiddenhash
+    let hash = getHashOnly(); // Not hiddenhash
 	let priorShow = hash.show;
 	hash.show = show;
 	if (!hash.state && param.state) {
@@ -1591,7 +1595,11 @@ function thumbClick(show,path) {
 	delete hash.cat;
 	delete hash.naics;
 	delete hash.m; // Birdseye view
-	if (path && !window.location.pathname.includes(path)) {
+    let pageContainsInfoWidgets = false;
+    if ($("#iogrid").length >= 0 || $(".sector-list").length >= 0) {
+        pageContainsInfoWidgets = true; // Stay on the current page if it contains widgets.
+    }
+	if (!pageContainsInfoWidgets && path && !window.location.pathname.includes(path)) {
 		var hashString = decodeURIComponent($.param(hash));
 		window.location = "/localsite/" + path + "#" + hashString;
 	} else { // Remain in current page
@@ -1605,7 +1613,8 @@ function thumbClick(show,path) {
 	    }
 		$(".bigThumbMenuContent").removeClass("bigThumbActive");
 		$(".bigThumbMenuContent[show='" + show +"']").addClass("bigThumbActive");
-		goHash(hash);
+        console.log(hash);
+		goHash(hash,"name,loc"); // Remove name and loc (loc is not used yet)
 	}
 }
 function displayBigThumbnails(activeLayer, layerName,siteObject) {
@@ -1638,7 +1647,7 @@ function displayBigThumbnails(activeLayer, layerName,siteObject) {
 	        
 	        var linkJavascript = "";
 	        var directlink = getDirectLink(thelayers[layer].livedomain, thelayers[layer].directlink, thelayers[layer].rootfolder, thelayers[layer].item);
-
+            //alert("directlink " + directlink);
 	        if (bigThumbSection == "main") {
 	            if (thelayers[layer].menulevel == "1") {
 	                if (access(currentAccess,menuaccess)) {
@@ -1687,7 +1696,11 @@ function displayBigThumbnails(activeLayer, layerName,siteObject) {
 	                                    sectionMenu += "<div class='bigThumbMenuContent geo-US13 geo-limited' style='display:none' show='" + siteObject.items[layer].item + "'><div class='bigThumbWidth user-" + menuaccess + "' " + hideforAccessLevel + "><div class='bigThumbHolder'><a href='" + directlink + "' " + linkJavascript + "><div class='bigThumb' style='background-image:url(" + bkgdUrl + ");'><div class='bigThumbStatus'><div class='bigThumbSelected'></div></div></div><div class='bigThumbText'>" + thumbTitle + "</div><div class='bigThumbSecondary'>" + thumbTitleSecondary + "</div></a></div></div></div>";
 	                                
 	                                } else if (menuaccess==0) { // Quick hack until user-0 displays for currentAccess 1. In progress...
-	                                    sectionMenu += "<div class='bigThumbMenuContent' show='" + siteObject.items[layer].item + "'><div class='bigThumbWidth user-" + menuaccess + "' style='displayX:none'><div class='bigThumbHolder'><a href='" + directlink + "' " + linkJavascript + "><div class='bigThumb' style='background-image:url(" + bkgdUrl + ");'><div class='bigThumbStatus'><div class='bigThumbSelected'></div></div></div><div class='bigThumbText'>" + thumbTitle + "</div><div class='bigThumbSecondary'>" + thumbTitleSecondary + "</div></a></div></div></div>";
+	                                    sectionMenu += "<div class='bigThumbMenuContent' show='" + siteObject.items[layer].item + "'><div class='bigThumbWidth user-" + menuaccess + "' style='displayX:none'><div class='bigThumbHolder'><a ";
+                                        if (directlink) { // This is a fallback and won't contain the hash values.
+                                            sectionMenu += "href='" + directlink + "' ";
+                                        }
+                                        sectionMenu += linkJavascript + "><div class='bigThumb' style='background-image:url(" + bkgdUrl + ");'><div class='bigThumbStatus'><div class='bigThumbSelected'></div></div></div><div class='bigThumbText'>" + thumbTitle + "</div><div class='bigThumbSecondary'>" + thumbTitleSecondary + "</div></a></div></div></div>";
 	                                }
 	                            }
 	                    //}
@@ -1722,7 +1735,7 @@ function displayBigThumbnails(activeLayer, layerName,siteObject) {
 	        }
 	    }
 	    $(".bigThumbMenu").append("<div class='bigThumbMenuInner'>" + sectionMenu + "</div>");
-	    if (hash.state == "GA") {
+	    if (hash.state && hash.state.split(",")[0].toUpperCase() == "GA") {
 	    	$(".geo-US13").show();
 	    }
 	    //$("#honeycombMenu").append("<ul class='bigThumbUl'>" + sectionMenu + "</ul>");
@@ -1753,11 +1766,12 @@ function getDirectLink(livedomain,directlink,rootfolder,hashStr) {
         directlink = removeFrontFolder(directlink);
     } else if (rootfolder) {
         if (rootfolder.indexOf('/explore/') < 0) {
-            rootfolder = "/explore/" + rootfolder;
+            //rootfolder = "/explore/" + rootfolder;
         }
         directlink = removeFrontFolder(rootfolder + "#" + hashStr);
+        alert(directlink)
     } else {
-        directlink = removeFrontFolder("/explore/#" + hashStr);
+        //directlink = removeFrontFolder("/explore/#" + hashStr);
     }
     
     if (livedomain && location.host.indexOf('localhost') < 0) {
@@ -2078,21 +2092,6 @@ function hashChanged() {
 		delete hash.show; // Fix URL bug from indicator select hamburger menu
 		updateHash({'show':''}); // Remove from URL hash without invoking hashChanged event.
 	}
-	// For PPE embed, also in map.js. Will likely change
-	/*
-	if (!hash.show) {
-		// For embed link
-        if (param.show) {
-		  hash.show = param.show;
-		  hiddenhash.show = param.show;
-        }
-	}
-	if (!hash.state) {
-		// For embed link
-		hash.state = param.state;
-		hiddenhash.state = param.state;
-	}
-	*/
 
 	// Temp for PPE
 	if (!hash.state && location.host.indexOf("georgia") >= 0) {
@@ -2105,7 +2104,7 @@ function hashChanged() {
 
 
 	if (hash.state) {
-		var stateAbbrev = hash.state.toUpperCase().split(",")[0];
+		var stateAbbrev = hash.state.split(",")[0].toUpperCase();
 		// Apply early since may be used by changes to geo
 		$("#state_select").val(stateAbbrev);
 	} else {
@@ -2265,7 +2264,7 @@ function hashChanged() {
 	if (hash.state != priorHash.state) {
 		loadGeomap = true;
 		if(location.host.indexOf('model.georgia') >= 0) {
-			if (hash.state != "" && hash.state.toUpperCase() != "GA") { // If viewing other state, use model.earth
+			if (hash.state != "" && hash.state.split(",")[0].toUpperCase() != "GA") { // If viewing other state, use model.earth
 				let goModelEarth = "https://model.earth" + window.location.pathname + window.location.search + window.location.hash;
 				window.location = goModelEarth;
 			}
@@ -2489,12 +2488,12 @@ function hashChanged() {
         } else if (hash.set == "health") {
             $('#pageTitle').text('Health Impact')
         }
-        $("#impactIcons div").removeClass("active");
+        $(".impactIcons div").removeClass("active");
         if (hash.set) {
             const capitalizeSetName = hash.set.toLowerCase().replace(/\b[a-z]/g, function(letter) {
                 return letter.toUpperCase();
             });
-            $("#impactIcons div:contains(" + capitalizeSetName + ")").addClass("active");
+            $(".impactIcons div:contains(" + capitalizeSetName + ")").addClass("active");
         }
     }
     if (hash.mapview != priorHash.mapview) {
@@ -2526,7 +2525,7 @@ function hashChanged() {
 $(document).ready(function () {
 	let hash = getHash();
 	if (hash.state) {
-		let stateAbbrev = hash.state.toUpperCase().split(",")[0];
+		let stateAbbrev = hash.state.split(",")[0].toUpperCase();
 		$("#state_select").val(stateAbbrev);
 	}
 	if (hash.regiontitle) {
