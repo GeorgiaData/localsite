@@ -1,14 +1,16 @@
 # Display Datasets
 
-We've combined labor and industry stats with commodity inflow-outflow data from the US EPA.
+Our site combines labor and industry stats with commodity inflow-outflow data from the US EPA.
+
+[Full list of data sources - BLS, EPA's USEEIO and Flowsa (BEA, Energy, Water, more)](/io/about/api/)
 
 ####Embeddable Datasets
-
-[Maps of Industry and Employment](../#mapview=country) - Sample [pages for communities](../../../apps)
+<!-- ../#mapview=country -->
+[Local Industries, Impacts and Employment](../../../apps/beyondcarbon/#mapview=state) - Embedding samples: [Community Pages](../../../apps)
 
 [Impacts of Goods and Services](../../../io/charts/) - US Environmentally-Extended Input-Output Widgets  
 
-[Community/Product Impact Profiles](../../../io/template/) - Using Environmental Product Declarations (EPDs)
+[Community and Product Impact Profiles](../../../io/template/) - Using Environmental Product Declarations (EPDs)
 
 
 ####Data Sources and Prep
