@@ -729,10 +729,11 @@ loadScript(theroot + 'js/jquery.min.js', function(results) {
 
     });
     
-
-    includeCSS3(theroot + '../io/build/widgets.css',theroot);
-    includeCSS3(theroot + '../io/build/iochart.css',theroot);
-
+    if (param.display == "everything") {
+      includeCSS3(theroot + '../io/build/widgets.css',theroot);
+      includeCSS3(theroot + '../io/build/iochart.css',theroot);
+    }
+    
     includeCSS3(theroot + 'css/base.css',theroot);
     includeCSS3(theroot + 'css/search-filters.css',theroot);
     if (param.preloadmap != "false") {
@@ -1169,8 +1170,7 @@ function formatRow(key,value,level,item) {
                     addHtml += formatRow(d,value[c][d],level); // 2021
                   }
                 } else if (typeof value[c][d] != "undefined") {
-                  addHtml += formatRow(d,"TEST " + typeof value[c][d],level);
-                
+                  addHtml += formatRow(d, value[c][d],level);
                 } else {
                   addHtml += formatRow(d,value[c][d],level);
                   //addHtml += "<div class='level" + level + "'>" + value[c][d] + "</div>\n";
