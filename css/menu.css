@@ -1,9 +1,12 @@
-.table-cell {
+.table-cell, .table-cell-mobile {
   display: table-cell;
+  vertical-align: top;
+  position: relative; /* Allows menu rollover/popups to overlap adjacent cell */
 }
 @media (max-width: 800px) {
   .table-cell {
     display: block;
+    float: left;
   }
 }
 .moduleJS {
@@ -11,13 +14,16 @@
     font-family: 'Open Sans', 'Helvetica Neue', HelveticaNeue, calibri, arial, sans-serif;
 }
 .layerSection {
-	border-bottom: 1px solid #ddd;
 	min-width:  32px;
 	min-height: 32px;
+	color: #333;
+	clear: both;
+}
+.layerSection:last-child {
+	min-height: 42px;
 }
 .layerSectionClick {
-    padding: 6px 8px 3px 18px;
-    color: #333;
+    padding: 6px 8px 0px 12px;
     font-size: 16px;
     font-family: 'Open Sans Condensed', sans-serif;
     cursor: pointer;
@@ -34,47 +40,6 @@
 	}
 	.hideMenuPackage {
 		display: none;
-	}
-
-}
-.absoluteWhenNarrow {
-	min-width: 250px;
-}
-@media (max-width: 1100px) {
-	.absoluteWhenNarrow {
-		position: absolute;
-		z-index: 1;
-		min-width: 38px;
-		max-width: 38px;
-		top: 0;
-		bottom: 0;
-		overflow: visible;
-	}
-	.layerSection {
-		max-width: 38px;
-		white-space: nowrap;
-		overflow: hidden;
-	}
-	.layerSection:hover {
-		max-width: auto;
-		overflow: visible;
-		max-width: 200px; /* allow background color to be visible */
-		text-align: center;
-		background-color: #efefef;
-		border: 1px solid #777;
-		margin:  -1px;
-		margin-left: 0px;
-		z-index: 100;
-	}
-	.layerSectionIcon {
-		float: initial;
-	}
-	.layerSectionClick {
-		min-width: auto;
-		padding-left: 8px;
-	}
-	.menuBuddy {
-		padding: 20px 0 20px 40px;
 	}
 }
 .layerCheckboxes {
@@ -93,16 +58,20 @@
 .layerCbRow {
 	display:none;
 	padding: 1px 0px 0px 27px;
+	margin-left: 2px;
 	color: #888;
 	clear: both;
-	overflow: auto;
-	border-top: 1px solid #eee;
+}
+.sideMenuColumnNarrow	.layerCbRow {
+	background-color: #fff;
+	border-left: 1px solid #ccc;
+	border-right: 1px solid #ccc;
+	border-bottom: 1px solid #333;
+	width: 179px; /* To overlap sideMenuColumnNarrow */
 }
 .layerCbTitle {
 	white-space:nowrap;
-	margin-top: 6px;
-	margin-left: 22px;
-	margin-right: 25px;
+	margin: 4px 25px 4px 12px;
 	font-size: 15px;
 	pointer-events: none; /* Allow pass through */
 	font-family: 'Open Sans Condensed', sans-serif;
@@ -111,12 +80,154 @@
 	background: #ececec;
 	color: #555;
 }
+.sectionArrowHolder {
+    float: right;
+    padding-top: 12px;
+}
+.leftArrow {
+	width: 0;
+	height: 0;
+	border-style: solid;
+	border-width: 7px 0px 7px 8px;
+	border-color: transparent transparent transparent #777;
+	margin-top: -8px;
+}
+.leftArrow:hover {
+	border-color: transparent transparent transparent #999;
+}
+.downArrow {
+	width: 0;
+	height: 0;
+	border-style: solid;
+	border-width: 7px 8px 0 7px;
+	border-color: #555 transparent transparent transparent;
+	margin: -6px 0px 0 0;
+}
+.downArrow:hover {
+	border-color: #999 transparent transparent transparent;
+}
+
+#partnerMenuHolder {
+	min-width: 185px;
+}
+.sideMenuColumn {
+		z-index: 1;
+		min-width: 160px;
+}
+@media (min-width: 1401px) {
+	.layerSectionTitle {
+		display: block;
+	}
+}
+@media (max-width: 600px) {
+	#partnerMenuHolder {
+		max-widthX: 100px; /* Less than 120px to trigger clicks without opening submenu */
+	}
+}
+
+/* Narrow using class */
+.sideMenuColumnNarrow { /* Applied with script. Also applied by scaling below. */
+	min-width: 38px;
+	max-width: 38px; 
+}
+.sideMenuColumnNarrow	.layerSection {
+	white-space: nowrap;
+	overflow: visible;
+}
+.sideMenuColumnNarrow	.layerSectionTitle {
+	display: none;
+}
+.sideMenuColumnNarrow .layerSectionTitle {
+	width: 180px; /* required for background color to be visible */
+	color: #fff;
+	background-color: #333;
+	margin-top: -8px;
+	margin-left:  -10px;
+	padding-top: 8px;
+	padding-bottom: 8px;
+	padding-right: 8px;
+	border-bottom: 1px solid #fff;
+}
+@media (max-width: 1400px) {
+	#partnerMenuHolder {
+		min-width: 32px;
+	}
+
+	.sideMenuColumn {
+		z-index: 1;
+		min-width: 38px;
+		/* max-width: 38px; Avoiding since page's .sidechildlist is injected. */
+		max-width: 38px; 
+		top: 0;
+		bottom: 0;
+		overflow: visible;
+	}
+	.layerSection {
+		/* max-width: 38px; Avoid, else background is not visible. */
+		white-space: nowrap;
+		overflow: visible;
+	}
+	.layerSectionTitle {
+		display: none;
+	}
+	.layerSection:last-child {
+		margin-bottom: 0px;
+	}
+	.layerSectionIcon {
+		float: initial;
+		min-height: 20px;
+	}
+	.layerSectionClick {
+		min-width: auto;
+		padding-left: 8px;
+		min-height: 42px;
+	}
+	.layerCbRow {
+		display:none !important;
+	}
+	.sectionArrowHolder {
+		display:none;
+	}
+}
+.sideListCell {
+	border-right: 1px solid #ddd;
+}
+.sideList {
+	margin: 20px;
+	min-width: 200px;
+	max-width: 300px;
+}
+.leftCell {
+	padding-top: 20px;
+}
+@media (max-width: 800px) {
+	.sideListCell {
+		border-right: none;
+	}
+	.leftCell {
+		max-width: 90%; /* Allows partnerAdmin menu to reside to the left on mobile */
+	}
+	.rightCell {
+		width: 100%;
+	}
+}
+.layerSectionOpenX {
+	max-width: auto;
+	overflow: visible;
+	max-width: 200px; /* allow background color to be visible */
+	background-color: #efefef;
+	borderX: 1px solid #777;
+	marginX:  -1px;
+	margin-leftX: 0px;
+	z-index: 100000;
+}
+
 .layerAction {
 	clear:both;
 	float:right;
 	width: 100%;
 	z-index: 9999;
-	min-height: 34px;
+	/* min-height: 34px; */
 	/* border: 1px solid red; */
 	cursor: pointer;
 }
@@ -190,29 +301,4 @@
 	display: block;
 }
 
-.sectionArrowHolder {
-    float: right;
-    padding-top: 12px;
-}
-.leftArrow {
-	width: 0;
-	height: 0;
-	border-style: solid;
-	border-width: 7px 0px 7px 8px;
-	border-color: transparent transparent transparent #777;
-	margin-top: -8px;
-}
-.leftArrow:hover {
-	border-color: transparent transparent transparent #999;
-}
-.downArrow {
-	width: 0;
-	height: 0;
-	border-style: solid;
-	border-width: 7px 8px 0 7px;
-	border-color: #555 transparent transparent transparent;
-	margin: -6px 0px 0 0;
-}
-.downArrow:hover {
-	border-color: #999 transparent transparent transparent;
-}
+
