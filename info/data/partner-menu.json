@@ -16,13 +16,13 @@
 	"menulevel": "1",
 	"section": "Page Admin",
 	"title": "Edit Event",
-	"link": "/net/calendar/editnew.aspx?s=[itemid]",
+	"link": "/net/calendar/editnew.aspx?s=[itemid]&dateid=[dateid]",
 	"basetype": "2"
 },
 {
 	"menulevel": "1",
 	"section": "Page Admin",
-	"title": "Edit Location",
+	"title": "Update Location",
 	"link": "/net/org/edit.aspx?s=[itemid]"
 },
 {

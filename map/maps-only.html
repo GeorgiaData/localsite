@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<link rel="icon" type="image/x-icon" href="../img/logo/partners/neighborhood-icon.png" />
+<link rel="shortcut icon" href="data:image/x-icon;," type="image/x-icon">
 
 <!--
   To create a widget from this page, see steps in map-embed.js.
@@ -23,10 +23,10 @@
 
 <script type="text/javascript" src="../js/showdown.min.js"></script>
 <script type="text/javascript" src="../js/jquery.min.js"></script>
-<script type="text/javascript" src="../js/localsite.js"></script>
+<script type="text/javascript" src="../js/localsite.js?showheader=true&showsearch=true"></script>
 
 <!-- Activate to include site navigation-->
-<script type="text/javascript" src="../js/navigation.js"></script>
+<script type="text/javascript" src="../js/navigation.js" id="/localsite/js/navigation.js"></script>
 <link rel="stylesheet" href="../css/leaflet.css" />
  <!-- Resides AFTER Leaflet's CSS -->
 <script src="../js/leaflet.js" id="/localsite/js/leaflet.js"></script>
@@ -45,14 +45,15 @@
 <script type="text/javascript" src="../js/table-sort.js" id="/localsite/js/table-sort.js"></script>
 -->
 
-<link type="text/css" rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons" id="/icon?family=Material+Icons">
+<!-- Not sure if this is needed here to show first 2 of 3 arrows in filters? Add id. First fix dp is not defined error in page. -->
+<link href="/localsite/css/fonts/materialicons/icon.css" rel="stylesheet">
 <link href="../css/leaflet.icon-material.css" rel="stylesheet">
 <script src="../js/leaflet.icon-material.js"></script>
 <!--
 <script src="../js/d3/d3-legend.js"></script>
 -->
 <script type="text/javascript" src="../js/map.js"></script>
-<link rel="stylesheet" href="../css/map.css" />
+<link rel="stylesheet" href="../css/map.css" id="/localsite/css/map.css" />
 
 
 

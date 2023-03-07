@@ -261,7 +261,7 @@ function getNaics_setHiddenHash2(go) {
     let parts_carpets = "325520,314110,313110,313210,"
     let ppe_suppliers = "622110,621111,325414,339113,423450,"
     let farmfresh = "311612,311615,311911,311919,311830,311824,311941,311710,311611,115114,311613,311811,311942,311991,311999,311211,311224,311920,"
-    let recycling = "423930,562111,562112,562119,562211,562212,562213,562219,562910,562920,562991,562998,56299";
+    let recycling = "423930,562111,562112,562119,562211,562212,562213,562219,562910,562920,562991,562998,56299"; // All 6-digit NAICS codes under the 5 digit 56299 code are assigned to 562OTH in the USEEIO classification
 
     // Not crosswalking. All sectors appear here from 2.0 https://github.com/USEPA/useeior/wiki/Disaggregation-of-Sectors#disaggregation-inputs-for-envfile
     recycling = recycling + ",562111,562212,562213,562910,562920,562HAZ,562OTH";
@@ -335,7 +335,7 @@ function getNaics_setHiddenHash2(go) {
             showtitle = "Manufacturing";
             cat_filter=["manufacturing placeholder"];
         } else if (go=="industries") {
-            showtitle = "Top Industries";
+            showtitle = "Local Topics";
             $("#keywordsTB").attr("placeholder","City name..."); // For layers = brigades
         } else if (param.naics) {
             showtitle = go.charAt(0).toUpperCase() + go.substr(1).replace(/\_/g," ");
@@ -364,9 +364,9 @@ function getNaics_setHiddenHash2(go) {
         }
         
     } else if (param.naics) {
-        showtitle = "Top Industries";
+        showtitle = "Local Topics";
         //
-        showtab = "Top Industries";
+        showtab = "Local Topics";
         cat_filter = param.naics.split(',');
     }
 
@@ -413,7 +413,7 @@ function populateTitle(showtitle,showtab) {
         if (showtitle) {
             showtitle = thestate + " - " + showtitle;
         } else {
-            showtitle = thestate + " - Top Industries";
+            showtitle = thestate + " - Local Topics";
         }
         
     }
@@ -596,12 +596,12 @@ $(document).ready(function() {
             let currentState = $("#state_select").find(":selected").text();
             if (currentState) {
                 local_app.loctitle = currentState;
-                local_app.showtitle = "Top Industries";
-                $(".regiontitle").text(currentState + "'s Top Industries");
+                local_app.showtitle = "Local Topics";
+                $(".regiontitle").text(currentState + "'s Local Topics");
             } else {
                 local_app.loctitle = "United States";
-                local_app.showtitle = "Top Industries";
-                $(".regiontitle").text("US Top Industries");
+                local_app.showtitle = "Local Topics";
+                $(".regiontitle").text("US Local Topics");
             }
             refreshNaicsWidget();
             return; 
@@ -1573,7 +1573,7 @@ function topRatesInFips(dataSet, dataNames, fips, hash) {
                         } else {
                             // Temp, reactivate after iogrid stops deleteing hash values.
                             $(".regiontitle").text("Industries");
-                            //$(".regiontitle").text(String(d['Name'])+"'s Top Industries");
+                            //$(".regiontitle").text(String(d['Name'])+"'s Local Topics");
                         }
                         //alert("locationTabText2")
                         //$(".locationTabText").text("State"); // Temp
