@@ -1,6 +1,7 @@
 // Site specific settings
 // Maintained in localsite/js/navigation.js
 //alert("navigation.js param.state " + param.state);
+var navigationJsLoaded = "true";
 if(typeof page_scripts == 'undefined') {  // Wraps script below to insure navigation.js is only loaded once.
 if(typeof localObject == 'undefined') { var localObject = {};}
 if(typeof localObject.layers == 'undefined') {
@@ -515,16 +516,16 @@ function applyNavigation() { // Called by localsite.js so local_app path is avai
 		 			// Currently avoid since "https://model.earth/" is prepended to climbpath above.
 		 			//headerFile = climbpath + "../header.html";
 		 		}
-		 		if (param.headerFile) {
-		 			modelpath = ""; // Use the current repo when custom headerFile provided.
+		 		
+		 		if (param.header) {
+					headerFile = modelroot + param.header;
+				} else if (param.headerFile) {
+		 			modelpath = ""; // Use the current repo when custom headerFile provided. Allows for site to reside within repo.
 		 			headerFile = param.headerFile;
-		 		}
-
-				if (param.header) headerFile = param.header;
-				//THE FOLLOWING LINE PREVENTED NAV FROM SHOWING IN DS.
-				//if (earthFooter) { // Or should this go above param?
+				} else {
 					headerFile = modelroot + "/localsite/header.html";
-				//}
+				}
+
 				//if (earthFooter && param.showSideTabs != "false") { // Sites includieng modelearth and neighborhood
 				// 	$(".showSideTabs").show(); // Before load headerFile for faster display.
 				//}
@@ -869,7 +870,7 @@ $(document).on("click", ".showListings", function(event) {
 });
 $(document).on("click", ".showSettings", function(event) {
 	closeExpandedMenus(event.currentTarget);
-    loadScript('/localsite/js/settings.js', function(results) {
+    //loadScript('/localsite/js/settings.js', function(results) {
         $('.menuExpanded').hide();
         //hideOtherPopOuts();
         //$("#showSettings").hide();
@@ -881,14 +882,15 @@ $(document).on("click", ".showSettings", function(event) {
             $(".settingsPanel").show();
             //$("#rightTopMenu").hide();
         }
-    }); // For "Settings" popup
+    //}); // For "Settings" popup
     //event.stopPropagation();
 });
 $(document).on("click", ".showAccount", function(event) {
+	closeExpandedMenus(event.currentTarget);
     //if ($(".moduleJS").width() <= 800) { // Narrow
     //    $('.hideApps').trigger("click"); // For mobile
     //}
-    $(".accountPanel").show();
+    $("#accountPanel").show();
 });
 $('.contactUs').click(function(event) {
     alert("The Contact Us link is not active.")
@@ -913,6 +915,59 @@ $(document).on("click", ".showDesktopNav", function(event) {
     $("#desktopPanel").show();
 });
 
+// SETTINGS
+$(document).on("change", ".sitemode", function(event) {
+    if ($(".sitemode").val() == "fullnav" && $('#siteHeader').is(':empty')) { // #siteHeader exists. This will likely need to be changed later.
+        layerName = getLayerName();
+        window.location = "./#" + layerName;
+    }
+    sitemode = $(".sitemode").val();
+    setSiteMode($(".sitemode").val());
+    Cookies.set('sitemode', $(".sitemode").val());
+    if ($(".sitemode").val() == "fullnav") {
+        $('.showSearchClick').trigger("click");
+    }
+    //event.stopPropagation();
+});
+$(document).on("change", ".sitesource", function(event) {
+	// Options: Overview or Directory
+    sitesource = $(".sitesource").val();
+    Cookies.set('sitesource', $(".sitesource").val());
+    setSitesource($(".sitesource").val());
+    //event.stopPropagation();
+});
+$(document).on("change", "#sitelook", function(event) { // Style: default, coi, gc
+    if (typeof Cookies != 'undefined') {
+        Cookies.set('sitelook', $("#sitelook").val());
+    }
+    setSitelook($("#sitelook").val());
+    //event.stopPropagation();
+});
+$(document).on("change", ".sitebasemap", function(event) {
+    sitebasemap = $(".sitebasemap").val();
+    if (typeof Cookies != 'undefined') {
+        Cookies.set('sitebasemap', $(".sitebasemap").val());
+    }
+    //event.stopPropagation();
+});
+
+function setSitesource(sitesource) {
+	console.log("setSitesource inactive");
+	/*
+    if ($(".sitesource").val() == "directory") {
+        //$('.navTopHolder').hide();
+        $('.navTopInner').hide();
+        if (!embedded()) { // Settings would become hidden if embedded.
+            $(".topButtons").hide();
+        }
+        $('.mapBarHolder').hide();
+    } else {
+        $('.navTopInner').show();
+        $('.navTopHolder').show();
+    }
+    */
+}
+
 $(document).on("click", ".showPrintOptions, .print_button", function(event) {
 //$('.showPrintOptions, .print_button').click(function(event) {
     //alert("show print2")
@@ -920,11 +975,6 @@ $(document).on("click", ".showPrintOptions, .print_button", function(event) {
     $('.printOptionsText').show();
     $('.printOptionsHolderWide').show();
     event.stopPropagation();
-});
-$('.accountPanelClose').click(function(event) {
-    //$(".hideAccount").hide();
-    //$(".showAccount").show(); // Bug, this caused menu item to appear when closing settings.
-    $(".accountPanel").hide();
 });
 
 $(document).on("click", ".showTheMenu", function(event) { // Seasons
