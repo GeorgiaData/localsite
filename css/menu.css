@@ -107,7 +107,6 @@
 	z-index: 1;
     width: 200px;
 	min-width: 160px;
-	background: rgb(238, 238, 238);
 }
 @media (min-width: 1401px) {
 	.layerSectionTitle {
@@ -162,7 +161,6 @@
 		max-width: 38px;
 		width: 38px;
 		overflow: visible;
-		background: rgb(238, 238, 238);
 	}
 	.layerSection {
 		/* max-width: 38px; Avoid, else background is not visible. */
@@ -568,6 +566,10 @@ ul.nav li.dropdown:hover ul.dropdown-menu {
 		margin-left: -23px;
 	}
 }
+.dark #showNavColumn .material-icons {
+	background-color: #000 !important;
+	color: #fff !important;
+}
 #filterFieldsMain #showNavColumn {
 	float: left;
 }
@@ -686,7 +688,7 @@ ul.nav li.dropdown:hover ul.dropdown-menu {
     heightX:100%; /* For counties map, but breaks fixed position map on tools page. */
 }
 .dark #fullcolumn  a:link, .dark #fullcolumn  a:visited {
-  color: #8899ee;
+  color: #acb;
 }
 .dark #fullcolumn  b a:link, .dark #fullcolumn  b a:visited {
   color: #ccc;
@@ -696,8 +698,10 @@ ul.nav li.dropdown:hover ul.dropdown-menu {
 }
 .navLinks a {
   height: 42px;
+  /* Causes DS footer to mis-align
   display: block;
   float: left;
+  */
   color: #aaa;
   text-decoration: none !important;
   margin-right:0px !important;
