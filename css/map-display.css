@@ -231,7 +231,6 @@ input[type="checkbox" i] {
 iframe {
     display: block;
     border: none;
-    /* min-height: 94vh; */ /* avoid for Google Yolo iframe login */
     width: 100%;
 }
 #catListHolder {
@@ -334,4 +333,7 @@ iframe {
 	border-bottom: 10px solid #fff;
 	margin-top: 1px;
 	z-index: 9999;
+}
+.dark .uparrow-grey, .dark .uparrow-white {
+	border-bottom: 10px solid #555;
 }

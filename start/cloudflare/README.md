@@ -6,7 +6,7 @@ You may want to leave off the proxy service for some domains. (With the proxy on
 
 Important: Turn on the proxy service for domains receiving a lot of traffic, otherwise you may exceed GitHubs allowed traffic levels and encounter rate limiting.  
 
-Here's a nice overview of the [advantages of combining GitHub with Cloudflare](https://www.toptal.com/github/unlimited-scale-web-hosting-github-pages-cloudflare). Their sponsored project [jsdelivr](https://gomakethings.com/how-to-turn-any-github-repo-into-a-cdn/) is another great option for delivering any GitHub file via a CDN.
+Here's a nice overview of the [advantages of combining GitHub with Cloudflare](https://www.toptal.com/github/unlimited-scale-web-hosting-github-pages-cloudflare).<br>Their sponsored project [jsdelivr](https://gomakethings.com/how-to-turn-any-github-repo-into-a-cdn/) is another great option for delivering any GitHub file via a CDN.
 
 During setup, Cloudflare will provide nameservers to enter at your current registrar.  
 You can transfer an existing domain to Cloudflare for cheaper hosting.  
@@ -19,6 +19,7 @@ These are in the walk-through when adding a new site:
 - Always Use HTTPS - On  
 - Brotli compression - On (the default)  
 
+DNSSEC - Cloudflare recommends turning on. DNS > Settings
 
 ### Go to "Speed > Optimization"  
 
@@ -68,10 +69,6 @@ https://yourdomain.com/#go=$2
 
 ## Host your Github repos using Cloudflare
 
-### Optionally create a single-password site
-
-Optional: Include the "functions" folder from [charca's repo](https://dev.to/charca/password-protection-for-cloudflare-pages-8ma) to create the secure login.
-
 <!--
 No longer seeing this route, double-check then delete thiL
 Add a custom domain in cloudflare Pages by clicking "Create a project" at "Account Home > Pages"
@@ -79,19 +76,31 @@ Add a custom domain in cloudflare Pages by clicking "Create a project" at "Accou
 Workers & Pages > Pages tab > Connect to Git
 -->
 
-Workers & Pages > Overview > Create application > Pages tab > Connect to Git
-
 Connect to your repo, which can be a private repo.
-You'll have to install the Cloudflare Pages app into GitHub while logged into the GitHub account where the fork resides.
+(You'll have to install the Cloudflare Pages app into GitHub while logged into the GitHub account where the fork resides.)
 
-Make note of the generated subdomain where the project will be deployed.  It will be [generated subdomain].pages.dev
+**Workers Routes > Manage Workers**
 
-Under Environmental variables, add CFP_PASSWORD [your password]
+1. Add your subdomain (subdomain.yoursite.com) as a custom domain in Cloudflare Pages by clicking: 
 
-Lastly, add a subdomain under Custom domains within Cloudflare pages.
+    Workers & Pages > Overview > Create application > Pages tab > Connect to Git
+
+
+2. Make note of the generated subdomain where the project will be deployed.  It will be [generated subdomain].pages.dev
+
+3. Under Environmental variables, add CFP_PASSWORD [your password]
+
+4. Lastly, add a subdomain under Custom domains within Cloudflare pages.
 This will automatically create a CNAME record pointed at [generated subdomain].pages.dev after a few minutes.
 
+Optional: Include the "functions" folder from [charca's repo](https://dev.to/charca/password-protection-for-cloudflare-pages-8ma) to create the secure login single-password site.
+
 Use [submodules](../submodules) to place multiple repos in your parent repo.
+
+### Check for errors pulling submodules
+
+**Workers Routes > Manage Workers**
+
 
 ## CloudFlare Firewall
 Create a firewall rule to block IP's that attempt to hack a website. Websites check for hack attempts and send an email to admins with information such as the url, IP address, and url history. Since CloudFlare uses a proxy address, the IP address reported by the email is the CloudFlare proxy IP. CloudFlare includes the following header values which can be used to display non-proxied addresses: cf-connecting-ip, cf-connecting-ipv6, and x-forwarded-for. The code that checks for hack attempts checks for these header values and includes them in the email. Use the non-proxied IP addresses to create a firewall rule to block those IPs in CloudFlare. These same non-proxied IPs should be added to the Windows Firewall.
@@ -143,3 +152,27 @@ For example, instead of 2001:db8:6a0b:1a01:d423:43b9:13c5:2e8f, enter one of the
 
 Reference:
 [Create a list in the dashboard](https://developers.cloudflare.com/fundamentals/global-configurations/lists/create-dashboard/)
+
+<!--
+## For Cloudflare Custom Purge
+
+We use Cloudflare's free Content Delivery Network (CDN) to reduce traffic hitting GitHub.
+
+After deploying, the following can be pasted into Cloudflare to do a custom purge.
+
+https://model.earth/localsite/info/template-charts.html
+https://model.earth/localsite/js/localsite.js
+https://model.earth/localsite/js/map-embed.js
+https://model.earth/localsite/js/map-filters.js
+https://model.earth/localsite/js/naics.js
+https://model.earth/localsite/js/navigation.js
+https://model.earth/localsite/map/index.html
+https://model.earth/localsite/css/search-filters.css
+https://model.earth/localsite/css/map-display.css
+https://model.earth/localsite/css/base.css
+https://model.earth/localsite/css/map.css
+https://model.earth/localsite/css/naics.css
+https://model.earth/apps/
+-->
+
+

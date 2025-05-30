@@ -42,18 +42,7 @@ function showIndustryList() {
 	<hr>
 </div>
 
-<!-- v2 -->
-<div id="industryTableHolder" style="display:none;" class="localonly content contentpadding">
-	<div id="tabulator-sectortable-intro">Version 2 Sectors - Visible only on localhost</div>
-	<div id="tabulator-sectortable"></div>
-	<div id="tabulator-sectortable-count"></div>
-	<br>
-	<div id="tabulator-industrytable-intro">Version 2 Industries - Visible only on localhost</div>
-    <div id="tabulator-industrytable"></div>
-    <div id="tabulator-industrytable-count"></div>
-</div>
-
-<div id="industryListHolder" style="display:none; border-bottom:1px solid #ccc; padding-top:0; padding-bottom:0">
+<div id="industryListHolder" style="display:none; padding-top:0; padding-bottom:0">
 <section id="industries">
 <div id="top-content-columns" class="contentX contentpadding noprint" style="margin-top:20px; padding-top:0; padding-bottom:0">
 
@@ -75,9 +64,9 @@ function showIndustryList() {
 				</div>
 
 				<div style="clear:both">
-					<h1 id="pageTitle" class="h1-home"></h1><!-- For 6 impact sets -->
+					<h1 id="pageTitle" class="h1-home" style="margin-bottom:0px;"></h1><!-- For 6 impact sets -->
 					<h1 class="region_service" style="margin-top:0;padding-top:0;"></h1>
-					<h2 class="location_titles" style="font-size:24px;color:#555;display:none"></h2>
+					<h2 class="location_titles" style="font-size:24px;padding-top:0px;display:none"></h2>
 				</div>
 
 				<div id="topMessage" style="clear:both"></div>
@@ -192,6 +181,10 @@ https://epa.maps.arcgis.com/apps/MapJournal/index.html?appid=0659c53852f4425fb34
                 <div class="impactIcon_Energy" onclick="goHash({'set':'energy','indicators':'ENRG,NNRG,RNRG'});">Energy</div>
                 <div class="impactIcon_Health" onclick="goHash({'set':'health','indicators':'HTOX,HCAN,HNCN,HTOX,HRSP'});">Health</div>
                 <div class="impactIcon_Prosperity" onclick="goHash({'set':'prosperity','indicators':'VADD,JOBS'});">Prosperity</div>
+                <div class="local btn btn-primary" onclick="location.href='/realitystream/#featurepath=123'; return false;" style="display:none;min-width:133px;font-size:15px;border:none;">
+					RealityStream
+				</div>
+				<!-- <a id="tabulator-industrytable-realitystream" href="/realitystream/#featurepath=123" class=""> -->
             </div><br>
 
             
@@ -207,7 +200,7 @@ https://epa.maps.arcgis.com/apps/MapJournal/index.html?appid=0659c53852f4425fb34
             -->
 
             <!-- Supply Chain -->
-            <h1 class="h1-homeXX" style="margin-top:0px; margin-bottom:10px;">Supply Chain Inflow-Outflow</h1>
+            <h1 id="largeTite" class="listTitle" style="margin-top:0px; margin-bottom:10px;">Supply Chain Inflow-Outflow</h1>
             <div class="region_service" style="font-size:20px; margin-bottom:20px"></div>
             
 
@@ -306,7 +299,16 @@ https://epa.maps.arcgis.com/apps/MapJournal/index.html?appid=0659c53852f4425fb34
 <!-- /INDICATOR SETS -->
 
 
-
+<!-- v2 -->
+<div id="industryTableHolder" style="display:none;">
+<div class="content contentpadding">
+	<div id="tabulator-industrytable-intro"><b>County Industries</b> (Visible on localhost) <!-- FIPS and NAICS case sensitive--></div>
+	<div id="tabulator-industrytable-datalink"></div>
+	<div style="clear:both"></div>
+    <div id="tabulator-industrytable"></div><br>
+    <div id="tabulator-industrytable-count"></div>
+</div>
+</div>
 
 <!-- INPUT OUTPUT -->
 <!-- See: "For older 3 column IO layout" below -->
@@ -403,9 +405,10 @@ https://epa.maps.arcgis.com/apps/MapJournal/index.html?appid=0659c53852f4425fb34
     font-size: 13px;
     border: 1px solid #ccc;
     width: 100px;
-    padding: 20px;
+    padding: 10px 20px;
     margin: 0 15px 15px 0;
-    text-align: center
+    text-align: center;
+    border-radius: 25px;
 }
 #hero-mini .impactIcons div {
 	border: 0px solid #ccc;
@@ -422,7 +425,7 @@ https://epa.maps.arcgis.com/apps/MapJournal/index.html?appid=0659c53852f4425fb34
 }
 .impactIcons div.active {
     border: 4px solid #aaa;
-    padding: 17px;
+    padding: 7px 17px;
 }
 .impactIcons div:hover {
     cursor: pointer;
@@ -511,7 +514,7 @@ https://epa.maps.arcgis.com/apps/MapJournal/index.html?appid=0659c53852f4425fb34
 		In the ranked "Commodities" column below, click the yellow menu to choose multiple impact areas, or choose an impact set above.<br>
 		Move sliders to emulate the effect of changing <b>production levels per dollar spent</b>.<br>
 		Data source: U.S. Bureau of Economic Analysis (BEA) commodities combined with EPA indicators. 
-		- <a href="https://model.earth/io/charts/" style="text-decoration: underline;">About&nbsp;Widgets</a><br>
+		- <a href="../../io/charts/" style="text-decoration: underline;">About&nbsp;Widgets</a><br>
 		<!--In 2024, the EPA data will change from 411 to 73 BEA commodities.<br>-->
 		<br>
 	</span>
@@ -528,8 +531,6 @@ https://epa.maps.arcgis.com/apps/MapJournal/index.html?appid=0659c53852f4425fb34
 
 	<br><br><br>
 	
-
-	
 </div>
 
 <!-- MOSAIC HEATMAP -->
@@ -540,13 +541,13 @@ https://epa.maps.arcgis.com/apps/MapJournal/index.html?appid=0659c53852f4425fb34
 }
 ::-webkit-scrollbar-thumb {
    border-radius: 4px;
-   background-color: rgba(0,0,0,.5);
+   background-color: rgba(200,200,200,.5);
    -webkit-box-shadow: 0 0 1px rgba(255,255,255,.5);
 }
 </style>
 
 <section id="impact">
-<div class="contentpadding" style="min-height:200px;border-bottom:1px solid #ccc;">
+<div class="contentpadding" style="min-height:200px;border-bottom:1px solid #ccc;overflow:auto">
 
 	<div id="sectorListTitles" style="margin-bottom:20px">
 		<h1 style="margin-bottom: 0px">Impact Levels</h1>
@@ -610,7 +611,11 @@ config.join(sectorList);
 		</div>
 
         <h1 style="border-bottom: 0px">Impact Bubble Chart</h1>
-        Compares three impact areas for <span class='region_service'></span> (in red). Greatest impacts are toward the upper-right with larger sizes.
+
+        <div class="popAdvanced detailbutton greenbutton" style="float:right;cursor:pointer;padding-top:5px" alt="Popout"><i class="material-icons" alt="Pop out" style="float:left;font-size:20px;pointer-events:auto;padding-right:5px;">&#xE55B;</i> <div style="float:left;line-height:20px;">Change Location</div></div>
+
+
+        Compares three impact areas for <span class='region_service'></span> (in red). Greatest impacts are toward the upper-right with larger&nbsp;sizes.
 
         <div id="bubble-graph-title"></div>
         <text id="bubble-graph-equation"></text>
@@ -764,21 +769,27 @@ document.getElementById('showValues').onclick = function() {
     }
 };
 */
-
-
 </script>
 
 
-
-
 <style>
-/* override widget scroll bars which apopear 100% */
-::-webkit-scrollbar-thumb {
+/* override widget scroll bars which appear 100% */
+::-webkit-scrollbar-thumbX {
     border-radius: 4px;
     background-color: rgba(255,255,255,.5);
     -webkit-box-shadow: 0 0 1px rgba(255 255 255 .5);
 }
 </style>
+
+<!-- v2 -->
+<div id="sectorTableHolder" style="display:none;">
+<div class="content contentpadding">
+	<div id="tabulator-sectortable-intro">Sectors (upcoming) - Visible only on localhost</div>
+	<div id="tabulator-sectortable"></div><br>
+	<div id="tabulator-sectortable-count"></div>
+</div>
+</div>
+
 
 <!-- /INFO TEMPLATE -->
 </div>
