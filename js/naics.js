@@ -97,7 +97,6 @@ function refreshNaicsWidget(initialLoad) {
     //alert("refreshNaicsWidget() hiddenhash.naics: " + hiddenhash.naics);
 
     let hash = getHash(); // Includes hiddenhash
-    console.log("refreshNaicsWidget hash.naics: " + hash.naics + " and prior naics: " + priorHash_naicspage.naics);
 
     if (hash.set != priorHash_naicspage.set) {
         if (!hash.set) {
@@ -130,7 +129,6 @@ function refreshNaicsWidget(initialLoad) {
     // Exit if no change to: county (geo) or state.
     if (!initialLoad) {
         if (!(hash.geo != priorHash_naicspage.geo || hash.state != priorHash_naicspage.state)) {
-            console.log("No geo change for refreshNaicsWidget()");
             priorHash_naicspage = $.extend(true, {}, getHash()); // Clone/copy object without entanglement
             initialNaicsLoad = false;
             return;
@@ -209,7 +207,9 @@ function refreshNaicsWidget(initialLoad) {
         loadNAICS = true;
     } else if (hash.geo != priorHash_naicspage.geo) {
         loadNAICS = true;
-    } else if ((hash.naics != priorHash_naicspage.naics) && hash.naics && hash.naics.indexOf(",") > 0) { // Skip if only one naics
+    } else if ((hash.naics != priorHash_naicspage.naics) && hash.naics) {
+        // Load when NAICS changes (both single and multiple NAICS codes)
+        // This ensures the Industry Detail Dashboard displays for single NAICS
         loadNAICS = true;
     } else if (hash.catsize != priorHash_naicspage.catsize) {
         loadNAICS = true;
@@ -263,12 +263,28 @@ function refreshNaicsWidget(initialLoad) {
     //alert("naics " + hash.naics)
     if (loadNAICS) {
         if (hash.state && hash.naics && hash.naics.indexOf(",") < 0) { // Hide when viewing just 1 naics within a state.
+            // Show parent container first (required for visibility)
+            $("#list_main").show();
+
+            // Hide industry list, show detail dashboard
             $("#industryListHolder").hide();
             $("#industryDetail").show();
+
+            // Load industry detail with products
+            if (typeof showIndustryDetail === 'function') {
+                // Try to get sector data from USEEIO if available
+                let sectorData = null;
+                if (typeof epaSectors !== 'undefined' && epaSectors.get) {
+                    sectorData = epaSectors.get(hash.naics);
+                }
+                showIndustryDetail(hash.naics, sectorData);
+
+                // Note: Stats are populated later when dataSet.industryCounties loads (see line ~2029)
+            }
         } else if (!hash.state) {
             $("#industryListHolder").show();
             //$("#industries").html("<div class='contentpadding' style='padding-top:10px; padding-bottom:10px'>Select a location above for industry and impact details.</div>");
-        
+
             $("#econ_list").hide(); // Hides loading icon when no state
 
             // Replaces loading icon
@@ -279,6 +295,8 @@ function refreshNaicsWidget(initialLoad) {
             $("#industryListHolder").show();
             $("#industryDetail").hide();
         }
+
+        // Common logic for all branches of if (loadNAICS)
         if (!hash.catsort) {
             hash.catsort = "payann";
         }
@@ -290,7 +308,7 @@ function refreshNaicsWidget(initialLoad) {
         }
 
         // v2
-        if ((location.host.indexOf('localhost') >= 0 || hash.beta == "true") || location.href.indexOf('/info/naics/') >= 0) {
+        if ((location.host.indexOf('localhost') >= 0 || hash.beta == "true") || location.href.indexOf('/info/naics/') >= 0 || location.host.indexOf('github.io') >= 0) {
 
             $("#industryTableHolder").show();
             $("#sectorTableHolder").show();
@@ -307,7 +325,7 @@ function refreshNaicsWidget(initialLoad) {
             }
             d3.csv(industryLocDataFile).then( function(county_data) {
                 // Loads Tabulator via showIndustryTabulatorList()
-                callPromises(industryLocDataFile); 
+                callPromises(industryLocDataFile);
             });
         }
         loadIndustryData(hash);
@@ -524,7 +542,14 @@ function getNaics_setHiddenHash2(go) {
 
     //delete hash.naics; // Since show value invokes new hiddenhash
 
-    updateHash({'naics':''})
+    // Only clear naics from URL if user didn't explicitly provide it
+    // Check if naics exists in the URL hash (not just in hiddenhash)
+    let currentUrlHash = getHashOnly(); // Gets only URL hash, excludes hiddenhash
+    if (!currentUrlHash.naics) {
+        // User didn't provide naics in URL, safe to clear it
+        updateHash({'naics':''})
+    }
+    // If currentUrlHash.naics exists, preserve it in the URL (don't clear it)
 
     // If states are not available yet, wait for DOM.
     if(!$("#state_select").length) {
@@ -576,17 +601,21 @@ function populateTitle(showtitle,showtab) {
     $("#showAppsText").attr("title",showtab); // Swaps in when viewing app thumbs
     $(".regiontitle").text(regionServiceTitle);
 
-    if (thestate && localsiteTitle.indexOf(thestate) >= 0) { // Avoids showing state twice in browser title
+    let localsiteTitleNaics = "";
+    if (typeof localsiteTitle !== "undefined") { // Declared in localsite.js
+        localsiteTitleNaics = localsiteTitle;
+    }
+    if (thestate && localsiteTitleNaics.indexOf(thestate) >= 0) { // Avoids showing state twice in browser title
         if (showtitle) {
-            document.title = localsiteTitle + " - " + showtitle;
+            document.title = localsiteTitleNaics + " - " + showtitle;
         } else {
             console.log("TODO: Load state here");
-            document.title = localsiteTitle + " - " + thestate;
+            document.title = localsiteTitleNaics + " - " + thestate;
         }
     } else if (regionServiceTitle) {
-        document.title = localsiteTitle + " - " + regionServiceTitle;
+        document.title = localsiteTitleNaics + " - " + regionServiceTitle;
     } else if (showtitle) {
-        document.title = localsiteTitle + " - " + showtitle;
+        document.title = localsiteTitleNaics + " - " + showtitle;
     }
 }
 
@@ -595,6 +624,7 @@ function populateTitle(showtitle,showtab) {
 function loadIndustryData(hash) {
     let stateAbbr;
     if (hash.state && hash.state.length >= 2) {
+        hash.state = hash.state.split(",").filter(s => s.length === 2).join(","); // Remove if not 2-char, including state=all
         stateAbbr = hash.state.split(",")[0].toUpperCase();
     }
     $("#top-content-columns").hide();
@@ -816,6 +846,7 @@ $(document).ready(function() {
 function renderIndustryChart(dataObject,values,hash) {
     let stateAbbr 
     if (hash.state) {
+                hash.state = hash.state.split(",").filter(s => s.length === 2).join(","); // Remove if not 2-char, including state=all
         stateAbbr = hash.state.split(",")[0].toUpperCase();
         dataObject.stateshown=stateID[stateAbbr.toUpperCase()];
     }
@@ -1290,7 +1321,8 @@ function topRatesInFips(dataSet, dataNames, fips, hash) {
                 let stateAbbr;
                 
                 if (hash.state) {
-                    stateAbbr = hash.state.split(",")[0].toUpperCase();
+                            hash.state = hash.state.split(",").filter(s => s.length === 2).join(","); // Remove if not 2-char, including state=all
+        stateAbbr = hash.state.split(",")[0].toUpperCase();
                 } else {
                     if (hash.beta != "true") {
                         //stateAbbr = "GA"; // Temp HACK to show US
@@ -1953,6 +1985,42 @@ function topRatesInFipsNew(dataSet, fips) {
 
     console.log("dataSet.industries v2")
     console.log(dataSet.industries);
+
+    // Update industry stats if we're viewing a specific NAICS
+    let currentHash = getHash();
+    if (currentHash.naics && typeof updateIndustryStats === 'function') {
+        // Aggregate county-level data for this NAICS code
+        if (localObject.industryCounties && localObject.industryCounties.length > 0) {
+            let totalEmployees = 0;
+            let totalEstablishments = 0;
+            let totalPayroll = 0;
+            let countyCount = 0;
+
+            for (let i = 0; i < localObject.industryCounties.length; i++) {
+                // Property is "Naics" not "NAICS"
+                if (localObject.industryCounties[i].Naics === currentHash.naics || localObject.industryCounties[i].Naics === String(currentHash.naics)) {
+                    totalEmployees += Number(localObject.industryCounties[i]['Employees']) || 0;
+                    totalEstablishments += Number(localObject.industryCounties[i]['Establishments']) || 0;
+                    totalPayroll += Number(localObject.industryCounties[i]['Payroll']) || 0;
+                    countyCount++;
+                }
+            }
+
+            if (countyCount > 0) {
+                console.log('[IndustryStats] Aggregated data from', countyCount, 'counties for NAICS', currentHash.naics);
+                updateIndustryStats({
+                    employment: totalEmployees,
+                    establishments: totalEstablishments,
+                    payroll: totalPayroll
+                });
+            } else {
+                console.warn('[IndustryStats] No county data found for NAICS', currentHash.naics);
+            }
+        } else {
+            console.warn('[IndustryStats] localObject.industryCounties not available');
+        }
+    }
+
     return;
 
     for (var j = 0; j < fips.length; j++) { 
@@ -2185,7 +2253,7 @@ function showSectorTabulatorList(attempts) {
                     const demandHash = `demand=${sector.code}/${sector.location}`;
                     const stateParam = stateCode ? `&state=${stateCode}` : '';
                     const indexHash = `index=${sector.index}`; // legacy support for old links
-                    return `<a href="/useeio.js/footprint/sector_profile.html#${demandHash}${stateParam}">${sector.name}</a>`;
+                    return `<a href="/profile/footprint/sector_profile.html#${demandHash}${stateParam}">${sector.name}</a>`;
                   }
                 },
                 {title:"Code", field:"code", width:70, hozAlign:"right", headerSortStartingDir:"desc", sorter:"number" },

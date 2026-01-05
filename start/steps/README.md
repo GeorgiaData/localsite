@@ -1,11 +1,27 @@
 [Starter Samples](../)
 # Site Install
 
-Our helpful tips for [Yarn, Node, Python, Docker and Conda](../../../io/coders/python/).  
+Our helpful tips for [Yarn, Node, Python, Docker and Conda](../cmds/).  
 
-## Start a local web server
 
-Run the following in a local "webroot" folder to start a local http server on port 8887
+## ModelEarth webroot with Claude Code CLI
+
+**Getting Started** [Activate your webroot](https://model.earth/webroot) using Claude Code CLI or your favorite AI CLI
+
+**CodeChat:** [Overview of our webroot and RAG process](../../../codechat/) 
+
+**Contribute Locally:** The webroot [runs on port 8887](http://localhost:8887)
+
+<a href="https://model.earth/webroot/" class="btn btn-success">Activate Your Webroot</a><br>
+
+
+## Alternative: Manual webroot setup
+
+[Fork and clone the webroot repo](https://github.com/modelearth/webroot/) - You can pull down with Github Desktop
+
+Or you can fork and clone individual repos (submodules) to start your own custom webroot.
+
+Run the following in a local "webroot" folder to start an http server on port 8887.
 
 	python -m http.server 8887
 
@@ -49,23 +65,26 @@ Turn on GitHub Pages for any repo you fork by clicking the Settings icon, then P
 ### Fork one or two repos you plan to edit
 
 How to [Fork Repos](https://medium.com/@6unpnp/fork-a-github-repository-and-deploy-its-github-pages-site-d55dc53988d).  
-Always fork <a href="https://github.com/ModelEarth/localsite">localsite</a> so we can review your contributions using [Github Pages](https://docs.github.com/en/pages/quickstart).  
-Fork the [Home repo](https://github.com/ModelEarth/home) if you're working on our ["Everybody's Homepage" frontend](../../../home/).  
-Fork <a href="https://github.com/ModelEarth/data-commons">Data-Commons</a> if you're adding data visualizations using the Google Data Commons javascript API.  
-Fork <a href="https://github.com/ModelEarth/feed">Feed Player</a> if you're adding to our React Vite visual [Feed viewer](https://model.earth/feed/) and memberSense for Discord.  
-Fork [useeio.js](https://github.com/ModelEarth/useeio.js) if you're contributing to our <a href="../../../useeio.js/footprint/">State Impact Reports</a> and [Trade Flow](../../../profile/trade/) visualizations.  
-Fork <a href="https://github.com/ModelEarth/realitystream">RealityStream</a> if you're contributing python to our Machine Learning visualizations.  
-Fork <a href="https://github.com/ModelEarth/requests">Requests</a> if you're adding python to our image and video [Storyboard Generation](https://model.earth/data-pipeline/research/stream).  
-Fork <a href="https://github.com/datascape/open-webui/actions">OpenWebUI (Datascape fork)</a> to contribute within our [Open WebUI location projects](/projects/location/) using Python and Vite.  
-Fork <a href="https://github.com/ModelEarth/earthscape">Earthscape</a> if you're contributing to the our fork of [Chatbot UI](https://model.earth/earthscape/app/) using NextJS React and Supabase for team tools.  
-Fork <a href="https://github.com/ModelEarth/data-pipeline">Data-Pipeline</a> if you're contributing Python to data prep.  
 
-We've omitted the Community repo since it's only used for model.earth hosting. It's not needed for shared component dev.  
+Fork <a href="https://github.com/ModelEarth/webroot">webroot</a> to work across multiple repos as submodules.<br><br>
+
+Or you can fork individual repos:<br>
+Always fork <a href="https://github.com/ModelEarth/localsite">localsite</a> so we can review your contributions using [Github Pages](https://docs.github.com/en/pages/quickstart).  
+Fork the [home repo](https://github.com/ModelEarth/home) if you're working on our ["Everybody's Homepage" frontend](../../../home/).  
+Fork the [profile repo](https://github.com/ModelEarth/home) if you're working with [Exiobase Trade Flow](/profile/trade), [SuiteCRM](/profile/crm) or [Project Preference Ratings](/profile/preferences/). 
+Fork <a href="https://github.com/ModelEarth/data-commons">data-commons</a> if you're adding [data visualizations](/localsite/timeline/) using the Google Data Commons javascript API.  
+Fork <a href="https://github.com/ModelEarth/feed">feed player</a> if you're adding to our React Vite visual [Feed viewer](https://model.earth/feed/) and memberSense for Discord.  
+Fork [useeio.js](https://github.com/ModelEarth/useeio.js) if you're contributing to our <a href="../../../profile/footprint/">US State Reports</a> and [Trade Flow](../../../profile/trade/) visualizations.  
+Fork <a href="https://github.com/ModelEarth/realitystream">realitystream</a> if you're contributing python to our Machine Learning visualizations.  
+Fork <a href="https://github.com/ModelEarth/requests">requests</a> if you're adding python to our image and video [Storyboard Generation](https://model.earth/data-pipeline/research/stream).  
+Fork <a href="https://github.com/datascape/open-webui/actions">openwebui (Datascape fork)</a> to contribute within our [Open WebUI location projects](/projects/location/) using Python and Vite.  
+Fork <a href="https://github.com/ModelEarth/earthscape">earthscape</a> if you're contributing to the our fork of [Chatbot UI](https://model.earth/earthscape/app/) using NextJS React and Supabase for team tools.  
+Fork <a href="https://github.com/ModelEarth/data-pipeline">data-pipeline</a> if you're contributing Python to data prep.  
 
 <!--
 It's designed to serve infinite content based on parameters.  
 Fork the home repo and start creating your own custom home page.  
-We manage the home config setting in [Google Sheets](../../../data-commons/docs/data/) (and soon local config files).  
+We manage the home config setting in [Google Sheets](../../../localsite/timeline/) (and soon local config files).  
 -->
 
 <!-- Activate GitHub Pages so we can preview your contributions. -->
@@ -426,8 +445,12 @@ You can point a domain at all the repos in your Github account with the steps be
 - Important: If you are using the same domain for Google email accounts, avoid adding the 4 Google A records (these prevent adding the CNAME record). You'll only need to add the 5 MX records provided by Google.  
 - Create a repo in your primary account matching the name of the account: [github username].github.io  
 - Click settings and activate GitHub Pages for your [github username].github.io and each repo that will be an additional subfolder in your site. (This requires also doing the Special Trick below.)  
-- Add your custom domain name to the root repo called [github username].github.io.  
-- Special Trick: When you add a CNAME record for your domain in CloudFlare use @ to indicate the root, and point a different secondary account in Github as [secondary github username].github.io. By using a secondary GitHub username, more than one adjacent repo folder will be accessible through your primary domain. (The "localsite" repo can then be forked and shared locally with your primary site.) 
+- Add your custom domain name in a file called CNAME witin the [github username].github.io repo.  In porkbun, use "ALIAS" which is a flattend CNAME record. 
+- Add an index.html file with a redirect. Change "localsite" in the follow to your home page folder.
+
+		<script language="JavaScript">window.location="localsite/";</script>
+
+- Special Trick: When you add a CNAME record for your domain in CloudFlare use @ to indicate the root, and point a different secondary account in Github as [secondary github username].github.io. By using a secondary GitHub username, more than one adjacent repo folder will be accessible through your primary domain. (The "localsite" repo can then be forked and shared locally within your primary site similar to using [youracct].github.io.)
 
 - Wait 2 to 10 minutes for new GitHub Pages site to become available.
 - Activate GitHub Pages for each additional repo residing within the primary account. These can be forks from other accounts.  
