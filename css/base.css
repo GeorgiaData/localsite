@@ -28,7 +28,7 @@ Used in localsite, modelearth, io, neighborhood, trees
     --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 #side-nav {
-  width: 67px;
+  width: 62px;
   flex-shrink: 0;
 }
 .main-nav {
@@ -419,7 +419,9 @@ h2 {
   visibility: hidden; 
   pointer-events: none;
 }
-.flexmain section::before { /* Prevents hashtag section links from being covered by site header */
+/* Prevents hashtag section links from being covered by site header */
+/* test and maybe reactivate */
+.flexmain section::before { 
   display: block; 
   content: " "; 
   margin-top: -120px; 
@@ -622,13 +624,13 @@ summary::-webkit-details-marker {
   padding-right: 30px;
   padding-bottom: 30px;
 }
-.content a, .contentfull a {
+.content a, .contentfull a, .content-color a {
   text-decoration: none;
 }
-.content a:link, .content a:visited, .contentfull a:link, .contentfull a:visited {
+.content a:link, .content a:visited, .contentfull a:link, .contentfull a:visited, .content-color a:link, .content-color a:visited {
   color: #0366d6;
 }
-.dark .content a:link, .dark .content a:visited {
+.dark .content a:link, .dark .content a:visited, .dark .content-color a:link, .dark .content-color a:visited  {
   color: #acb;
 }
 .lite { /* Also in DS */
@@ -789,6 +791,9 @@ summary::-webkit-details-marker {
   margin-bottom: 16px;
 }
 @media (max-width:980px) {
+  .topcolumns {
+    margin-bottom: 20px;
+  }
   .pageColumn, .two .pageColumn {
     width:100%;
     float:none;
@@ -798,6 +803,8 @@ summary::-webkit-details-marker {
   }
   .pageColumnInside {
     margin-right: 0px;
+    padding-top: 0px;
+    padding-bottom: 0px;
   }
 }
 .contentArea {
@@ -838,7 +845,7 @@ content .js, pre code, .codetext { /* Prevents .js from impacting js class withi
   background-color: #eee;
   padding:15px;
   border-left: 4px solid #137AD1;
-  margin-bottom: 22px;
+  margin-bottom: 14px;
   display: block;
   unicode-bidi: embed;
   font-family: monospace;
@@ -1378,6 +1385,7 @@ content .js, pre code, .codetext { /* Prevents .js from impacting js class withi
 
 #headerLocTitleHolder {
   float:left;
+  positionX: relative; /* moves too high, needs work */
   /*
   padding:10px 0 0 0px;
   font-size: 22px;
@@ -1396,7 +1404,7 @@ content .js, pre code, .codetext { /* Prevents .js from impacting js class withi
   font-family: Helvetica !important;
   font-weight: 100;
   color: #777;
-  letter-spacing: 2px;
+  letter-spacing: 1.4px;
   padding-bottom: 5px;
 
   /* Align vertically */
@@ -1455,6 +1463,24 @@ content .js, pre code, .codetext { /* Prevents .js from impacting js class withi
   border-bottom: 1px solid rgb(238,238,238);
   background-color: #eee;
 }
+/*
+.showSideTabs:hover,
+.showSideTabs:hover i {
+  background-color: transparent !important;
+  color: #555;
+  box-shadow: none;
+  text-shadow: none;
+  filter: none;
+}
+.showSideTabs.iconPadding:hover {
+  background-color: transparent !important;
+}
+.dark .showSideTabs:hover,
+.dark .showSideTabs:hover i {
+  color: #fff;
+}
+*/
+
 .dark .headerbar {
   background: #222;
   border-bottom: 1px solid #333;
@@ -1519,7 +1545,8 @@ content .js, pre code, .codetext { /* Prevents .js from impacting js class withi
   margin-top:14px;
 }
 #headerIcons:hover {
-  background-color: #ddd;
+  background-colorX: #ddd;
+  background-color: transparent !important; /* temp to override bootstrap until #headerIcons is renamed */
 }
 :root {
   --header-offset-height: 79px; /* Default header offset height */
@@ -1985,9 +2012,22 @@ h2 .num {
 .tabulator .tabulator-header .tabulator-col {
     border-right: none !important;
 }
-
-
-
+.tabulator-col {
+  line-height: 1.55em; /* Allos for consisten heaer arro position*/
+}
+/* Arrow on left of column titles, applied only when prior title div has text-align: left */
+.tabulator-col:not(:has(.tabulator-col-title[style*="text-align: right"])) .tabulator-col-title {
+  padding-right: 5px !important;
+  position: relative !important;
+  float: left !important;
+  width: auto !important;
+}
+.tabulator-col:not(:has(.tabulator-col-title[style*="text-align: right"])) .tabulator-col-sorter {
+  position:relative !important;
+  float:left !important;
+  padding: 5px !important;
+  padding-top: 7px !important;
+}
 
 /* Nav.css */
 

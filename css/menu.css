@@ -667,7 +667,7 @@ ul.nav li.dropdown:hover ul.dropdown-menu {
 .catList>div {
 	cursor: pointer;
 	padding-left: 3px;
-	font-size: 15px;
+	font-size: 13px;
 	line-height: 1.1em;
 	padding-top: 8px;
 	padding-bottom: 8px;
@@ -722,6 +722,10 @@ ul.nav li.dropdown:hover ul.dropdown-menu {
     flex-direction: row;
     margin: 0 auto;
     width: 100%;
+}
+#main-content {
+	flex: 1 1 auto;
+	min-width: 0; /* Allow map/filter bar to shrink when sidebar opens */
 }
 .dark #main-container  a:link, .dark #main-container  a:visited {
   color: #acb;
@@ -997,3 +1001,59 @@ ul.nav li.dropdown:hover ul.dropdown-menu {
     }
 }
 /* End Settings Menu */
+
+/* Locations Section in Sidebar */
+#locations-header {
+    padding: 0;
+    margin-bottom: 0;
+}
+#locations-header > b {
+    display: block;
+    margin-bottom: 0;
+}
+#locations-header > b a {
+    display: block;
+    text-decoration: none;
+    color: #333;
+    font-size: 16px;
+    line-height: 1.8em;
+    padding-left: 20px;
+    cursor: pointer;
+}
+#locations-header > b a:hover {
+    background-color: #333;
+    color: #fff;
+    text-decoration: none;
+}
+#locations-content {
+    padding: 0 10px 10px 20px;
+}
+/* Locations/Continents Toggle */
+.legend-view-toggle {
+    display: flex;
+    background: rgba(0,0,0,0.06);
+    border-radius: 6px;
+    padding: 2px;
+    gap: 2px;
+    margin-bottom: 8px;
+}
+.view-toggle-btn {
+    padding: 4px 10px;
+    border: none;
+    background: transparent;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 500;
+    color: #666;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+.view-toggle-btn:hover {
+    color: #333;
+    background: rgba(255,255,255,0.5);
+}
+.view-toggle-btn.active {
+    background: #fff;
+    color: #333;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
