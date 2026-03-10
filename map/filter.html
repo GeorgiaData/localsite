@@ -18,20 +18,27 @@
       <div id="showListInBar" class="showList" style="display:none;float:left;padding:6px;margin-right:6px;opacity:.3"><i class="material-icons" style="font-size:35px; opacity:1; background:#fcfcfc; color:#333; padding-left:2px; padding-right:2px; border:1px solid #555; border-radius:8px; min-width: 38px;">&#xE8EF;</i></div>
       </div>
 
-      <div id='rightIcons' class='rightIcons hideMobile'>
+      <div id='rightIcons' class='rightIcons'>
 
-        <div id="showSideTabsInBar" class="showSideTabs iconPadding" style="display:none; float:left; opacity:0.6; min-height:64px">
-          <i class="material-icons show-on-load" style="font-size:34px;font-weight:550" data="apps">&#xE5C3;</i>
+        <div id="filterFieldToggleHolder" class="filterTopIconHolder" title="Filter sections">
+          <i class="material-icons bar-centered-icon">circle</i>
+          <i id="filterFieldToggleIcon" class="material-icons bar-centered-icon filter-field-toggle-icon">arrow_right</i>
         </div>
 
-        <!--div class='closeSideTabs expandSlider iconPadding' style='float:left;border:0px;'><i class='material-icons menuTopIcon' style='font-size:38px;opacity:0.6;margin-top:-4px'>&#xE5D0;</i></div--><div class='closeSideTabs reduceSlider iconPadding' style='display:none;float:left;border:0px;padding-top:4px'><i class='material-icons menuTopIcon' style='font-size:42px;opacity:0.7;margin-top:-4px'>&#xE5D1;</i></div>
+        <div id="filterFieldsDropdownToggle" title="Show or hide filter dropdowns" aria-expanded="false">
+          <i class="material-icons show-on-load">&#xE8B6;</i>
+        </div>
 
-      </div>
+        <div id="showSideTabsInBar" class="showSideTabs filterTopIconHolder" style="display:none; float:left; opacity:0.6;">
+          <i class="material-icons show-on-load bar-centered-icon" style="font-size:34px;font-weight:550" data="apps">&#xE5C3;</i>
+        </div>
 
-      <div id="filterFieldToggleHolder" class="menuToggleHolder" title="Filter sections">
-        <i id="filterFieldToggleIcon" class="material-icons">arrow_right</i>
+        <!--div class='closeSideTabs expandSlider ' style='float:left;border:0px;'><i class='material-icons menuTopIcon' style='font-size:38px;opacity:0.6;margin-top:-4px'>&#xE5D0;</i></div--><div class='closeSideTabs reduceSlider ' style='display:none;float:left;border:0px;padding-top:4px'><i class='material-icons menuTopIcon' style='font-size:42px;opacity:0.7;margin-top:-4px'>&#xE5D1;</i></div>
+
       </div>
       <div id="filterFieldMenu" class="menuToggleMenu" style="display:none">
+        <div id="filterFieldMenuClose" class="menuToggleItem filterFieldMenuClose" style="display:none">Close Map View</div>
+        <div class="menuToggleDivider"></div>
         <div class="menuToggleItem" data-action="earth">Earth<span class="material-icons menuToggleCheck">check</span></div>
         <div class="menuToggleItem" data-action="countries">Countries<span class="material-icons menuToggleCheck">check</span></div>
         <div class="menuToggleItem" data-action="state">States<span class="material-icons menuToggleCheck">check</span></div>
@@ -41,13 +48,12 @@
         <div class="menuToggleDivider"></div>
         <div class="menuToggleItem menuToggleLink" data-action="aboutfilters">About Filters</div>
         <div id="filterFieldMenuHide" class="menuToggleItem" data-action="hidefilters">Hide Filter Bar</div>
-        <div id="filterFieldMenuClose" class="menuToggleItem filterFieldMenuClose" style="display:none">Close Map View</div>
         <div id="filterFieldMenuCloseApps" class="menuToggleItem filterFieldMenuClose" style="display:none">Close App View</div>
       </div>
        
       <div id='main-nav-closed' class='noprint' style='float:left'><div class="earth" style="display:none"></div></div>
 
-      <div style="overflow:visible">
+      <div id="filteFieldsDropdowns" class="auto-hide-narrow" style="overflow-x:hidden; overflow-y:auto;">
         
         <div style="float:right;">
           <div class="filterLabel">
@@ -112,7 +118,7 @@
                       <div class="geoviewSelectOption" role="option" data-value="country">United States</div>
                       <div class="geoviewSelectOption" role="option" data-value="state">State</div>
                     </div>
-                    <div id="geoview_state_holder"></div>
+                    <div id="geoview_statelist" style="padding:12px"><b style="line-height:normal">State</b></div>
 
 
                     <!-- inactive -->
@@ -228,7 +234,8 @@
                 <div class="select-menu-arrow-holder show-on-load" style="display:none">
                   <!-- We could place over all select menus
                     https://fabriceleven.com/design/clever-way-to-change-the-drop-down-selector-arrow-icon/ -->
-                  
+                  <i class="material-icons" style="font-size:24px;cursor:pointer;">&#xE409;</i>
+                  <i class="material-icons" style="font-size:24px;cursor:pointer;display:none;">&#xE313;</i>
                 </div>
                 <div class="filterClickText countiesTabText">Counties</div>
               </div>
@@ -298,7 +305,6 @@
 
 
         <!-- KEYWORD SEARCH -->
-        <div>
           <div class="filterField keywordField">
 
             <!-- Search Companies -->
@@ -314,8 +320,6 @@
             </div>
             -->
             
-            <div style="position:relative; float:left">
-
               <div class="searchField" style="overflow:auto; margin-bottom:10px">
 
                   <div style="float:right; position:relative;">
@@ -375,10 +379,8 @@
                 </div>
               </div>
 
-            </div>
           </div>    
 
-        </div>
         <!-- END KEYWORD SEARCH -->
 
         <!-- Down arrow -->

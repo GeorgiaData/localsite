@@ -2,7 +2,8 @@
 // Optimized loading strategy: parallel JS batches, non-blocking CSS
 (function() {
 // Create or ensure local_app exists
-var local_app = local_app || {}; // Same as localsite.js
+window.local_app = window.local_app || {}; // Same as localsite.js
+var local_app = window.local_app; // Reference to global local_app
 
 // Extract hostname and port from the script src (like localsite.js does)
 function extractHostnameAndPort(url) {
@@ -134,12 +135,11 @@ if (typeof window.param == 'undefined') {
 
     // Apparently the above overwrites param values sent via localsite.js below, but that's okay
 
-} else if (typeof window.param.map == 'undefined') { // Localsite.js was loaded outside embed.js, but we still need to get the map.
-    
+} else if (typeof window.param.show == 'undefined') { // Localsite.js was loaded outside embed.js, but we still need to get the map.
+
     // BUT this might not be okay.
     // BUGBUG - Currently this will probably overwrites param values when localsite.js is declared outside, prior to embed.js
     window.param = initializeParamFromEmbedScript();
-
 
     //window.param.map = "liaisons"; // TEMP
     //alert("Set param.map to: " + window.param.map)
@@ -298,10 +298,10 @@ Promise.all(scriptPromises).then(() => {
     } else if (currentScript && currentScript.src.includes('?')) {
         // Only if map= is not available in hash, check for list= in script URL and convert to map=
         const url = new URL(currentScript.src);
-        const listFromScript = urlParams.get('list') || url.searchParams.get('list');
+        const listFromScript = url.searchParams.get('map') || urlParams.get('list') || url.searchParams.get('list');
         if (listFromScript) {
             mapParam = '?showmap=true&map=' + listFromScript;
-            console.log('embed.js: Converting list parameter to map:', listFromScript);
+            console.log('embed.js: Converting map/list parameter to map:', listFromScript);
         }
     }
     
@@ -312,14 +312,14 @@ Promise.all(scriptPromises).then(() => {
         }
     }
     
-    // Check if #mapwidget exists, if not create it at script location
-    let localwidgetExists = document.getElementById('mapwidget');
+    // Check if #listwidget exists, if not create it at script location
+    let localwidgetExists = document.getElementById('listwidget');
     if (!localwidgetExists && currentScript) {
-        console.log('Creating #mapwidget at script location');
+        console.log('Creating #listwidget at script location');
         const localwidgetDiv = document.createElement('div');
-        localwidgetDiv.id = 'mapwidget';
-        
-        // Insert the mapwidget div right after the script tag
+        localwidgetDiv.id = 'listwidget';
+
+        // Insert the listwidget div right after the script tag
         currentScript.parentNode.insertBefore(localwidgetDiv, currentScript.nextSibling);
     }
     

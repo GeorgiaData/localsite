@@ -4,6 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Color Palette & CSS Framework</title>
+
+<link type="text/css" rel="stylesheet" href="/localsite/css/base.css" id="/localsite/css/base.css" />
+<script type="text/javascript" src="/localsite/js/localsite.js?showheader=true&showsearch=false"></script>
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@600;700;800&display=swap" rel="stylesheet">
@@ -48,7 +52,6 @@
   
   body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
-    padding: 40px;
     background: #FAFAFA;
     color: #37352F;
     line-height: 1.5;
@@ -222,6 +225,12 @@
   
   .btn:hover {
     box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  }
+
+  .btn-lg .material-icons {
+    font-size: 16px;
+    line-height: 1;
+    margin-right: 6px;
   }
   
   .btn-primary {
@@ -528,6 +537,7 @@
   </select>
 </div>
 
+<div class="content contentpadding">
 <div class="palette-section">
   <div class="palette-title">Primary Color</div>
   <div class="color-row" id="primaryColor"></div>
@@ -554,6 +564,17 @@
     <button class="btn btn-dark">Dark</button>
   </div>
   
+  <a href="#" class="btn">Button</a>
+  <a href="#" class="btn btn-black">Black</a>
+  <a href="#" class="btn btn-magenta">Magenta</a>
+  <a href="#" class="btn btn-white">White</a>
+  <br><br><br>
+
+  <button class="btn-sm">Button</button>
+  <button class="btn-med">Button</button>
+  <button class="btn-lg btn-primary"><i class="material-icons">auto_awesome</i>Button</button>
+  <br><br><br>
+
   <div class="component-group">
     <div class="component-label">Card Component</div>
     <div class="card">
@@ -640,6 +661,7 @@
     </div>
   </div>
   
+</div>
 </div>
 
 <script>

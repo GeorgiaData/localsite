@@ -34,7 +34,9 @@ if(typeof localObject.layerCategories == 'undefined') {
 // Set your own Mapbox access token below.
 // Restrict which domains your token is loaded through.
 // https://blog.mapbox.com/url-restrictions-for-access-tokens-5f7f7eb90092
-var mbAttr = '<a href="https://www.mapbox.com/">Mapbox</a>', mbUrl = 'https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoiZWUyZGV2IiwiYSI6ImNqaWdsMXJvdTE4azIzcXFscTB1Nmcwcm4ifQ.hECfwyQtM7RtkBtydKpc5g';
+var mbAttr = '<a href="https://www.mapbox.com/">Mapbox</a>';
+var mapboxToken = (typeof window !== "undefined" && typeof window.mapboxAccessToken === "string") ? window.mapboxAccessToken : "";
+var mbUrl = 'https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png' + (mapboxToken ? ('?access_token=' + mapboxToken) : '');
 
 //////////////////////////////////////////////////////////////////
 // Loads from JSON API, Google Sheet or CSV file
@@ -101,6 +103,9 @@ let dp = {}; // So available on .detail click for popMapPoint() and zoomMapPoint
 
 // TO DO: Can we avoid calling outside of the localsite repo by files in community, including community/map/starter/embed-map.js 
 function loadMap1(calledBy, show, dp_incoming) {
+  if (param["showtopmap"] != "true") { // Prevents older map from appearing at top of new team repo maps
+    return;
+  }
   // Calls loadDataset
   let hash = getHash();
   let showDirectory = true;

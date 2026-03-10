@@ -544,15 +544,16 @@ ul.nav li.dropdown:hover ul.dropdown-menu {
 	top: 0px;
 }
 .rightIcons {
+	/*
 	position: absolute;
 	right: 0px;
+	top: 0px;
+	bottom: 0px;
 	z-index: 999;
-	font-size: 44px;
-	text-shadow: 1px 1px 4px #fff;
-	padding-right: 16px;
-}
-.dark .rightIcons {
-	text-shadow: none;
+	*/
+	float: right;
+	displayX: flex;
+	align-itemsX: center;
 }
 .bothSideIcons {
   top:0px;
@@ -630,6 +631,8 @@ ul.nav li.dropdown:hover ul.dropdown-menu {
 #listLeft b, .sidecolumnLeft b, #cloneRight b {
     color:#333;
     font-weight:800;
+    display:block;
+    min-height: 26.5px;
 }
 #listLeft .legendDot {
 	padding:0px;
@@ -684,7 +687,7 @@ ul.nav li.dropdown:hover ul.dropdown-menu {
 }
 .sidecolumnLeft b a {
 	color: #333;
-	font-size: 16px;
+	font-size: 14.5px;
 	line-height: 1.8em;
 	padding-left: 20px;
 }
@@ -735,9 +738,6 @@ ul.nav li.dropdown:hover ul.dropdown-menu {
 }
 .dark #main-container h1, .dark #main-container h2, .dark #main-container h3, .dark #main-container h4, .dark #main-container h5, .dark #main-container h6 {
   color: #ccc;
-}
-.dark .btn {
-	color: #fff !important;
 }
 .navLinks a {
   height: 42px;
@@ -804,6 +804,13 @@ ul.nav li.dropdown:hover ul.dropdown-menu {
     margin-right: 30px;
     padding-right: 30px;
     border: 0px !important;
+}
+#rightTopMenu select:focus,
+#rightTopMenu select:active,
+#rightTopMenu select:focus-visible {
+    border: 0px !important;
+    outline: none !important;
+    box-shadow: none !important;
 }
 .dark #rightTopMenu select {
 	color: #eee !important;

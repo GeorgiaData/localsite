@@ -5,7 +5,6 @@ Used in localsite, modelearth, io, neighborhood, trees
 :root {
     --header-height: 80px;  /* Define header height as CSS variable */
     --side-nav-width: 67px;
-
     --bg-primary: #F9FAFB;
     --bg-secondary: #FFFFFF;
     --bg-tertiary: #F3F4F6;
@@ -17,12 +16,14 @@ Used in localsite, modelearth, io, neighborhood, trees
     --accent-orange: #F59E0B;
     --border-light: #E5E7EB;
     --border-medium: #D1D5DB;
+    --input-border: #cbd5e1;
     --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
     --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
     --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
     --radius-sm: 6px;
     --radius-md: 8px;
     --radius-lg: 12px;
+    --border-radius: 12px;
     --sidebar-width-expanded: 67px;
     --sidebar-collapsed: 64px;
     --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -43,15 +44,24 @@ Used in localsite, modelearth, io, neighborhood, trees
   width: 252px !important;
   flex-shrink: 0; /* Prevents the column from shrinking below 257px */
 }
-.dark #side-nav-absolute {
-  background-color: #666667;
-}
 @media (max-width: 600px) {
   .main-nav {
     width:100% !important;
+    flex: 2;
   }
   .main-nav-full {
     width:100% !important;
+  }
+  .chart-controls {
+    width: 100%;
+  }
+  .chart-controls select {
+    width: 100%;
+  }
+  #main-content .whichLinesHolder {
+    display: block !important;
+    width: 100%;
+    margin-bottom: 10px;
   }
 }
 .sidebar-hidden #side-nav {
@@ -145,6 +155,9 @@ body {
   color: #333;
   line-heightX:0; /* prevents gaps betweet images, but 0 caused text to overlap on start and nav icons. */
 }
+#datascape {
+  font-size: 0; /* prevents 19px tall blank space */
+}
 .dark {
   color: #eee;
   background-color: #333;
@@ -183,6 +196,48 @@ body {
     margin-right: 0px;
   }
 }
+@media (max-width: 600px) {
+  .content ul,
+  .content ol {
+    margin-left: 0;
+    padding-left: 0;
+    list-style: none;
+  }
+  .content li {
+    margin-left: 0;
+    padding-left: 0;
+  }
+  .content ul li {
+    position: relative;
+    padding-left: 0.72em; /* keeps a small gap after custom bullet */
+  }
+  .content ul li::before,
+  .content ol li::before {
+    line-height: 1;
+    vertical-align: middle;
+  }
+  .content ul li::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0.58em; /* align with first text line without altering line height */
+    width: 0.42em; /* bigger bullet */
+    height: 0.42em;
+    border-radius: 50%;
+    background: #9ca3af; /* lighter gray bullet */
+  }
+  .content ol {
+    counter-reset: mobileListCounter;
+  }
+  .content ol li {
+    counter-increment: mobileListCounter;
+  }
+  .content ol li::before {
+    content: counter(mobileListCounter) ".";
+    font-size: 1.4em;
+    margin-right: 0.12em;
+  }
+}
 @media (max-width: 1450px) { /* 1250px */
   .mobileView .hideMobile {
     display: none;
@@ -199,6 +254,35 @@ body {
     float: none;
   }
 }
+/* Shared select dropdown — shielded arrow prevents long text overlapping the chevron */
+.ls-select {
+  -webkit-appearance: none;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23666'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  background-color: #fff;
+  background-size: 10px;
+  padding: 4px 30px 4px 8px;
+  min-height: 34px;
+  font-size: 1rem;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  outline: none;
+  cursor: pointer;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.ls-select:focus {
+  border-color: #007bff;
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+}
+.dark .ls-select {
+  background-color: #2a2a2a;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23aaa'/%3E%3C/svg%3E");
+  border-color: #555;
+  color: #eee;
+}
+
 @media (max-width: 1500px) {
   .mobileView .hideMobileSooner {
     display: none;
@@ -392,24 +476,31 @@ h1 {
   margin-top: 10px;
   font-size: 31px;
   font-family: "Amaze", "Helvetica Neue", Helvetica, "Lato", sans-serif;
+  font-weight: 500;
+}
+@container (max-width: 400px) {
+  h1 {
+    font-size: 24px;
+  }
 }
 .h1-home {
   font-size: 28pt;
-  font-family: "Helvetica Neue", Helvetica, "Lato", sans-serif;
+  font-family: Georgia, "Helvetica Neue", Helvetica, "Lato", sans-serif;
   font-weight: 200;
 }
 h2 {
   margin-top: 0px;
   font-weight: 500;
   font-weight: 800;
-  font-size: 1.4em;
+  font-size: 1.25em;
   padding-top: 12px;
-  padding-bottom: 5px;
+  padding-bottom: 4px;
   border-bottom: 1px solid #ddd;
   margin-bottom: 18px;
   color: rgb(77, 82, 89);
   color: #333;
   overflow: auto;
+  opacity: .85;
 }
 .flexmain h2::before { /* Prevents hashtag h2 links from being covered by site header */
   display: block; 
@@ -517,22 +608,10 @@ hr {
     border: 0px;
     border-top: 1px solid #ddd;
 }
-details {
-  display:inline;
-}
-summary { /* a button */
-  display: inline;
-  padding:0 5px;
-  floatX:left;
-  margin-right:8px;
-  border: 1px solid #ccc;
-}
-summary::-webkit-details-marker {
-  display: none
-}
-@media print 
+@media print
 {
   .noprint {display: none; }
+  #showSideFromHeader {display: none; }
   .pagebreak {
       clear: both;
       page-break-after: always;
@@ -738,6 +817,9 @@ summary::-webkit-details-marker {
   padding-right: 55px;
   */
 }
+.container a {
+  text-decoration: none;
+}
 .lead {
     font-family: 'PT Sans', sans-serif;
     font-weight: normal;
@@ -817,6 +899,9 @@ summary::-webkit-details-marker {
     background-color: #eee; /* also set .litePanelFadeOut 238 */
     overflow:auto;
 }
+.dark .litePanel {
+  background-color: #444;
+}
 .litePanelFadeOut {
   margin-top:10px;
   position:absolute;
@@ -845,7 +930,6 @@ content .js, pre code, .codetext { /* Prevents .js from impacting js class withi
   background-color: #eee;
   padding:15px;
   border-left: 4px solid #137AD1;
-  margin-bottom: 14px;
   display: block;
   unicode-bidi: embed;
   font-family: monospace;
@@ -951,58 +1035,80 @@ content .js, pre code, .codetext { /* Prevents .js from impacting js class withi
 }
 .btn {
     display: inline-block;
-    font-weight: 400;
-    color: #fff;
+    font-weightX: 550;
+    color: #343434;
+    background-colorX: rgb(239, 239, 239); /* matches useragent buttonface */
+    background-color: var(--border-light);
+    borderX: 1px solid var(--border-light);
+    border: 1px solid var(--border-light);
+
     text-align: center;
     vertical-align: middle;
     -webkit-user-select: none;
     -moz-user-select: none;
     -ms-user-select: none;
     user-select: none;
-    /* background-color: transparent; */
-    border: 1px solid transparent;
     padding: 0.375rem 1rem;
     line-height: 1.5;
     border-radius: 2rem;
-    -webkit-transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, -webkit-box-shadow 0.15s ease-in-out;
-    transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, -webkit-box-shadow 0.15s ease-in-out;
-    transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
-    transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out, -webkit-box-shadow 0.15s ease-in-out;
     cursor: pointer;
     margin-right:6px;
     margin-bottom:8px;
 }
+.btn-med {
+  font-size: 0.9rem;
+  line-height: 1.35;
+  padding: 0.3rem 0.8rem;
+  border-radius: 2rem;
+  display: inline-flex;
+  width: auto;
+  border: 1px solid var(--border-light);
+}
 .btn:link, .btn:visited, .contentpadding .btn:link, .contentpadding .btn:visited {
-  /* color: #fff !important; */
+  color: #343434;;
   text-decoration: none;
 }
 #hero-rect .btn:link, #hero-rect .btn:visited {
   color: #fff;
 }
-.btn:hover {
+.btn:hover, .btn-med:hover, .btn-lg:hover {
     background-color: #b9da79;
     border-color: #b9da79;
+    color: #fff;
     text-decoration: none;
 }
+.dark .btn {
+  color: #fff;
+  background-color: #375a7f;
+  border: 1px solid #375a7f;
+}
 .btn-lg {
-  height: 52px;
+  height: 46px;
   font-size: 1.1rem;
-  line-height: 2.15;
+  line-height: 2;
   border-radius: 1.5rem;
   padding: 0.375rem 1.3rem;
+  border: 1px solid var(--border-light);
+  font-weight: 550;
+  font-weight: 550;
+}
+.btn-sm {
+  font-size: 0.75rem;
+  line-height: 1.2;
+  padding: 0.2rem 0.55rem;
+  border-radius: 2rem;
+  display: inline-flex;
+  width: auto;
 }
 
 /* color is !important so surrounding a href color from menu.css does not override */
 .btn-primary {
     color: #fff !important;
-    background-color: #6fa1d8; /* med baby blue */
-    background-color: #375a7f; /* akin to blueberry */
-    background-colorX: #579; /* faded blue */
-    border-color: #6fa1d8;
-    border-colorX: #375a7f;
+    background-color: #137AD1;
+    border-color: #137AD1;
 }
 .dark .btn-primary {
-  background-color: #084975; /* darker = blueberry */
+  background-color: #137AD1;
 }
 .btn-primary:visited {
     color: #fff !important;
@@ -1013,25 +1119,63 @@ content .js, pre code, .codetext { /* Prevents .js from impacting js class withi
     border-color: #91bbef;
     border-color: #6fa1d8;
 }
+.btn-black {
+    color: #fff !important;
+    background-color: #0e121a;
+    border-color: #0e121a;
+}
+.btn-black:visited {
+    color: #fff !important;
+}
+.btn-black:hover {
+    background-color: #333;
+    border-color: #1b252d;
+}
 .btn-magenta {
+  color: #fff !important;
   /* Closest websafe color is: #cc66cc. https://www.colorhexa.com/b455b4 */
   background-color: #b455b4;
   border-color: #b455b4;
-
-  /*
-  font: 600 16px/1.8 "Lato", sans-serif !important;
-  color: #fff !important;
-  background-color: rgb(180, 85, 180);
-  border-radius: 20px;
-  height: 40px !important;
-  display: inline-block;
-  padding: 6px 20px 10px 20px !important;
-  margin-left: 9px;
-  */
 }
 .btn-magenta:hover {
   background-color: purple !important;
   text-decoration: none;
+}
+.btn-periwinkle {
+  color: #fff !important;
+  background-color: rgb(152, 139, 252);
+  border: 1px solid rgb(152, 139, 252);
+}
+.btn-periwinkle:hover,
+.btn-periwinkle:focus {
+  background-color: rgb(173, 162, 255);
+  border: 1px solid rgb(152, 139, 252);
+}
+.btn-indigo {
+  color: #fff !important;
+  background-color: rgb(58, 62, 130);
+  border: 1px solid rgb(58, 62, 130);
+}
+.btn-indigo:hover,
+.btn-indigo:focus {
+  background-color: rgb(82, 88, 168);
+  border: 1px solid rgb(82, 88, 168);
+}
+.btn-white {
+    color: #333 !important;
+    background-color: #fff;
+    border-color: #ccc;
+}
+.btn-white:link, .contentpadding .btn-white:link {
+  color: #333 !important;
+}
+.btn-white:visited, .contentpadding .btn-white:visited {
+  color: #333 !important;
+}
+.btn-white:hover, .btn-white:link:hover, .contentpadding .btn-white:link:hover, .btn-white:visited:hover, .contentpadding .btn-white:visited:hover {
+    color: #fff !important;
+    background-color: #a6c36e;
+    border-color: #a6c36e;
 }
 .btn-info {
     color: #fff !important;
@@ -1061,26 +1205,86 @@ content .js, pre code, .codetext { /* Prevents .js from impacting js class withi
     background-color: #f15a7f;
     border-color: #f15a7f;
 }
-.btn-white {
-    color: #333 !important;
-    background-color: #fff;
-    border-color: #ccc;
-}
-.btn-white:link, .contentpadding .btn-white:link {
-  color: #333 !important;
-}
-.btn-white:visited, .contentpadding .btn-white:visited {
-  color: #333 !important;
-}
-.btn-white:hover, .btn-white:link:hover, .contentpadding .btn-white:link:hover, .btn-white:visited:hover, .contentpadding .btn-white:visited:hover {
-    color: #fff !important;
-    background-color: #a6c36e;
-    border-color: #a6c36e;
-}
 @media (max-width: 500px) {
   .btn {
     width:100%;
   }
+  .btn-sm {
+    width: auto;
+    display: inline-flex;
+  }
+}
+
+.btn-nice {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 10px;
+  background: linear-gradient(135deg, #4a90e2 0%, #5ba3f5 100%);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 2px 8px rgba(74, 144, 226, 0.35);
+}
+
+/* Reusable circular icon control */
+.icon-circle-btn {
+  background: none;
+  -webkit-appearance: none;
+  appearance: none;
+  border: 1px solid #aaa;
+  border-style: solid;
+  border-width: 1px;
+  border-radius: 50%;
+  width: 22px;
+  height: 22px;
+  min-width: 22px;
+  padding: 0;
+  box-sizing: border-box;
+  box-shadow: none;
+  cursor: pointer;
+  color: #888;
+  font-size: 14px;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  vertical-align: middle;
+  transition: all 0.2s;
+}
+.icon-circle-btn.material-icons {
+  font-size: 14px !important;
+  line-height: 1 !important;
+  display: inline-flex !important;
+}
+.icon-circle-btn:hover {
+  background: none;
+  color: #666;
+  border-color: #888;
+}
+.dark .icon-circle-btn {
+  color: #aaa;
+  border-color: #aaa;
+}
+.dark .icon-circle-btn:hover {
+  color: #ccc;
+  border-color: #ccc;
+}
+
+a.btn-nice:link,
+a.btn-nice:visited {
+  text-decoration: none !important;
+  color: #fff !important;
+}
+.dark a.btn-nice:link,
+.dark a.btn-nice:visited {
+  color: #fff !important;
+}
+.noborder, .dark .noborder, .noborder:hover, .dark .noborder:hover {
+  border: 0px;
 }
 .nav {
   list-style: none;
@@ -1311,6 +1515,23 @@ content .js, pre code, .codetext { /* Prevents .js from impacting js class withi
   background: white url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg>') no-repeat right 5px center; /* Custom arrow */
   background-size: 24px; /* Size of the custom arrow */
 }
+.config-field input, .config-field select {
+  width: 100%;
+  padding: 9px 10px;
+  border-radius: 10px;
+  border: 1px solid var(--input-border, var(--border-medium, #D1D5DB));
+  font-size: 14px;
+  font-family: "Lato", "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  margin-bottom: 7px;
+}
+.dark .config-field input,
+body.dark .config-field input,
+.dark .config-field select,
+body.dark .config-field select {
+  background: #0b1120;
+  color: #e2e8f0;
+  border-color: rgba(148, 163, 184, 0.35);
+}
 .dark select {
   background-color: #000;
   color: #fff;
@@ -1369,7 +1590,7 @@ content .js, pre code, .codetext { /* Prevents .js from impacting js class withi
 }
 @media (max-width: 600px) {
   #headerLogo img {
-    max-width: 120px;
+    max-width: 400px;
   }
 }
 /* phase out? */
@@ -1471,9 +1692,6 @@ content .js, pre code, .codetext { /* Prevents .js from impacting js class withi
   box-shadow: none;
   text-shadow: none;
   filter: none;
-}
-.showSideTabs.iconPadding:hover {
-  background-color: transparent !important;
 }
 .dark .showSideTabs:hover,
 .dark .showSideTabs:hover i {
@@ -1609,34 +1827,6 @@ content .js, pre code, .codetext { /* Prevents .js from impacting js class withi
 }
 
 /* .upperIcons > */
-.iconPadding {
-  height: 64px;
-  min-width: 58px;
-  text-align: center;
-  /* padding: 5px 26px 2px 12px; */
-  cursor: pointer;
-  color: #888;
-}
-.iconPadding:hover {
-  color: #222;
-}
-.dark .iconPadding {
-  color: #ccc;
-}
-.dark .iconPadding:hover {
-  color: #fff;
-}
-.darkDivText .iconPadding:hover {
-  color: #fff;
-}
-
-#goatIcons .iconPadding {
-    height: 64px;
-    min-width: 58px;
-    text-align: center;
-    padding: 16px 12px 2px 12px;
-    cursor: pointer;
-}
 
 .upperIcons > div:hover {
   cursor: pointer;
@@ -1965,12 +2155,21 @@ input:checked + .slider:before {
 .large-list {
   font-size: 16px;
 }
+.large-list strong, .content strong {
+  font-weight: 510;
+  letter-spacing: 0.02em;
+  opacity: .9;
+}
 .large-list h1 {
   font-weight: 700;
-  font-family: Roboto,Inter,-apple-system,system-ui,BlinkMacSystemFont,Segoe UI,Helvetica Neue,Arial,sans-serif,Apple Color Emoji,Segoe UI Emoji;
+  font-family: Georgia,Roboto,Inter,-apple-system,system-ui,BlinkMacSystemFont,Segoe UI,Helvetica Neue,Arial,sans-serif,Apple Color Emoji,Segoe UI Emoji;
+
+  font-weight: 500;
+  font-size: 40px;
 }
 .large-list h2 {
   position: relative;
+  font-size: 24px;
   font-weight: 400;
 }
 .large-list h3 {
@@ -2108,6 +2307,14 @@ h2 .num {
   flex-shrink: 0;
   padding: 8px;
   border-bottom: 1px solid var(--border-light);
+}
+.collapsed #side-nav-header {
+  display: flex;
+  justify-content: center;
+  padding: 8px 0;
+}
+.collapsed #side-nav-header .nav-x {
+  float: none;
 }
 @media (max-width: 600px) {
   .collapsed #side-nav-header {
@@ -2292,6 +2499,11 @@ body.sidebar-hovered {
     display: flex;
     flex-direction: row;
     overflow-y: auto;
+    background-color: #efefef;
+    z-index: 10050;
+}
+.dark #side-nav-absolute {
+    background-color: #666667;
 }
 #side-nav-content {
     flex: 1;
@@ -2853,11 +3065,11 @@ body.sidebar-hovered {
 
 .basePanel {
     background: white;
-    border-radius: 8px;
+    border-radius: var(--border-radius);
 }
 .basePanelTop {
-  border-top-left-radius: 8px;
-  border-top-right-radius: 8px;
+  border-top-left-radius: var(--border-radius);
+  border-top-right-radius: var(--border-radius);
 }
 .dark .basePanel {
     background: #333;
@@ -3031,4 +3243,326 @@ body.sidebar-hidden #openNav {
     min-height: 32px;
     justify-content: center;
     box-sizing: border-box;
+}
+
+/* Panel Menu Toggle Styles - Reusable across panels */
+.menuToggleMenu {
+  position: absolute;
+  right: 10px;
+  top: 50px;
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
+  min-width: 180px;
+  padding: 6px 0;
+  z-index: 1001;
+}
+.menuToggleMenuInline {
+  position: absolute;
+  top: 0;
+  right: 0;
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 9999;
+  min-width: 180px;
+  padding: 6px 0;
+}
+.dark .menuToggleMenu {
+  background: #333;
+  border-color: #555;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.4);
+}
+.dark .menuToggleMenuInline {
+  background: #333;
+  border-color: #555;
+}
+.menuToggleItem {
+  padding: 8px 12px;
+  cursor: pointer;
+  color: #444;
+  display: block;
+  text-decoration: none;
+  position: relative;
+  line-height: 1;
+}
+.menuToggleItem .material-icons {
+  font-size: 16px;
+  vertical-align: middle;
+  margin-right: 8px;
+}
+.menuToggleCheck {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 18px;
+  color: #888;
+  display: none !important;
+}
+.menuToggleItem.is-active .menuToggleCheck {
+  display: inline-block !important;
+}
+.menuToggleItem:hover {
+  background: #f2f2f2;
+  color: #111;
+}
+.menuToggleDivider {
+  border-top: 1px solid #eee;
+  margin: 4px 0;
+}
+.menuToggleLink {
+  color: inherit;
+}
+.dark .menuToggleItem {
+  color: #eee;
+}
+.dark .menuToggleCheck {
+  color: #aaa;
+}
+.dark .menuToggleItem:hover {
+  background: #444;
+  color: #fff;
+}
+.dark .menuToggleLink {
+  color: inherit;
+}
+.dark .menuToggleDivider {
+  border-top-color: #555;
+}
+.menuToggleHolderInline {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  width: 100%;
+  min-height: 34px;
+  border: 1px solid #ddd; /* For #widgetDetailsControls (which is not the detail panel) */
+  border-radius: 8px;
+  transition: all 0.2s;
+}
+.menuToggleHolderInline .material-icons {
+  transition: none;
+}
+.menuToggleHolderInline:hover {
+  border-color: #007bff;
+  background: #f8f9fa;
+}
+.dark .menuToggleHolderInline {
+  background: #333;
+  border-color: #555;
+}
+.dark .menuToggleHolderInline:hover {
+  border-color: #007bff;
+  background: #444;
+}
+.menuToggleHolderMap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  width: 40px;
+  height: 40px;
+  background: transparent;
+}
+/* Add white transparent circle behind map icons */
+.menuToggleHolderMap::before {
+  content: '';
+  position: absolute;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.7);
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 0;
+  transition: background 0.2s ease;
+}
+.menuToggleHolderMap:hover::before {
+  background: #333;
+}
+.dark .menuToggleHolderMap::before {
+  background: rgba(255, 255, 255, 0.5);
+}
+.dark .menuToggleHolderMap:hover::before {
+  background: rgba(255, 255, 255, 0.7);
+}
+.menuToggleHolderMap .material-icons {
+  transition: color 0.2s ease;
+  position: relative;
+  z-index: 1;
+}
+.menuToggleHolderMap:hover .menu-toggle-arrow {
+  color: white;
+}
+.dark .menuToggleHolderMap:hover .menu-toggle-arrow {
+  color: #aaa;
+}
+/* Common circle background styling for menu toggle icons */
+.menuToggleHolderMap .material-icons.circle-bg {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 34px;
+}
+.dark .menuToggleHolderMap .material-icons.circle-bg {
+  color: rgba(255, 255, 255, 0.5);
+}
+/* Circle background for non-map panels */
+.menuIconHolder:not(.menuToggleHolderMap) .material-icons.circle-bg {
+  color: #ddd;
+  font-size: 32px;
+}
+.dark .menuIconHolder:not(.menuToggleHolderMap) .material-icons.circle-bg {
+  color: rgba(255, 255, 255, 0.7);
+}
+/* Common arrow icon styling for all MenuControl arrows */
+.menu-toggle-arrow {
+  font-size: 28px;
+  font-weight: 500;
+  color: #aaa;
+}
+/* Ensure icon positioning is stable */
+#widgetDetailsMenuControl .material-icons,
+#widgetmapWrapperMenuControl .material-icons,
+#pageGalleryMenuControl .material-icons,
+#locationDetailsMenuControl .material-icons {
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+#widgetDetailsMenuControl .material-icons[id$="MenuToggleIcon"],
+#widgetmapWrapperMenuControl .material-icons[id$="MenuToggleIcon"],
+#pageGalleryMenuControl .material-icons[id$="MenuToggleIcon"],
+#locationDetailsMenuControl .material-icons[id$="MenuToggleIcon"] {
+  position: absolute !important;
+}
+/* Fade transition for locationDetails during tour */
+.locationDetails {
+  transition: opacity 0.2s ease-in-out;
+}
+.locationDetails.fading {
+  opacity: 0.5;
+}
+/* Wider clickable area for locationDetails menu toggle */
+#locationDetailsMenuControl {
+  padding: 8px 12px !important;
+}
+#rightIcons {
+  max-height: 54px;
+  overflow: visible;
+}
+#filterFieldsDropdownToggle {
+  display: none;
+  float: left;
+  padding: 6px;
+  padding-left: 0;
+  opacity: 0.3;
+  cursor: pointer;
+}
+#filterFieldsDropdownToggle .material-icons {
+  font-size: 35px;
+  font-weight: 500;
+  opacity: 1;
+  color: #333;
+  padding-top: 3px;
+  padding-left: 5px;
+  padding-right: 2px;
+  min-width: 38px;
+}
+.dark #filterFieldsDropdownToggle .material-icons {
+  color: #bbb;
+}
+.filterTopIconHolder {
+  position: relative;
+  float: left;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 54px;
+  overflow: visible;
+}
+.bar-centered-icon {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+#filterFieldToggleHolder {
+  width: 93px;
+  min-width: 93px;
+  cursor: pointer;
+}
+#filterFieldToggleInHeader {
+  width: 44px;
+  min-width: 44px;
+  cursor: pointer;
+  display: none;
+}
+#showSideTabsInBar {
+  width: 42px;
+}
+#filterFieldToggleHolder i,
+#filterFieldToggleInHeader i {
+  font-size: 32px;
+  color: #888;
+  cursor: pointer;
+}
+#filterFieldToggleIcon,
+#filterFieldToggleIconInHeader,
+.filter-field-toggle-icon {
+  position: absolute !important;
+  font-size: 28px;
+}
+/*
+#filterFieldToggleHolder:not(.filter-toggle-forward) #filterFieldToggleIcon {
+  font-size: 28px;
+}
+*/
+#filterFieldToggleHolder.filter-toggle-forward .filter-field-toggle-icon,
+#filterFieldToggleInHeader.filter-toggle-forward .filter-field-toggle-icon {
+  font-size: 28px;
+}
+@media (max-width: 400px) {
+  #filterFieldToggleHolder i,
+  #filterFieldToggleInHeader i {
+    font-size: 36px;
+  }
+  #filterFieldToggleIcon,
+  #filterFieldToggleIconInHeader,
+  .filter-field-toggle-icon {
+    font-size: 32px;
+  }
+  #filterFieldToggleHolder:not(.filter-toggle-forward) .filter-field-toggle-icon,
+  #filterFieldToggleInHeader:not(.filter-toggle-forward) .filter-field-toggle-icon {
+    font-size: 32px;
+  }
+  #filterFieldToggleHolder.filter-toggle-forward .filter-field-toggle-icon,
+  #filterFieldToggleInHeader.filter-toggle-forward .filter-field-toggle-icon {
+    font-size: 32px;
+  }
+}
+@media (max-width: 600px) {
+  #filterFieldsDropdownToggle {
+    display: block;
+  }
+  #filterFieldToggleHolder {
+    display: none;
+  }
+  #filterFieldToggleInHeader {
+    display: inline-flex;
+  }
+  #filteFieldsDropdowns {
+    container-type: inline-size;
+  }
+  #filteFieldsDropdowns.auto-hide-narrow {
+    display: none;
+  }
+}
+/* Orange color for pause icon during tour */
+#locationDetailsMenuToggleIcon.pause-icon {
+  color: #ff6b35 !important;
 }

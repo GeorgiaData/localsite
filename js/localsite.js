@@ -76,14 +76,15 @@ function findScript(scriptName = 'localsite.js') {
 }
 
 // Ensure local_app exists and extend it with all required methods
-var local_app = local_app || {};
+window.local_app = window.local_app || {};
 
 // Add localsite methods to local_app (extending existing object if it already has web_root)
 (function(module) {
     let _args = {}; // private, also worked as []
     let localsite_repo;
     let modelearth_repo;
-    
+    let local_app = window.local_app; // Reference to global local_app
+
     // Extend local_app with localsite methods
     local_app.init = local_app.init || function(Args) {
         _args = Args;
@@ -199,7 +200,7 @@ var local_app = local_app || {};
                     }
                 });
                 // Return default for immediate use
-                alert(theroot)
+                console.log("There was an alert here for months, but it wasn't reached (displayed) to my knowledge - LH. theroot: " + theroot)
                 return theroot;
             }
             
@@ -235,8 +236,8 @@ var local_app = local_app || {};
             }
             return (theroot);
     };
-    
-})(); // End of extending local_app
+
+})(local_app); // End of extending local_app
 
 //local_app.loctitle = "what"
 //alert(local_app.loctitle);
@@ -457,7 +458,7 @@ function getHashOnly() {
   })(window.location.hash.substr(1).split('&'));
 }
 
-// Avoids triggering hash change event. 
+// updateHash avoids triggering hash change event.
 // Also called by goHash, which does trigger hash change event.
 
 function updateHash(addToHash, addToExisting, removeFromHash) {
@@ -544,7 +545,7 @@ function goHash(addToHash,removeFromHash) {
   const newHash = normalizeHash(window.location.hash);
   // Only trigger the event if the normalized hash actually changed
   if (currentHash !== newHash) {
-    consoleLog("goHash triggering hashChangeEvent\nOld hash: " + currentHash + "\nNew hash: " + newHash);
+    //console.log("goHash triggering hashChangeEvent\nOld hash: " + currentHash + "\nNew hash: " + newHash);
     triggerHashChangeEvent();
   } else {
     consoleLog("goHash NOT triggering hashChangeEvent - hash unchanged");
@@ -854,7 +855,9 @@ function consoleLog(text,value) {
 function loadLocalTemplate() {
   consoleLog("loadLocalTemplate()");
   let datascapeFile = theroot + "info/template-main.html";
-  let datascapeFileDiv = "#datascape";
+  // Use body if #datascape doesn't exist
+  let datascapeFileDiv = $("#datascape").length ? "#datascape" : "body";
+
   waitForElm(datascapeFileDiv).then((elm) => {
 
     $.get(datascapeFile, function(theTemplate) { // Get and append template-main.html to #datascape
@@ -886,7 +889,12 @@ function loadLocalTemplate() {
       waitForElm('#filterClickLocation').then((elm) => {
         if (param.showstates != "false") {
             $("#geoviewSelectHolder").show();
-            $("#filterClickLocation").show(); // Show counties tab
+            // Only show counties tab if sub-selections exist
+            let hash = getHash();
+            let hideCountiesTab = (hash.geoview == "country" && !hash.state) || (hash.geoview == "state" && !hash.geo);
+            if (!hideCountiesTab) {
+                $("#filterClickLocation").show(); // Show counties tab
+            }
         }
         $("#mapFilters").prependTo("#main-content");
         // Move back up to top. Used when header.html loads search-filters later (when clicking search icon)
@@ -943,7 +951,7 @@ function hideHeaderBar() {
 function showHeaderBar() {
   waitForElm('#headerbar').then((elm) => {
     console.log("showHeaderBar")
-    //$('.headerOffset').show(); 
+    //$('.headerOffset').show();
     $('#headerbar').show();
     $('#headerbar').removeClass("headerbarhide");
     $('.bothSideIcons').addClass('sideIconsLower');
@@ -1043,7 +1051,7 @@ loadScript(theroot + 'js/jquery.min.js', function(results) {
           sitelook = param.sitelook;
         }
         if (sitelook == "light") {
-          removeElement(theroot + 'css/bootstrap.darkly.min.css');
+          ////removeElement(theroot + 'css/bootstrap.darkly.min.css');
           removeElement(theroot + '../explore/css/site-dark.css');
           //includeCSS3(theroot + 'css/light.css',theroot);
           if (typeof Cookies != 'undefined') {
@@ -1269,14 +1277,10 @@ loadScript(theroot + 'js/jquery.min.js', function(results) {
         // but we trigger it explicitly to ensure it fires
         triggerHashChangeEvent();
 
-        // Temp for testing
         // Reset flag after a short delay to allow hash change handlers to complete
-        /*
         setTimeout(function() {
           isPopstateNavigation = false;
-          console.log("isPopstateNavigation reset to false");
         }, 100);
-        */
 
       });
       //MutationObserver.observe(hiddenhash, triggerHashChangeEvent);
@@ -2014,13 +2018,58 @@ function extend () {
   return extended;
 };
 
+var _tabulatorReadyPromise = null;
 function loadTabulator() {
-  if (typeof Tabulator === 'undefined') {
-    includeCSS3(theroot + 'css/tabulator.min.css',theroot);
+  if (_tabulatorReadyPromise) {
+    return _tabulatorReadyPromise;
+  }
+  if (typeof Tabulator !== 'undefined') {
+    _tabulatorReadyPromise = Promise.resolve();
+    return _tabulatorReadyPromise;
+  }
+  _tabulatorReadyPromise = new Promise(function(resolve) {
+    var cssLoaded = false;
+    var jsLoaded = false;
+    function checkReady() {
+      if (cssLoaded && jsLoaded) {
+        resolve();
+      }
+    }
+    // Load CSS with onload detection
+    var cssUrl = theroot + 'css/tabulator.min.css';
+    var cssUrlID = getUrlID3(cssUrl);
+    var existingLink = document.getElementById(cssUrlID);
+    if (existingLink) {
+      cssLoaded = true;
+    } else {
+      var link = document.createElement('link');
+      link.id = cssUrlID;
+      link.rel = 'stylesheet';
+      link.type = 'text/css';
+      link.href = cssUrl;
+      link.media = 'all';
+      link.onload = function() {
+        cssLoaded = true;
+        checkReady();
+      };
+      link.onerror = function() {
+        cssLoaded = true;
+        checkReady();
+      };
+      document.getElementsByTagName('head')[0].appendChild(link);
+    }
     includeCSS3(theroot + 'css/base-tabulator.css',theroot);
     // Be aware that including observablehq/runtime@4/dist/runtime.js in page breaks nav location filter's topojson and tabulator
-    loadScript(theroot + 'js/tabulator.min.js', function(results) {});
-  }
+    loadScript(theroot + 'js/tabulator.min.js', function(results) {
+      jsLoaded = true;
+      checkReady();
+    });
+    // If CSS was already loaded, just wait for JS
+    if (cssLoaded) {
+      checkReady();
+    }
+  });
+  return _tabulatorReadyPromise;
 }
 
 // Serialize a key/value object.
@@ -2187,8 +2236,8 @@ function showSearchFilter() {
     }
 
     let expandIcon = '<div class="hideNarrow" style="position:absolute;z-index:10000">' +
-            '<div class="closeSideTabs expandToFullscreen iconPadding" style="border:0px;"><i class="material-icons menuTopIcon" style="font-size:42px;opacity:0.7;margin-top:-4px">&#xE5D0;</i></div>' +
-            '<div class="closeSideTabs reduceFromFullscreen iconPadding" style="display:none; border:0px;"><i class="material-icons menuTopIcon" style="font-size:42px;opacity:0.7;margin-top:-4px">&#xE5D1;</i></div>' +
+            '<div class="closeSideTabs expandToFullscreen" style="border:0px;"><i class="material-icons menuTopIcon" style="font-size:42px;opacity:0.7;margin-top:-4px">&#xE5D0;</i></div>' +
+            '<div class="closeSideTabs reduceFromFullscreen" style="display:none; border:0px;"><i class="material-icons menuTopIcon" style="font-size:42px;opacity:0.7;margin-top:-4px">&#xE5D1;</i></div>' +
         '</div>';
     //$('#datascape').prepend(expandIcon);
 
@@ -2324,6 +2373,26 @@ function waitForElmKickoff(selector, resolve) {
   observer.observe(document.body, {
       childList: true, //This is a must have for the observer with subtree
       subtree: true //Set to true if changes must also be observed in descendants.
+  });
+}
+
+// Like waitForElm but waits for the element to have non-zero dimensions (layout complete).
+// Uses ResizeObserver to detect when the browser finishes layout for the element.
+function waitForLayout(elm) {
+  return new Promise(function(resolve) {
+    if (elm.offsetWidth > 0) {
+      consoleLog("waitForLayout: element already has width " + elm.offsetWidth);
+      return resolve(elm);
+    }
+    consoleLog("waitForLayout: waiting for element to get dimensions");
+    var observer = new ResizeObserver(function(entries) {
+      if (elm.offsetWidth > 0) {
+        observer.disconnect();
+        consoleLog("waitForLayout: element now has width " + elm.offsetWidth);
+        resolve(elm);
+      }
+    });
+    observer.observe(elm);
   });
 }
 
@@ -2554,6 +2623,35 @@ function formatBuckets(htmlText) {
   return tempDiv.innerHTML;
 }
 
+function addBrInSpans(html) {
+  // Remove <p> wrappers around standalone <span> elements at the top level.
+  // Because showdown wraps inline tags like <span> in <p>, unlike block tags like <div>.
+  html = html.replace(/<p>(\s*<span\b[^>]*>(?:(?!<\/span>)[\s\S])*<\/span>\s*)<\/p>/gi, '$1');
+
+  // simpleLineBreaks doesn't apply inside HTML elements, so add <br> for single newlines within <span> tags
+  return html.replace(/<span(\b[^>]*)>([\s\S]*?)<\/span>/gi, function(match, attrs, content) {
+    // Temporarily replace HTML comments to avoid affecting their contents
+    var comments = [];
+    content = content.replace(/<!--[\s\S]*?-->/g, function(comment) {
+      comments.push(comment);
+      return '\x00COMMENT' + (comments.length - 1) + '-->';
+    });
+    // Strip any <p> and </p> tags from span content.
+    // <span> is inline and cannot contain block-level <p> elements. When a multiline HTML
+    // comment interrupts a paragraph, showdown splits the span across paragraph boundaries,
+    // inserting stray </p> and <p> tags. The browser's innerHTML parser then auto-closes
+    // the span at the first block element, causing </span> to be lost.
+    content = content.replace(/<\/?p\b[^>]*>/gi, '');
+    // Add <br> for single newlines, but not after </div>, </span>, or --> (comment close)
+    content = content.replace(/(?<=[^\n])(?<!<\/div>|<\/span>|-->)\n(?=[^\n])/g, '<br>\n');
+    // Restore HTML comments
+    content = content.replace(/\x00COMMENT(\d+)-->/g, function(m, i) {
+      return comments[parseInt(i)];
+    });
+    return '<span' + attrs + '>' + content + '</span>';
+  });
+}
+
 function loadMarkdown(pagePath, divID, target, attempts, callback) {
   if (typeof attempts === 'undefined') {
     attempts = 1;
@@ -2564,11 +2662,13 @@ function loadMarkdown(pagePath, divID, target, attempts, callback) {
   loadScript(theroot + 'js/showdown.min.js', function(results) {
 
   if (typeof customD3loaded !== 'undefined' && typeof showdownLoaded !== 'undefined') { // Ready
-  } else if (attempts < 300) { // Wait and try again
+  } else if (attempts < 100) { // Wait and try again
+    if (attempts % 20 === 0) { // Every 2 seconds (20 * 100ms)
+      console.warn("loadMarkdown waiting for scripts (" + (attempts / 10) + "s): customD3loaded=" + (typeof customD3loaded !== 'undefined') + ", showdownLoaded=" + (typeof showdownLoaded !== 'undefined'));
+    }
     setTimeout( function() {
-      //consoleLog("try loadMarkdown again")
       loadMarkdown(pagePath, divID, target, attempts+1, callback);
-    }, 30 );
+    }, 100 );
     return;
   } else {
     consoleLog("ERROR: loadMarkdown exceeded " + attempts + " attempts.");
@@ -2645,6 +2745,7 @@ function loadMarkdown(pagePath, divID, target, attempts, callback) {
 
       var converter = new showdown.Converter({tables:true, metadata:true, simpleLineBreaks: true}),
       html = editReadme + converter.makeHtml(data);
+      html = addBrInSpans(html);
 
       var metadata = converter.getMetadata(true); // returns a string with the raw metadata
       var metadataFormat = converter.getMetadataFormat(); // returns the format of the metadata
@@ -2742,19 +2843,22 @@ function loadIntoDiv(pageFolder,divID,html,callback) {
     */
 
     links.forEach(function(currentElement) {
-      // Check if the link is a relative link
-      if (currentElement.getAttribute("href").toLowerCase().indexOf("http") < 0) {
-        // Update the href attribute with the pageFolder
-        currentElement.setAttribute("href", pageFolder + currentElement.getAttribute('href'));
-        //console.log("Showdown link update: " + pageFolder + " plus " + currentElement.getAttribute('href'));
+      var href = currentElement.getAttribute("href");
+      // Skip absolute URLs and root-relative paths (starting with /)
+      if (/^http/i.test(href) || href.startsWith('/')) {
+        return;
       }
-      // Check if the link is not a full URL
-      else if (!/^http/.test(currentElement.getAttribute("href"))) {
-        console.log("ALERT Adjust: " + currentElement.getAttribute('href'));
-        // Update the href attribute with the pageFolder
-        currentElement.setAttribute("href", pageFolder + currentElement.getAttribute('href'));
-        //console.log("Showdown link update2: " + pageFolder + " plus " + currentElement.getAttribute('href'));
+      currentElement.setAttribute("href", pageFolder + href);
+    });
+
+    // Update relative image src attributes to be relative to the markdown file's folder
+    let images = element.querySelectorAll('img[src]');
+    images.forEach(function(currentElement) {
+      var src = currentElement.getAttribute("src");
+      if (/^http/i.test(src) || src.startsWith('/') || src.startsWith('data:')) {
+        return;
       }
+      currentElement.setAttribute("src", pageFolder + src);
     });
 
 
@@ -2990,9 +3094,170 @@ function loadUse(use) {
 
 // End: explore/js/embed.js
 
+function defaultModelsiteOptions() {
+    return [
+        { value: "tools", label: "PartnerTools" },
+        { value: "model.earth", label: "Model Earth", selected: true }
+    ];
+}
+
+function parseYamlScalar(value) {
+    if (value === undefined || value === null) {
+        return "";
+    }
+    let parsed = String(value).trim();
+    if (
+        (parsed.startsWith('"') && parsed.endsWith('"')) ||
+        (parsed.startsWith("'") && parsed.endsWith("'"))
+    ) {
+        parsed = parsed.slice(1, -1);
+    }
+    if (/^(true|false)$/i.test(parsed)) {
+        return parsed.toLowerCase() === "true";
+    }
+    return parsed;
+}
+
+function parseModelsiteYaml(yamlText) {
+    const options = [];
+    const lines = yamlText.split(/\r?\n/);
+    let current = null;
+
+    function pushCurrent() {
+        if (!current) {
+            return;
+        }
+        if (!current.value || !current.label) {
+            current = null;
+            return;
+        }
+        options.push(current);
+        current = null;
+    }
+
+    for (let i = 0; i < lines.length; i += 1) {
+        const line = lines[i];
+        const trimmed = line.trim();
+
+        if (!trimmed || trimmed.startsWith("#")) {
+            continue;
+        }
+        if (trimmed === "modelsites:" || trimmed === "sites:") {
+            continue;
+        }
+
+        const listStart = line.match(/^\s*-\s*(.*)$/);
+        if (listStart) {
+            pushCurrent();
+            current = {};
+            const inline = listStart[1].trim();
+            if (inline) {
+                const inlinePair = inline.match(/^([A-Za-z0-9_-]+)\s*:\s*(.+)$/);
+                if (inlinePair) {
+                    current[inlinePair[1]] = parseYamlScalar(inlinePair[2]);
+                }
+            }
+            continue;
+        }
+
+        const pair = line.match(/^\s*([A-Za-z0-9_-]+)\s*:\s*(.+)\s*$/);
+        if (pair && current) {
+            current[pair[1]] = parseYamlScalar(pair[2]);
+        }
+    }
+    pushCurrent();
+    return options;
+}
+
+function renderModelsiteOptions(selectElm, options) {
+    if (!selectElm) {
+        return;
+    }
+    selectElm.innerHTML = "";
+    for (let i = 0; i < options.length; i += 1) {
+        const config = options[i];
+        if (!config || !config.value || !config.label) {
+            continue;
+        }
+        const optionElm = document.createElement("option");
+        optionElm.value = String(config.value);
+        optionElm.textContent = String(config.label);
+        if (config.class) {
+            optionElm.className = String(config.class);
+        }
+        if (config.style) {
+            optionElm.style.cssText = String(config.style);
+        }
+        if (config.selected === true || String(config.selected).toLowerCase() === "true") {
+            optionElm.selected = true;
+        }
+        selectElm.appendChild(optionElm);
+    }
+}
+
+async function loadModelsiteOptions() {
+    const fallbackOptions = defaultModelsiteOptions();
+    const webRoot = (window.local_app && typeof window.local_app.web_root === "function")
+        ? String(window.local_app.web_root()).replace(/\/+$/, "")
+        : (location.protocol + "//" + location.host);
+    const currentOriginRoot = location.protocol + "//" + location.host;
+    const candidatePaths = Array.from(new Set([
+        webRoot + "/modelsite.yaml",
+        currentOriginRoot + "/modelsite.yaml"
+    ]));
+
+    for (let i = 0; i < candidatePaths.length; i += 1) {
+        const modelsiteYamlPath = candidatePaths[i];
+        try {
+            const response = await fetch(modelsiteYamlPath, { cache: "no-store" });
+            if (!response.ok) {
+                continue;
+            }
+            const yamlText = await response.text();
+            const parsedOptions = parseModelsiteYaml(yamlText);
+            if (parsedOptions.length) {
+                return parsedOptions;
+            }
+            consoleLog("No valid entries in " + modelsiteYamlPath + ". Using fallback modelsite options.");
+        } catch (error) {}
+    }
+    consoleLog("modelsite.yaml not found. Using fallback modelsite options.");
+    return fallbackOptions;
+}
+
+function setupModelsiteSelect() {
+    waitForElm("#modelsite").then(async function(selectElm) {
+        const options = await loadModelsiteOptions();
+        renderModelsiteOptions(selectElm, options);
+
+        let selectedValue = "";
+        if (typeof Cookies !== "undefined" && Cookies.get("modelsite")) {
+            selectedValue = Cookies.get("modelsite");
+        }
+        if (!selectedValue) {
+            const selectedOption = options.find(function(option) {
+                return option && (option.selected === true || String(option.selected).toLowerCase() === "true");
+            });
+            if (selectedOption && selectedOption.value) {
+                selectedValue = String(selectedOption.value);
+            }
+        }
+        if (!selectedValue && options.length) {
+            selectedValue = String(options[0].value);
+        }
+        if (selectedValue) {
+            const hasMatch = Array.from(selectElm.options).some(function(optionElm) {
+                return optionElm.value === selectedValue;
+            });
+            if (hasMatch) {
+                selectElm.value = selectedValue;
+            }
+        }
+    });
+}
+
 // Copied from setting.js initElements()
 function initSitelook() {
-    let sitemode;
     let sitesource;
     let sitelook;
     let devmode;
@@ -3005,9 +3270,6 @@ function initSitelook() {
         if (Cookies.get('sitelook')) {
           $("#sitelook").val(Cookies.get('sitelook'));
           sitelook = Cookies.get('sitelook');
-        }
-        if (Cookies.get('sitemode')) {
-            $(".sitemode").val(Cookies.get('sitemode'));
         }
         if (Cookies.get('sitesource')) {
             $("#sitesource").val(Cookies.get('sitesource'));
@@ -3038,7 +3300,14 @@ function initSitelook() {
         }
     }
     if (param["sitelook"]) { // From URL
-        sitelook = param["sitelook"]; 
+        sitelook = param["sitelook"];
+    }
+    if (param["modelsite"]) { // From page param - set cookie so navigation to other pages uses same modelsite
+        modelsite = param["modelsite"];
+        $("#modelsite").val(modelsite);
+        if (typeof Cookies != 'undefined') {
+            Cookies.set('modelsite', modelsite);
+        }
     }
     setSitelook(sitelook);
     setDevmode(devmode);
@@ -3046,6 +3315,7 @@ function initSitelook() {
     setGitrepo(modelsite);
     setOnlinemode(onlinemode);
     setGlobecenter(globecenter);
+    setupModelsiteSelect();
     if (localStorage.email) {
       $("#input123").val(localStorage.email);
       $(".uIn").hide();$(".uOut").show();
@@ -3113,7 +3383,7 @@ function setSitelook(siteLook) {
         //toggleVideo("show","nochange");
         document.body.classList.add("dark");
         //removeElement('/localsite/css/light.css');
-        includeCSS3(theroot + 'css/bootstrap.darkly.min.css');
+        ////includeCSS3(theroot + 'css/bootstrap.darkly.min.css');
   
         // Move search text elements
         const searchTextHolder = document.querySelector('.searchTextHolder');
@@ -3123,10 +3393,10 @@ function setSitelook(siteLook) {
         }
     } else if (siteLook == "default") {
         document.body.classList.remove("dark");
-        removeElement(theroot + 'css/bootstrap.darkly.min.css');
+        ////removeElement(theroot + 'css/bootstrap.darkly.min.css');
     } else { // Light
         document.body.classList.remove("dark");
-        removeElement(theroot + 'css/bootstrap.darkly.min.css');
+        ////removeElement(theroot + 'css/bootstrap.darkly.min.css');
         //const sitebasemapElements = document.querySelectorAll('.sitebasemap');
         //sitebasemapElements.forEach(element => {
         //    element.value = "positron_light_nolabels";
@@ -3135,12 +3405,19 @@ function setSitelook(siteLook) {
     }
 }
 function setDevmode(devmode) {
+  const devCssUrl = theroot + 'css/dev.css';
   if (devmode == "dev") {
     //includeCSS3(local_app.localsite_root() + 'css/dev.css');
-    includeCSS3(theroot + 'css/dev.css');
+    includeCSS3(devCssUrl);
   } else {
     //removeElement('/localsite/css/dev.css');
-    removeElement(theroot + 'css/dev.css');
+    removeElement(getUrlID3(devCssUrl, theroot));
+    // Fallback for legacy/alternate link IDs that may already exist in the DOM.
+    //document.querySelectorAll('link[rel="stylesheet"]').forEach((link) => {
+    //  if (link.href && link.href.indexOf('/localsite/css/dev.css') >= 0) {
+    //    link.remove();
+    //  }
+    //});
   }
 }
 function setOnlinemode(onlinemode) {
@@ -3855,6 +4132,966 @@ function showAuthModal() {
       }
     });
   }
+}
+
+// ========================================
+// Panel Menu Toggle System
+// ========================================
+
+/**
+ * Builds menu configuration based on panel type
+ * @param {string} panelType - Type of panel (Content, List, Map)
+ * @param {string} panelId - ID of the panel element
+ * @param {string} datasourcePath - Path for datasource insights link (optional)
+ * @returns {Array} Array of menu item objects
+ */
+function buildMenuConfig(panelType, panelId, datasourcePath = '', panelLabel = '') {
+  const menuItems = [];
+  const effectivePanelLabel = panelLabel || panelType;
+
+  // Expand/Collapse item (label updated dynamically)
+  menuItems.push({
+    label: `Expand ${effectivePanelLabel}`,
+    action: 'expand',
+    icon: 'open_in_full'
+  });
+
+  // Hide item
+  menuItems.push({
+    label: `Hide ${effectivePanelLabel}`,
+    action: 'hide',
+    icon: 'visibility_off'
+  });
+
+  // Panel-specific items
+  if (panelType === 'Content') {
+    // Put close action at top, followed by a separator
+    menuItems.push({ label: 'Close Map View', action: 'closemapview', icon: '', display: 'none', class: 'filterFieldMenuClose' });
+    menuItems.push({ divider: true });
+    // Then all existing filter menu items
+    menuItems.push({ label: 'Earth', action: 'earth', icon: '', hasCheck: true });
+    menuItems.push({ label: 'Countries', action: 'countries', icon: '', hasCheck: true });
+    menuItems.push({ label: 'States', action: 'state', icon: '', hasCheck: true });
+    menuItems.push({ label: 'Counties', action: 'county', icon: '', hasCheck: true });
+    menuItems.push({ label: 'Topics', action: 'topics', icon: '', hasCheck: true });
+    menuItems.push({ divider: true });
+    menuItems.push({ label: 'About Filters', action: 'aboutfilters', icon: '', isLink: true });
+    menuItems.push({ label: 'Hide Filter Bar', action: 'hidefilters', icon: '' });
+    menuItems.push({ label: 'Close App View', action: 'closeappview', icon: '', display: 'none', class: 'filterFieldMenuClose' });
+  } else if (panelType === 'List') {
+    // Add separator then Inspect and List Insights
+    menuItems.push({ divider: true });
+    menuItems.push({
+      label: 'Inspect',
+      action: 'inspect',
+      icon: 'bug_report',
+      hasCheck: true
+    });
+    menuItems.push({
+      label: `${panelType} Insights`,
+      action: 'link',
+      icon: 'insights',
+      href: `/team/projects/#path=${datasourcePath}`,
+      display: 'none',
+      class: 'local'
+    });
+  } else if (panelType === 'View' || panelType === 'Details') {
+    // Add Start Tour first
+    menuItems.unshift({
+      label: 'Start Tour',
+      action: 'starttour',
+      icon: 'play_circle'
+    });
+
+    // Add separator then View Insights link (local only)
+    menuItems.push({ divider: true });
+    menuItems.push({
+      label: 'View Insights',
+      action: 'link',
+      icon: 'insights',
+      href: `/team/projects/#path=${datasourcePath}`,
+      display: 'none',
+      class: 'local'
+    });
+  }
+  // Map type has no additional items
+
+  return menuItems;
+}
+
+/**
+ * Sets the panel toggle icon
+ * @param {string} holderId - ID of the toggle holder element
+ * @param {string} iconName - Name of the icon (arrow_right or arrow_drop_down_circle)
+ */
+function setPanelToggleIcon(holderId, iconName) {
+  const holder = document.getElementById(holderId);
+  if (!holder) return;
+
+  const iconElement = holder.querySelector('[id$="MenuToggleIcon"]');
+  const circleElement = holder.querySelector('.material-icons:not([id])');
+
+  if (!iconElement) return;
+
+  iconElement.textContent = iconName;
+
+  if (iconName === 'arrow_right') {
+    iconElement.style.fontSize = '18px';
+    iconElement.style.transform = 'translate(-50%, -50%)';
+    if (circleElement) {
+      circleElement.style.display = '';
+      circleElement.style.fontSize = '24px';
+      circleElement.style.transform = 'translate(-50%, -50%)';
+    }
+  } else if (iconName === 'arrow_drop_down_circle') {
+    iconElement.style.fontSize = '24px';
+    iconElement.style.transform = 'translate(-50%, -50%)';
+    if (circleElement) {
+      circleElement.style.display = 'none';
+    }
+  }
+}
+
+/**
+ * Refreshes the panel toggle icon based on menu visibility
+ * @param {string} holderId - ID of the toggle holder element
+ * @param {string} panelId - ID of the panel element
+ */
+function refreshPanelToggleIcon(holderId, panelId) {
+  const menu = document.getElementById(panelId + 'Menu');
+  if (!menu) return;
+
+  const isMenuVisible = menu.style.display !== 'none';
+  setPanelToggleIcon(holderId, isMenuVisible ? 'arrow_drop_down_circle' : 'arrow_right');
+}
+
+/**
+ * Gets panel menu options for a panel ID
+ * @param {string} panelId - ID of the panel element
+ * @returns {Object} Panel menu options
+ */
+function getPanelMenuOptions(panelId) {
+  if (!window.panelMenuOptions) return {};
+  return window.panelMenuOptions[panelId] || {};
+}
+
+/**
+ * Gets panel label for menu text
+ * @param {string} panelId - ID of the panel element
+ * @param {string} panelType - Type of panel (Content, List, Map)
+ * @returns {string} Panel label for text
+ */
+function getPanelLabel(panelId, panelType) {
+  const options = getPanelMenuOptions(panelId);
+  return options.panelLabel || panelType;
+}
+
+/**
+ * Finds and expands/collapses sibling panels
+ * @param {string} panelId - ID of the panel that was toggled
+ * @param {boolean} isExpanding - True if expanding, false if collapsing
+ */
+function toggleSiblingPanels(panelId, isExpanding) {
+  const panel = document.getElementById(panelId);
+  if (!panel) return;
+
+  const myparent = panel.getAttribute('myparent');
+  if (!myparent) return;
+
+  const parentContainer = document.getElementById(myparent);
+  if (!parentContainer) return;
+
+  // Find all sibling panels with myparent attribute in the same parent
+  const allPanelsWithParent = document.querySelectorAll(`[myparent="${myparent}"]`);
+  const siblingPanels = Array.from(allPanelsWithParent).filter(sibling => sibling.id !== panelId);
+
+  siblingPanels.forEach(sibling => {
+    const siblingId = sibling.id;
+
+    // Check if sibling is already in the correct state
+    const siblingMyparent = sibling.getAttribute('myparent');
+    const siblingOriginalParent = siblingMyparent ? document.getElementById(siblingMyparent) : null;
+    const siblingIsExpanded = siblingOriginalParent && !siblingOriginalParent.contains(sibling);
+
+    // Only toggle if sibling is in opposite state
+    if (isExpanding && !siblingIsExpanded) {
+      // Expand sibling
+      if (window.listingsApp && typeof window.listingsApp.myHero === 'function') {
+        const mockButton = document.createElement('button');
+        mockButton.setAttribute('mywidgetpanel', siblingId);
+        mockButton.className = 'fullscreen-toggle-btn';
+
+        const syntheticEvent = new MouseEvent('click', {
+          bubbles: true,
+          cancelable: true,
+          view: window
+        });
+
+        Object.defineProperty(syntheticEvent, 'target', {
+          value: mockButton,
+          enumerable: true
+        });
+
+        const originalEvent = window.event;
+        window.event = syntheticEvent;
+
+        window.listingsApp.myHero();
+
+        window.event = originalEvent;
+      }
+    } else if (!isExpanding && siblingIsExpanded) {
+      // Collapse sibling
+      if (window.listingsApp && typeof window.listingsApp.myHero === 'function') {
+        const mockButton = document.createElement('button');
+        mockButton.setAttribute('mywidgetpanel', siblingId);
+        mockButton.className = 'fullscreen-toggle-btn';
+
+        const syntheticEvent = new MouseEvent('click', {
+          bubbles: true,
+          cancelable: true,
+          view: window
+        });
+
+        Object.defineProperty(syntheticEvent, 'target', {
+          value: mockButton,
+          enumerable: true
+        });
+
+        const originalEvent = window.event;
+        window.event = syntheticEvent;
+
+        window.listingsApp.myHero();
+
+        window.event = originalEvent;
+      }
+    }
+
+    // Update sibling menu labels
+    setTimeout(() => {
+      const siblingMenu = document.getElementById(siblingId + 'Menu');
+      if (siblingMenu) {
+        // Determine panel type from menu or default to generic
+        let siblingType = 'Panel';
+        if (siblingId.includes('map')) siblingType = 'Map';
+        else if (siblingId.includes('Details')) siblingType = 'List';
+        else if (siblingId.includes('Gallery')) siblingType = 'Content';
+
+        updateMenuLabels(siblingId + 'Menu', siblingId, siblingType);
+        refreshPanelToggleIcon(siblingId + 'MenuControl', siblingId);
+      }
+    }, 100);
+  });
+}
+
+/**
+ * Updates menu labels based on panel state
+ * @param {string} menuId - ID of the menu element
+ * @param {string} panelId - ID of the panel element
+ * @param {string} panelType - Type of panel (Content, List, Map)
+ */
+function updateMenuLabels(menuId, panelId, panelType) {
+  const menu = document.getElementById(menuId);
+  const panel = document.getElementById(panelId);
+  if (!menu || !panel) return;
+  const panelLabel = getPanelLabel(panelId, panelType);
+  const menuOptions = getPanelMenuOptions(panelId);
+  const expandBehavior = menuOptions.expandBehavior || (panelType === 'View' ? 'fullscreen' : 'hero');
+
+  // Check if panel is in hero container (expanded) or fullscreen mode
+  let isExpanded = panel.dataset && panel.dataset.menuExpanded === 'true' ? true : false;
+
+  if (typeof menuOptions.isExpanded === 'function') {
+    isExpanded = !!menuOptions.isExpanded(panel, panelId, panelType);
+  } else if (expandBehavior === 'fullscreen') {
+    // For fullscreen-style panels, use fullscreen state and fullscreen button visibility.
+    const reduceBtn = document.querySelector('.reduceFromFullscreen');
+    const reduceBtnVisible = !!(reduceBtn && getComputedStyle(reduceBtn).display !== 'none');
+    isExpanded = !!document.fullscreenElement ||
+                 document.body.classList.contains('fullscreenMode') ||
+                 document.documentElement.classList.contains('fullscreenMode') ||
+                 reduceBtnVisible;
+  } else {
+    // Generic approach: check if panel has been moved from its original parent
+    const myparent = panel.getAttribute('myparent');
+    if (myparent) {
+      const originalParent = document.getElementById(myparent);
+      // Panel is expanded if it's NOT in its original parent
+      if (!panel.dataset || panel.dataset.menuExpanded === undefined) {
+        isExpanded = originalParent && !originalParent.contains(panel);
+      }
+    } else {
+      // Fallback: check if in any hero container (for panels without myparent attribute)
+      const heroContainers = ['widgetHero', 'detailHero'].map(id => document.getElementById(id)).filter(Boolean);
+      if (!panel.dataset || panel.dataset.menuExpanded === undefined) {
+        isExpanded = heroContainers.some(hero => hero.contains(panel) && hero.style.display !== 'none');
+      }
+    }
+  }
+
+  // Find expand/collapse menu item
+  const expandItem = menu.querySelector('[data-action="expand"], [data-action="collapse"]');
+  if (expandItem) {
+    const iconElement = expandItem.querySelector('.material-icons');
+    if (isExpanded) {
+      expandItem.childNodes.forEach(node => {
+        if (node.nodeType === 3) { // Text node
+          node.textContent = `Collapse ${panelLabel}`;
+        }
+      });
+      if (iconElement) iconElement.textContent = 'close_fullscreen';
+      expandItem.setAttribute('data-action', 'collapse');
+    } else {
+      expandItem.childNodes.forEach(node => {
+        if (node.nodeType === 3) { // Text node
+          node.textContent = `Expand ${panelLabel}`;
+        }
+      });
+      if (iconElement) iconElement.textContent = 'open_in_full';
+      expandItem.setAttribute('data-action', 'expand');
+    }
+  }
+}
+
+// Tour state management
+window.tourState = {
+  isPlaying: false,
+  currentIndex: -1,
+  listingIds: [],
+  timeoutId: null,
+  panelId: null
+};
+const tourState = window.tourState;
+
+/**
+ * Toggles tour play/pause
+ * @param {string} panelId - ID of the panel
+ */
+function toggleTour(panelId) {
+  if (tourState.isPlaying) {
+    stopTour(panelId);
+  } else {
+    startTour(panelId);
+  }
+}
+
+/**
+ * Starts the tour
+ * @param {string} panelId - ID of the panel
+ * @param {boolean} isReload - Whether this is a reload/resume from hash
+ */
+function startTour(panelId, isReload = false) {
+  // Get listing IDs from DOM elements
+  const listingCards = document.querySelectorAll('.listing-card[data-listing-id]');
+  tourState.listingIds = Array.from(listingCards)
+    .map(card => card.getAttribute('data-listing-id'))
+    .filter(id => id); // Filter out undefined/null/empty
+
+  if (tourState.listingIds.length === 0) {
+    console.warn('No listings available for tour');
+    return;
+  }
+
+  // Clear any existing timeout first to prevent multiple timers
+  if (tourState.timeoutId) {
+    clearTimeout(tourState.timeoutId);
+    tourState.timeoutId = null;
+  }
+
+  tourState.isPlaying = true;
+  tourState.panelId = panelId;
+
+  // Update icon to pause - with retry to ensure element exists
+  const setIconWithRetry = (retries = 5) => {
+    const iconElement = document.getElementById(panelId + 'MenuToggleIcon');
+    if (iconElement) {
+      updateTourIcon(panelId, 'pause');
+    } else if (retries > 0) {
+      setTimeout(() => setIconWithRetry(retries - 1), 100);
+    }
+  };
+  setIconWithRetry();
+
+  if (isReload) {
+    // Reloading from hash - find current id and resume from there
+    const hash = (typeof getHash === 'function') ? getHash() : {};
+    const currentId = hash.id;
+
+    if (currentId) {
+      // Find the index of the current id
+      const currentIdx = tourState.listingIds.indexOf(currentId);
+      tourState.currentIndex = currentIdx >= 0 ? currentIdx : 0;
+    } else {
+      tourState.currentIndex = 0;
+    }
+
+    // Don't navigate - already on the correct id
+    // Set timeout for 8 seconds to advance to next slide
+    // Each slide sets its own timeout when it loads
+    tourState.timeoutId = setTimeout(() => {
+      // Check if detailplay is still in hash (user might have removed it)
+      const currentHash = (typeof getHash === 'function') ? getHash() : {};
+      if (!currentHash.detailplay || currentHash.detailplay !== 'true') {
+        // User removed detailplay, stop the tour
+        stopTour(panelId);
+        return;
+      }
+
+      tourState.currentIndex++;
+
+      if (tourState.currentIndex >= tourState.listingIds.length) {
+        // Tour completed, loop back to start
+        tourState.currentIndex = 0;
+      }
+
+      if (typeof goHash === 'function') {
+        const currentHash = getHash();
+        goHash({ id: tourState.listingIds[tourState.currentIndex], detailplay: 'true', view: currentHash.view || '' });
+      }
+    }, 8000);
+  } else {
+    // Fresh start from clicking "Start Tour" - continue from current position
+    const hash = (typeof getHash === 'function') ? getHash() : {};
+    const currentId = hash.id;
+
+    if (currentId) {
+      // Find the index of the current id
+      const currentIdx = tourState.listingIds.indexOf(currentId);
+      tourState.currentIndex = currentIdx >= 0 ? currentIdx : -1;
+    } else {
+      // No current id, start from beginning
+      tourState.currentIndex = -1;
+    }
+
+    // Immediately advance to next item
+    tourState.currentIndex++;
+    if (tourState.currentIndex >= tourState.listingIds.length) {
+      tourState.currentIndex = 0;
+    }
+
+    if (typeof goHash === 'function') {
+      const currentHash = getHash();
+      goHash({ id: tourState.listingIds[tourState.currentIndex], detailplay: 'true', view: currentHash.view || '' });
+    }
+
+    // Note: The page reload will trigger startTour(panelId, true) which will set the timeout
+    // No need to set timeout here as the reload case handles it
+  }
+}
+
+// Make startTour globally accessible
+window.startTour = startTour;
+
+/**
+ * Stops the tour
+ * @param {string} panelId - ID of the panel
+ */
+function stopTour(panelId) {
+  tourState.isPlaying = false;
+
+  if (tourState.timeoutId) {
+    clearTimeout(tourState.timeoutId);
+    tourState.timeoutId = null;
+  }
+
+  // Update icon back to arrow
+  updateTourIcon(panelId, 'arrow');
+
+  // Remove detailplay from hash
+  if (typeof goHash === 'function') {
+    goHash({ detailplay: '' });
+  }
+}
+
+// Make stopTour globally accessible
+window.stopTour = stopTour;
+
+/**
+ * Updates the tour icon
+ * @param {string} panelId - ID of the panel
+ * @param {string} iconType - 'pause' or 'arrow'
+ */
+function updateTourIcon(panelId, iconType) {
+  const iconElement = document.getElementById(panelId + 'MenuToggleIcon');
+  const circleElement = document.querySelector(`#${panelId}MenuControl .material-icons:not([id])`);
+
+  if (!iconElement) return;
+
+  if (iconType === 'pause') {
+    iconElement.textContent = 'pause';
+    iconElement.style.fontSize = '24px';
+    iconElement.style.transform = 'translate(-50%, -50%)';
+    iconElement.classList.add('pause-icon');
+    if (circleElement) circleElement.style.display = 'none';
+  } else {
+    iconElement.textContent = 'arrow_right';
+    iconElement.style.fontSize = '18px';
+    iconElement.style.transform = 'translate(-50%, -50%)';
+    iconElement.classList.remove('pause-icon');
+    if (circleElement) {
+      circleElement.style.display = '';
+      circleElement.style.transform = 'translate(-50%, -50%)';
+    }
+  }
+
+  // Update menu label
+  const menu = document.getElementById(panelId + 'Menu');
+  if (menu) {
+    const startTourItem = menu.querySelector('[data-action="starttour"]');
+    if (startTourItem) {
+      const iconEl = startTourItem.querySelector('.material-icons');
+      const labelNode = Array.from(startTourItem.childNodes).find(node => node.nodeType === 3);
+
+      if (iconType === 'pause') {
+        if (iconEl) iconEl.textContent = 'pause_circle';
+        if (labelNode) labelNode.textContent = 'Pause Tour';
+      } else {
+        if (iconEl) iconEl.textContent = 'play_circle';
+        if (labelNode) labelNode.textContent = 'Start Tour';
+      }
+    }
+  }
+}
+
+/**
+ * Handles panel menu actions
+ * @param {string} action - Action to perform
+ * @param {string} panelId - ID of the panel element
+ * @param {string} panelType - Type of panel (Content, List, Map)
+ */
+function handlePanelAction(action, panelId, panelType) {
+  const panel = document.getElementById(panelId);
+  if (!panel) return;
+  const menuOptions = getPanelMenuOptions(panelId);
+  const expandBehavior = menuOptions.expandBehavior || (panelType === 'View' ? 'fullscreen' : 'hero');
+
+  if (action === 'starttour') {
+    toggleTour(panelId);
+  } else if (action === 'expand' || action === 'collapse') {
+    // Per-panel custom toggle behavior via passed options
+    if (typeof menuOptions.toggleExpand === 'function') {
+      menuOptions.toggleExpand(action, panelId, panelType);
+
+      const siblingPanelId = menuOptions.siblingPanelId || panelId;
+      const siblingPanel = document.getElementById(siblingPanelId);
+      const siblingParentId = siblingPanel ? siblingPanel.getAttribute('myparent') : null;
+      const siblingOriginalParent = siblingParentId ? document.getElementById(siblingParentId) : null;
+      let isExpanding = false;
+      if (typeof menuOptions.isExpanded === 'function') {
+        isExpanding = !!menuOptions.isExpanded(panel, panelId, panelType);
+      } else if (siblingOriginalParent && siblingPanel) {
+        isExpanding = !siblingOriginalParent.contains(siblingPanel);
+      }
+      if (menuOptions.toggleSiblings !== false) {
+        toggleSiblingPanels(siblingPanelId, isExpanding);
+      }
+
+      setTimeout(() => {
+        updateMenuLabels(panelId + 'Menu', panelId, panelType);
+        refreshPanelToggleIcon(panelId + 'MenuControl', panelId);
+      }, 50);
+    }
+    // Fullscreen behavior for panels configured as fullscreen mode
+    else if (expandBehavior === 'fullscreen') {
+      const expandBtn = document.querySelector('.expandToFullscreen');
+      const reduceBtn = document.querySelector('.reduceFromFullscreen');
+      const expandVisible = !!(expandBtn && getComputedStyle(expandBtn).display !== 'none');
+      const reduceVisible = !!(reduceBtn && getComputedStyle(reduceBtn).display !== 'none');
+
+      if (action === 'expand') {
+        if (expandBtn && expandVisible) {
+          expandBtn.click();
+        }
+      } else if (action === 'collapse') {
+        if (reduceBtn && reduceVisible) {
+          reduceBtn.click();
+        }
+      }
+
+      // Update menu labels after state change
+      setTimeout(() => {
+        updateMenuLabels(panelId + 'Menu', panelId, panelType);
+        refreshPanelToggleIcon(panelId + 'MenuControl', panelId);
+      }, 50);
+    } else {
+      // Original behavior for other panel types
+      // Create a mock button element with mywidgetpanel attribute
+      const mockButton = document.createElement('button');
+      mockButton.setAttribute('mywidgetpanel', panelId);
+      mockButton.className = 'fullscreen-toggle-btn';
+
+      // Create a synthetic event with the mock button as target
+      const syntheticEvent = new MouseEvent('click', {
+        bubbles: true,
+        cancelable: true,
+        view: window
+      });
+
+      // Temporarily set window.event to our synthetic event with the button target
+      Object.defineProperty(syntheticEvent, 'target', {
+        value: mockButton,
+        enumerable: true
+      });
+
+      // Store original event
+      const originalEvent = window.event;
+      window.event = syntheticEvent;
+
+      // Call myHero to toggle expansion
+      if (window.listingsApp && typeof window.listingsApp.myHero === 'function') {
+        window.listingsApp.myHero();
+
+        // Restore original event
+        window.event = originalEvent;
+
+        // Determine if we're expanding or collapsing
+        const panel = document.getElementById(panelId);
+        const myparent = panel ? panel.getAttribute('myparent') : null;
+        const originalParent = myparent ? document.getElementById(myparent) : null;
+        const isExpanding = originalParent && !originalParent.contains(panel);
+
+        // Toggle sibling panels
+        toggleSiblingPanels(panelId, isExpanding);
+
+        // Update menu labels after state change
+        setTimeout(() => {
+          updateMenuLabels(panelId + 'Menu', panelId, panelType);
+          refreshPanelToggleIcon(panelId + 'MenuControl', panelId);
+        }, 50);
+      }
+    }
+  } else if (action === 'hide') {
+    // Hide panel and parent
+    const myparent = panel.getAttribute('myparent');
+    if (myparent) {
+      const parentDiv = document.getElementById(myparent);
+      if (parentDiv) {
+        parentDiv.style.display = 'none';
+      }
+    }
+    panel.style.display = 'none';
+
+    // Close menu
+    const menu = document.getElementById(panelId + 'Menu');
+    if (menu) menu.style.display = 'none';
+    refreshPanelToggleIcon(panelId + 'MenuControl', panelId);
+  } else if (action === 'inspect') {
+    // Toggle inspect mode
+    if (!window.listingsApp) return;
+
+    const isInspectMode = window.listingsApp.inspectMode || false;
+    window.listingsApp.inspectMode = !isInspectMode;
+
+    // Show placeholder immediately BEFORE any other processing
+    if (window.listingsApp.inspectMode) {
+      const listingsGrid = document.querySelector('.listings-grid');
+      if (listingsGrid && !document.getElementById('inspect-debug-card')) {
+        // Insert empty placeholder immediately
+        const placeholderHtml = `
+          <div class="listing-card" id="inspect-debug-card" style="background: #1a1a1a; color: #00ff00; border: 2px solid #00ff00; position: relative;">
+            <div class="listing-content">
+              <h3 class="listing-title" style="color: #00ff00; display: flex; justify-content: space-between; align-items: center;">
+                <span>Debug Messages</span>
+                <button id="close-inspect-debug" style="background: none; border: none; color: #00ff00; font-size: 24px; cursor: pointer; padding: 0; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;" title="Close debug messages">&times;</button>
+              </h3>
+              <div id="inspect-debug-messages" style="font-family: 'Courier New', monospace; font-size: 12px; max-height: 400px; overflow-y: auto;">
+                <div style="color: #00ff00; padding: 8px;">Loading messages...</div>
+              </div>
+            </div>
+          </div>
+        `;
+        listingsGrid.insertAdjacentHTML('afterbegin', placeholderHtml);
+      }
+    }
+
+    // Update menu item check state
+    const menu = document.getElementById(panelId + 'Menu');
+    if (menu) {
+      const inspectItem = menu.querySelector('[data-action="inspect"]');
+      const checkMark = inspectItem?.querySelector('.menuToggleCheck');
+      if (checkMark) {
+        checkMark.style.display = window.listingsApp.inspectMode ? 'inline' : 'none';
+      }
+    }
+
+    // Populate with actual messages after showing placeholder
+    if (window.listingsApp.inspectMode) {
+      setTimeout(() => {
+        if (window.listingsApp.populateDebugCard) {
+          window.listingsApp.populateDebugCard();
+        }
+      }, 0);
+    } else {
+      // Hide debug card immediately
+      const debugCard = document.getElementById('inspect-debug-card');
+      if (debugCard) {
+        debugCard.remove();
+      }
+    }
+  }
+}
+
+/**
+ * Creates and adds a panel menu toggle to a panel
+ * @param {Object} options - Configuration options
+ * @param {string} options.panelType - Type of panel (Content, List, Map)
+ * @param {string} options.targetPanelId - ID of the target panel element
+ * @param {string} options.containerSelector - CSS selector for where to insert the toggle
+ * @param {Array} options.menuItems - Optional custom menu items (uses buildMenuConfig if not provided)
+ * @param {string} options.datasourcePath - Path for datasource insights link (optional)
+ * @param {string} options.menuPopupHolder - Optional CSS selector for where to render the menu popup (if not provided, menu is rendered next to toggle)
+ * @returns {Object} Object with render(), destroy(), updateState() methods
+ */
+function addPanelMenu(options) {
+  const {
+    panelType,
+    targetPanelId,
+    containerSelector,
+    menuItems,
+    datasourcePath = '',
+    inline = false,
+    menuPopupHolder = '',
+    onAction = null,
+    panelLabel = '',
+    expandBehavior = '',
+    isExpanded = null,
+    toggleExpand = null,
+    siblingPanelId = '',
+    toggleSiblings = true
+  } = options;
+
+  const resolvedExpandBehavior = expandBehavior || (panelType === 'View' ? 'fullscreen' : 'hero');
+  const resolvedPanelLabel = panelLabel || panelType;
+  const items = menuItems || buildMenuConfig(panelType, targetPanelId, datasourcePath, resolvedPanelLabel);
+
+  const render = () => {
+    const container = document.querySelector(containerSelector);
+    if (!container) {
+      console.warn(`Container not found: ${containerSelector}`);
+      return;
+    }
+
+    // Generate toggle holder HTML
+    let toggleHtml;
+    if (inline) {
+      // For inline containers (like search-fields-control), don't add positioning wrapper
+      toggleHtml = `
+        <div id="${targetPanelId}MenuControl" class="menuIconHolder menuToggleHolderInline"
+             title="Panel menu">
+          <i class="material-icons" style="position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); font-size:24px;">circle</i>
+          <i id="${targetPanelId}MenuToggleIcon" class="material-icons"
+             style="position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); font-size:18px;">arrow_right</i>
+        </div>
+      `;
+    } else {
+      // For absolute positioned containers
+      const holderClass = panelType === 'Map' ? 'menuIconHolder menuToggleHolderMap' : 'menuIconHolder';
+      toggleHtml = `
+        <div style="position:absolute; right:8px; top:8px; z-index:1000;">
+          <div id="${targetPanelId}MenuControl" class="${holderClass}"
+               style="position:relative; display:inline-flex; align-items:center; justify-content:center; cursor:pointer;"
+               title="Panel menu">
+            <i class="material-icons circle-bg" style="position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);">circle</i>
+            <i id="${targetPanelId}MenuToggleIcon" class="material-icons menu-toggle-arrow"
+               style="position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);">arrow_right</i>
+          </div>
+        </div>
+      `;
+    }
+
+    // Generate menu HTML
+    const menuClass = inline ? 'menuToggleMenuInline' : 'menuToggleMenu';
+    let menuHtml = `<div id="${targetPanelId}Menu" class="${menuClass}" style="display:none;">`;
+    items.forEach(item => {
+      if (item.divider) {
+        menuHtml += '<div class="menuToggleDivider"></div>';
+      } else {
+        const displayStyle = item.display ? `display:${item.display};` : '';
+        const className = item.class ? ` ${item.class}` : '';
+        const dataAction = item.action ? ` data-action="${item.action}"` : '';
+
+        if (item.href) {
+          menuHtml += `<a href="${item.href}" class="menuToggleItem${className}"${dataAction} style="${displayStyle}">`;
+        } else {
+          menuHtml += `<div class="menuToggleItem${className}"${dataAction} style="${displayStyle}">`;
+        }
+
+        if (item.icon) {
+          menuHtml += `<i class="material-icons">${item.icon}</i>`;
+        }
+        menuHtml += item.label;
+
+        if (item.hasCheck) {
+          menuHtml += '<span class="material-icons menuToggleCheck">check</span>';
+        }
+
+        if (item.href) {
+          menuHtml += '</a>';
+        } else {
+          menuHtml += '</div>';
+        }
+      }
+    });
+    menuHtml += '</div>';
+
+    // Insert into DOM
+    if (menuPopupHolder) {
+      // Insert toggle into the specified container
+      container.insertAdjacentHTML('afterbegin', toggleHtml);
+
+      // Insert menu into the popup holder container
+      const popupContainer = document.querySelector(menuPopupHolder);
+      if (popupContainer) {
+        popupContainer.insertAdjacentHTML('afterbegin', menuHtml);
+      } else {
+        console.warn(`Menu popup holder not found: ${menuPopupHolder}`);
+      }
+    } else {
+      // Insert both toggle and menu together (original behavior)
+      container.insertAdjacentHTML('afterbegin', toggleHtml + menuHtml);
+    }
+
+    // Setup event listeners
+    setupPanelMenuEvents(targetPanelId, panelType);
+  };
+
+  const destroy = () => {
+    const holder = document.getElementById(targetPanelId + 'MenuControl');
+    const menu = document.getElementById(targetPanelId + 'Menu');
+
+    // Remove holder
+    if (menuPopupHolder) {
+      // When using popup holder, holder is always inserted directly
+      if (holder) holder.remove();
+    } else if (inline) {
+      // For inline, only remove the holder itself
+      if (holder) holder.remove();
+    } else {
+      // For absolute positioned, remove the wrapper div
+      if (holder) holder.parentElement?.remove();
+    }
+
+    // Remove menu (always independent of holder when using menuPopupHolder)
+    if (menu) menu.remove();
+  };
+
+  const updateState = () => {
+    updateMenuLabels(targetPanelId + 'Menu', targetPanelId, panelType);
+    refreshPanelToggleIcon(targetPanelId + 'MenuControl', targetPanelId);
+  };
+
+  if (typeof onAction === 'function') {
+    if (!window.panelMenuCallbacks) window.panelMenuCallbacks = {};
+    window.panelMenuCallbacks[targetPanelId] = onAction;
+  }
+  if (!window.panelMenuOptions) window.panelMenuOptions = {};
+  window.panelMenuOptions[targetPanelId] = {
+    panelType,
+    panelLabel: resolvedPanelLabel,
+    expandBehavior: resolvedExpandBehavior,
+    isExpanded,
+    toggleExpand,
+    siblingPanelId,
+    toggleSiblings
+  };
+
+  return { render, destroy, updateState };
+}
+
+/**
+ * Sets up event listeners for a panel menu
+ * @param {string} panelId - ID of the panel element
+ * @param {string} panelType - Type of panel (Content, List, Map)
+ */
+function setupPanelMenuEvents(panelId, panelType) {
+  const holderId = panelId + 'MenuControl';
+  const menuId = panelId + 'Menu';
+
+  // Toggle menu on holder click
+  document.addEventListener('click', function(e) {
+    const holder = e.target.closest(`#${holderId}`);
+    if (!holder) return;
+    e.stopPropagation();
+
+    // Close any open search popup
+    if (window.listingsApp && typeof window.listingsApp.closeSearchPopup === 'function') {
+      window.listingsApp.closeSearchPopup();
+    }
+
+    // If tour is playing, clicking the holder toggles pause
+    if (tourState.isPlaying && tourState.panelId === panelId) {
+      toggleTour(panelId);
+      return;
+    }
+
+    const menu = document.getElementById(menuId);
+    if (!menu) return;
+
+    const isVisible = menu.style.display !== 'none';
+
+    // Close all other panel menus
+    document.querySelectorAll('.menuToggleMenu, .menuToggleMenuInline').forEach(m => {
+      if (m.id !== menuId) m.style.display = 'none';
+    });
+
+    // Toggle this menu
+    menu.style.display = isVisible ? 'none' : 'block';
+
+    // Update icon
+    refreshPanelToggleIcon(holderId, panelId);
+
+    // Update menu labels
+    updateMenuLabels(menuId, panelId, panelType);
+  });
+
+  // Handle menu item clicks
+  const menuClickHandler = function(e) {
+    const target = e.target.closest(`#${menuId} .menuToggleItem[data-action]`);
+    if (!target) return;
+    const action = target.getAttribute('data-action');
+    const href = target.getAttribute('href');
+
+    if (action && !href) {
+      e.preventDefault();
+      let handled = false;
+      if (window.panelMenuCallbacks && typeof window.panelMenuCallbacks[panelId] === 'function') {
+        handled = window.panelMenuCallbacks[panelId](action, panelId, panelType) === true;
+      }
+      if (!handled) {
+        handlePanelAction(action, panelId, panelType);
+      }
+
+      if (action === 'expand') {
+        const panel = document.getElementById(panelId);
+        if (panel) panel.dataset.menuExpanded = 'true';
+      }
+      if (action === 'collapse') {
+        const panel = document.getElementById(panelId);
+        if (panel) panel.dataset.menuExpanded = 'false';
+      }
+
+      // Close menu after action
+      const menu = document.getElementById(menuId);
+      if (menu) menu.style.display = 'none';
+      // Refresh icon after action (expand/collapse may update layout)
+      setTimeout(() => {
+        refreshPanelToggleIcon(holderId, panelId);
+        updateMenuLabels(menuId, panelId, panelType);
+      }, 50);
+    }
+    // If href exists, let the link navigate normally
+  };
+  document.addEventListener('click', menuClickHandler);
+
+  // Close menu when clicking outside
+  document.addEventListener('click', function(e) {
+    if (!e.target.closest(`#${holderId}, #${menuId}`)) {
+      const menu = document.getElementById(menuId);
+      if (menu && menu.style.display !== 'none') {
+        menu.style.display = 'none';
+        refreshPanelToggleIcon(holderId, panelId);
+      }
+    }
+  });
 }
 
 consoleLog("end localsite");
