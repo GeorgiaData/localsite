@@ -27,8 +27,22 @@ Used in localsite, modelearth, io, neighborhood, trees
     --sidebar-width-expanded: 67px;
     --sidebar-collapsed: 64px;
     --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --bg-header: #F2F6F9;
+    --bg-header-text: #333;
     --bg-footer: #dae8eb;
     --bg-footer-swatch: #dae8eb;
+}
+.dark {
+    --bg-secondary: #555;
+    --bg-tertiary: #555;
+    --text-secondary: #6B7280; /* too light for icons on team/projects */
+    --text-secondary: #bbb;
+    --text-primary: #eee;
+    --border-light: #aaa;
+    --border-medium: #666;
+    --bg-footer: #222;
+    --bg-header: #084975;
+    --bg-header-text: #ddd;
 }
 #side-nav {
   width: 62px;
@@ -70,16 +84,7 @@ Used in localsite, modelearth, io, neighborhood, trees
   width: 0px !important;
   display: none !important;
 }
-.dark {
-    --bg-secondary: #555;
-    --bg-tertiary: #555;
-    --text-secondary: #6B7280; /* too light for icons on team/projects */
-    --text-secondary: #bbb;
-    --text-primary: #eee;
-    --border-light: #aaa;
-    --border-medium: #666;
-    --bg-footer: #222;
-}
+
 @media (max-width: 600px) {
   :root {
       --header-height: 60px;
@@ -1271,7 +1276,7 @@ content .js, pre code, .codetext { /* Prevents .js from impacting js class withi
   --font-subheadline: var(--font-primary);
   --font-body: var(--font-primary);
   --panel-radius: 12px;
-  --button-radius: 10px;
+  --button-radius: 999px;
   --chip-radius: 999px;
   --alert-radius: 12px;
   --button-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
@@ -2642,9 +2647,7 @@ body.dark .config-field select {
   margin-top:5px;
   margin-bottom:5px;
 }
-.hidden {
-  displayX:none;
-}
+
 .bucketDesc {
   white-space: nowrap;
 }
@@ -3684,7 +3687,11 @@ body.sidebar-hovered {
         display: inline-block;
     }
 }
-
+@media (min-width: 601px) {
+  #showSideFromHeader {
+    padding-top: 20px;
+  }
+}
 .basePanel {
     background: white;
     border-radius: var(--border-radius);

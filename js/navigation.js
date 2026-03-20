@@ -13,7 +13,6 @@
 // We disable the rowSelected event handler during the updateSelectedTableRows function so it doesn't re-fire the goHash().
 
 
-
 // TO DO: Unselecting county on map is not unchecking tabulator checkbox
 
 if(typeof window.local_app == 'undefined') { window.local_app = {}; console.log("BUG: Move navigation.js after localsite.js"); } // In case navigation.js included before localsite.js
@@ -39,19 +38,7 @@ window.localsiteStylelookMenu = [
 ];
 window.localsiteStylelookMenuX = [
     { type: "option", settingsValue: "grok", settingsLabel: "Grok", typographyValue: "grok", typographyLabel: "Grok Style" },
-    { type: "option", settingsValue: "codex", settingsLabel: "Codex", typographyValue: "codex", typographyLabel: "Codex Style" },
-    
-    { type: "option", settingsValue: "kendall", settingsLabel: "Kendall", typographyValue: "kendall", typographyLabel: "Kendall Style" },
-    { type: "option", settingsValue: "creative-studio", settingsLabel: "Creative", typographyValue: "creative-studio", typographyLabel: "Creative Style" },
-    { type: "option", settingsValue: "data-driven", settingsLabel: "Data", typographyValue: "data-driven", typographyLabel: "Data Style" },
-    { type: "option", settingsValue: "executive-slate", settingsLabel: "Executive", typographyValue: "executive-slate", typographyLabel: "Executive Style" },
-    { type: "option", settingsValue: "minimalist", settingsLabel: "Minimalist", typographyValue: "minimalist", typographyLabel: "Minimalist Style" },
-    { type: "option", settingsValue: "modern-classic", settingsLabel: "Classic", typographyValue: "modern-classic", typographyLabel: "Classic Style" },
-    { type: "option", settingsValue: "onepage", settingsLabel: "OnePage", typographyValue: "onepage", typographyLabel: "OnePage Style" },
-    { type: "option", settingsValue: "professional", settingsLabel: "Professional", typographyValue: "professional", typographyLabel: "Professional Style" },
-    { type: "option", settingsValue: "striking", settingsLabel: "Striking", typographyValue: "striking", typographyLabel: "Striking Style" },
-        { type: "option", settingsValue: "pumpkin", settingsLabel: "Pumpkin", typographyValue: "pumpkin", typographyLabel: "Pumpkin Style" }
-
+    { type: "option", settingsValue: "codex", settingsLabel: "Codex", typographyValue: "codex", typographyLabel: "Codex Style" }
 ];
 function normalizeSharedStylelookValue(value, fallbackValue) {
     return value || fallbackValue;
@@ -7627,18 +7614,14 @@ function applyNavigation() { // Waits for localsite.js 'localStart' variable so 
         localsiteTitle = "DreamStudio";
         $(".siteTitleShort").text("DreamStudio");
         
-        if (location.host.indexOf("localhost") >= 0) {
-            siteRoot = "/dreamstudio";
-        }
         param.headerLogoNoText = "<img src='/localsite/img/logo/dreamstudio/favicon.png' style='float:left;width:38px;margin-right:7px'>";
         if (modelsite=="planet.live" || location.href.indexOf("planet.live") >= 0) {
             localsiteTitle = "Planet.Live"
             $(".siteTitleShort").text("Planet.Live")
-            param.headerLogoSmall = "<img src='/localsite/img/logo/planetlive/faveye-lg.png' style='width:40px;opacity:0.85'>"
             param.titleArray = ["planet","live"]
-            param.headerLogoNoText = "<img src='/localsite/img/logo/planetlive/faveye-lg.png' style='float:left;width:38px;margin-right:7px'>";
-            //param.headerLogo = "<a href='" + siteRoot + "/'><img src='/localsite/img/logo/planetlive/faveye-lg.png' style='float:left;width:38px;margin-right:16px'><img src='https://planet.live/video/img/logo/planet-live-text.png' alt='Planet.Live' style='height:16px; margin-top:15px' class='headerLogoDesktop'></a>";
-            param.headerLogo = "<a href='" + siteRoot + "/'><img src='/localsite/img/logo/planetlive/faveye-lg.png' style='float:left;width:38px;margin-right:10px'><img src='/localsite/img/logo/planetlive/planet.live.png' alt='planet.live' style='height:24px; margin-top:8px' class='headerLogoDesktop'></a>";
+            param.headerLogoSmall = "<img src='/localsite/img/logo/planetlive/faveye.png' style='width:40px;opacity:0.85'>"
+            param.headerLogoNoText = "<img src='/localsite/img/logo/planetlive/faveye.png' style='float:left;width:38px;margin-right:7px'>";
+            param.headerLogo = "<a href='" + siteRoot + "/'><img src='/localsite/img/logo/planetlive/faveye.png' style='float:left;width:38px;margin-right:10px;margin-top:-0.5px'><img src='/localsite/img/logo/planetlive/planet.live.png' alt='planet.live' style='height:24px; margin-top:8px' class='headerLogoDesktop'></a>";
             
             // Quick fix, need to adjust for period in class name on datah page.
             showClassInline(".planetlive");
@@ -7650,10 +7633,11 @@ function applyNavigation() { // Waits for localsite.js 'localStart' variable so 
         }
         if (param.icon) {
             changeFavicon(param.icon);
-        } else if (location.href.indexOf("planet.live") >= 0 || location.href.indexOf("datahaus") >= 0) {
-            changeFavicon("/localsite/img/logo/planetlive/faveye-lg.png");
+        } else if (modelsite=="planet.live" || location.href.indexOf("planet.live") >= 0 || location.href.indexOf("datahaus") >= 0) {
+            // not appearing
+            changeFavicon(local_app.web_root() + "/localsite/img/logo/planetlive/faveye.png");
         } else {
-            changeFavicon("/localsite/img/logo/dreamstudio/favicon.png");
+            changeFavicon(local_app.web_root() + "/localsite/img/logo/dreamstudio/favicon.png");
         }
         if (location.host.indexOf("dreamstudio") >= 0) {
             //param.headerLogo = param.headerLogo.replace(/\/dreamstudio\//g,"\/");
@@ -7940,7 +7924,7 @@ function applyNavigation() { // Waits for localsite.js 'localStart' variable so 
 
                             waitForElm('#main-nav').then((elm) => { // #main-nav is appended by this navigation.js script, so typically not needed.
                                 $("#showNavColumn").show();
-                                if(location.host.indexOf("dreamstudio") >= 0 || location.host.indexOf("planet.live") >= 0) {
+                                if(location.host.indexOf("localsite/seasons/") >= 0 || location.host.indexOf("dreamstudio") >= 0 || location.host.indexOf("planet.live") >= 0) {
                                     $("#sidecolumnContent a").each(function() {
                                       $(this).attr('href', $(this).attr('href').replace(/\/dreamstudio\//g,"\/"));
                                     });
@@ -7970,8 +7954,8 @@ function applyNavigation() { // Waits for localsite.js 'localStart' variable so 
                                         waitForElm('#resourcesPanel').then((elm) => {
                                             // TO DO - Lazy load elsewhere, and avoid if already loaded
                                             loadMarkdown(storiesFile, "storiesDiv", "_parent");
-                                            //alert("after storiesFile")
-                                            let resourcesFile = prependFolder + "/resources.md";
+                                            //let resourcesFile = prependFolder + "/resources.md";
+                                            let resourcesFile = "/requests/resources/resources.md";
                                             loadMarkdown(resourcesFile, "resourcesMenu", "_parent");
                                         });
                                     }
@@ -8995,6 +8979,7 @@ function displayBigThumbnails(attempts, activeLayer, layerName, insertInto) {
 }
 
 function showClassInline(theclass) {
+    //alert("showClassInline " + theclass);
     // Load when body head becomes available, faster than waiting for all DOM .js files to load.
     // Append -hide to hide a div for a site.
     waitForElm('head').then((elm) => { // -omit
