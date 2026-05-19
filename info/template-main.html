@@ -27,7 +27,7 @@
   <!-- event.stopPropagation() here breaks top icon clicks -->
   <div id="rightTopMenu" onclickX="event.stopPropagation()" class="hideOnBodyClickXX">
     
-    <div id="goatIcons" class="darkDivText" style="background-color:#111; color:#ccc; width:100%; height:55px; padding-right:6px; overflow:hidden">
+    <div id="goatIcons" class="darkDivText" style="background-color:#111; color:#ccc; width:100%; height:55px; padding-right:6px; overflow:hidden; cursor:pointer">
 
       <div style="float:left">
         <div class="closeSideTabs" style="cursor:pointer;">
@@ -300,11 +300,11 @@
                   <option value="light">Light</option>
                   <option value="dark">Dark</option>
                   <option value="computer">Match my computer</option>
-                </select>
-            </div></div>
-            <div class="setDiv"></div>
+	                </select>
+	            </div></div>
+	            <div class="setDiv"></div>
 
-            <div class="dev local earth" style="display:none">
+	            <div class="dev local earth" style="display:none">
               <div class="setLeft">Dev Mode</div>
               <div class="setOverflow"><div class="setRight">
                   <select id="devmode">
@@ -362,6 +362,19 @@
             </div>
             </div>
 
+	          <div id="accesslocalHolder" style="display:none">
+	              <div class="setLeft">Localhost</div>
+	                <div class="setOverflow"><div class="setRight">
+	                    <select id="accesslocal">
+	                      <option value="" selected>Set access...</option>
+	                      <option value="install">Install</option>
+	                      <option value="enabled">Enabled</option>
+	                      <option value="block">Block</option>
+	                    </select>
+	                </div></div>
+	                <div class="setDiv"></div>
+	          </div>
+
             <div class="setLeft"><div>Map Center</div></div>
             <div class="setOverflow"><div class="setRight">
                   <select id="globecenter">
@@ -402,6 +415,7 @@
               </div>
             </div>
             <br />
+            <br><br>
 
           </div>
         </div>
@@ -624,6 +638,8 @@
             <a href="/dreamstudio/earth/" class="navlink-earth"><span style="white-space: nowrap; margin-right:3px">Earth</span></a>
             <a href="/desktop/" class="navlink-desktop"><span style="white-space: nowrap">Desktop</span></a> 
             <a href="/dreamstudio/seasons/" class="navlink-stories"><span style="white-space: nowrap">Seasons</span></a>  
+            <a href="/montage/" class="navlink-montage"><span style="white-space: nowrap">Montage</span></a> 
+
             <a href="/dreamstudio/swarm/" class="navlink-swarm"><span style="white-space: nowrap">Swarm</span></a>  
             <a href="/community/projects/" class="navlink-moonshots" target="me"><span style="white-space: nowrap">Moonshots</span></a>
           </span>
@@ -1205,8 +1221,8 @@ Displayed by hashChanged() in navigation.js
   }
   #mainbucket {
     position: absolute;
-    right: 80px;
-    bottom: 20px;
+    right: 100px;
+    bottom: 90px;
     padding: 20px;
     font-size: 18px;
     line-height: 28px;
@@ -1221,14 +1237,9 @@ Displayed by hashChanged() in navigation.js
   }
 </style>
 
-<div id="nullschoolHeader" style="position:relative; display:none">
+<div id="mainEarthDisplay" class="earthDisplay" style="position:relative; display:none">
 
-  <div id="earthClose" style="position:absolute;top:13px;right:15px;color:#ccc;cursor:pointer"><i class="material-icons show-on-load" style="font-size:20px;">&#10005;</i></div>
-
-  <div id="earthZoom" class="earthZoom" style="display:none; position:absolute; z-index:100; right:20px; bottom:20px">
-    
-    <div class="leaflet-control-zoom leaflet-bar leaflet-control"><a class="leaflet-control-zoom-in" href="#" title="Zoom in" role="button" aria-label="Zoom in">+</a><a class="leaflet-control-zoom-out" href="#" title="Zoom out" role="button" aria-label="Zoom out">−</a></div>
-  </div>
+  <!-- #earthClose and .earth-zoom-controls created by createEarthZoomControls('mainEarthDisplay') in nouislider.min.js -->
   
 
   <div class="hideMobile">
@@ -1249,7 +1260,7 @@ Displayed by hashChanged() in navigation.js
     <div class="earth georgia" style="display:none">
       <div style="padding-top:5px;overflow:auto" class="hideOnProjectsPage">
         Exploring Earth's systems<br>through collaborative modeling.<br>
-        <a href="projects/" class="btn btn-primary" style="margin-top:10px;">Coding Moonshots</a>
+        <a href="/community/projects/" class="btn btn-primary" style="margin-top:10px;">Coding Moonshots</a>
       </div>
       <div style="display:none" class="projectsPage">
         Build your school projects and dissertations<br>
@@ -1717,6 +1728,32 @@ Removed 0 from 01 to 09, not sure why stateID skips 3 and 7 -->
 			<a href="https://buildingtransparency.org" target="_blank" class="btn btn-outline" style="padding:10px 20px; text-decoration:none;">
 				Learn More About EPDs
 			</a>
+		</div>
+	</div>
+
+	<hr style="margin:30px 0 0 0;">
+
+	<!-- Environmental Impact Section -->
+	<div class="contentpadding" style="padding-top:25px;">
+		<h2 style="margin-bottom:20px; display:flex; align-items:center; gap:10px;">
+			<span style="font-size:24px;">&#127758;</span>
+			<span>Environmental Impact</span>
+		</h2>
+		<div id="industryImpactCharts">
+			<p style="color:#666;">Select a state above to view environmental impact data for this industry.</p>
+		</div>
+	</div>
+
+	<hr style="margin:30px 0 0 0;">
+
+	<!-- Supply Chain Section -->
+	<div class="contentpadding" style="padding-top:25px; padding-bottom:40px;">
+		<h2 style="margin-bottom:20px; display:flex; align-items:center; gap:10px;">
+			<span style="font-size:24px;">&#128279;</span>
+			<span>Supply Chain</span>
+		</h2>
+		<div id="industrySupplyChain">
+			<p style="color:#666;">Supply chain analysis shows which industries provide inputs and receive outputs from this sector.</p>
 		</div>
 	</div>
 </div>
